@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, AppRegistry, requireNativeComponent } from 'react-native';
+import { StyleSheet, Text, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules } from 'react-native';
 import RNCameraView from './ios-native-components/RNCameraView'
 class App extends Component {
 
   componentDidMount() {
     console.log("")
     console.log("App Successfully Loaded!")
-    // console.log("height", Dimensions.get('window').height)
-    // console.log("width", Dimensions.get('window').width)
+    console.log("native m", NativeModules)
+    const moduleEvent = new NativeEventEmitter(NativeModules.VINModul)
+    var subscription = moduleEvent.addListener('EventToJS', response => {
+        console.log(123123123123)
+        console.log(123123123123)
+        console.log(123123123123)
+        console.log(123123123123)
+        console.log("JAVASCRIPT", JSON.stringify(response, null, 2))
+    })
   }
 
 
