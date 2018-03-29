@@ -1,29 +1,44 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules } from 'react-native';
+import { StyleSheet, Text, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules, Animated } from 'react-native';
 import RNCameraView from './ios-native-components/RNCameraView'
 class App extends Component {
 
-  componentDidMount() {
-    console.log("")
-    console.log("App Successfully Loaded!")
-    console.log("native m", NativeModules)
-    const moduleEvent = new NativeEventEmitter(NativeModules.VINModul)
-    var subscription = moduleEvent.addListener('EventToJS', response => {
-        console.log(123123123123)
-        console.log(123123123123)
-        console.log(123123123123)
-        console.log(123123123123)
-        console.log("JAVASCRIPT", JSON.stringify(response, null, 2))
-    })
-  }
+    state = {
+        shouldShowVINDetail : false
+    }
+
+
+    componentDidMount() {
+        console.log("")
+        console.log("App Successfully Loaded!")
+        const moduleEvent = new NativeEventEmitter(NativeModules.VINModul)
+
+        var subscription2 = moduleEvent.addListener('EventToJS', response => {
+            console.log("JAVASCRIPT", JSON.stringify(response, null, 2))
+        })
+
+        var subscription2 = moduleEvent.addListener('ReturnVIN', response => {
+            console.log("JAVASCRIPT2", JSON.stringify(response, null, 2))
+            this.setState({ shouldShowVINDetail: true })
+        })
+    }
 
 
   render() {
-    return  <RNCameraView
-              style={styles.gradient}
-              locations={[0, .5, 1.0]}
-              colors={['#5ED2A0', 'red', '#339CB1']}
+    const { shouldShowVINDetail } = this.state
+
+    return (
+        <View style={ styles.container }>
+            <RNCameraView
+                style={styles.gradient}
+                locations={[0, .5, 1.0]}
+                colors={['#5ED2A0', 'red', '#339CB1']}
             />
+            { shouldShowVINDetail && (
+                <Text>Showing detail</Text>
+            ) }
+        </View>
+    )
   }
 }
 

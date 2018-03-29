@@ -13,14 +13,8 @@ import AVFoundation
 import Vision
 
 
-//var EventEmitter = RCTEventEmitter()
-//class EventEmitter : RCTEventEmitter {
-//
-//}
-
-
 @objc(RNCameraViewSwift)
-class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate {
+class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate {
   
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var requests = [VNRequest]()
@@ -49,10 +43,15 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
     rectOfInterest.layer.borderColor = UIColor.lightGray.cgColor
     contentView.addSubview(rectOfInterest)
 
+    let layerDummy = CALayer()
+    contentView.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+    contentView.layer.addSublayer(layerDummy)
     
-    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-      eventEmitter.sendEvent(withName: "EventToJS", body: "123")
-    }
+//    WORKS!!
+//    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+//      eventEmitter.sendEvent(withName: "EventToJS", body: "123")
+//    }
+//    WORKS!!
     
     return contentView
   }
@@ -206,13 +205,14 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
     
     struct TypeStruct: Codable {
       let type: String
+      let maxResults: Int
     }
     
     struct ImageStruct: Codable {
       let content: String
     }
     
-    let types = TypeStruct(type: "TEXT_DETECTION")
+    let types = TypeStruct(type: "TEXT_DETECTION", maxResults: 1)
     let imags = ImageStruct(content: imageAsBase64)
     let requests = RequestStruct(image: imags, features: [types])
     let requestss = RequestsStruct(requests: [requests])
@@ -235,22 +235,24 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
       let parsedResult = try! JSONSerialization.jsonObject(with: requestData!, options: .allowFragments) as AnyObject
       print("data", parsedResult)
       
-      guard let data = parsedResult["responses"] as? [String : AnyObject] else { return }
+//      guard let data = parsedResult["responses"] as? [String : AnyObject] else { return }
+      
+      // CHECK IF VIN IS 17 CHARS LONG, IF NOT RETRY, ELSE:
+      // CONVERT: TO SWIFT.
+      //      toUpperCase().trim().replace('.', '').replace(/[\W_]+/g,'').replace(/\s/g, '')
+      //
+      //      // The letters I, O and Q aren't allowed in a VIN (to be confused with 1 and 0) so we replace them if they exist
+      //      result.replace(/I|O|Q/g, char => {
+      //        if (char == 'I') { return 1 }
+      //        if (char == 'O' || 'Q') { return 0 }
+      //        })
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("Returning VIN")
+        eventEmitter.sendEvent(withName: "ReturnVIN", body: "WOLBE6EC7HG099479")
+      }
       
       
-      
-      
-//            guard let responses = parsedResult["responses"] as? [String : AnyObject] else { return }
-      //      print("lortsvar", responses)
-      //      print("fucklort", parsedResult["responses"]!!["fullTextAnnotation"]["pages"])
-      //      for response in responses {
-      //        print(response)
-      //      }
-      //      print("spadelort", responses["fullTextAnnotation"]!["text"])
-      //      guard let parsedResponses = parsedResult["responses"] as? [String : AnyObject]  else { print(1); return }
-      
-      //      guard let textAno = parsedResponses["fullTextAnnotation"] else { print(2); return }
-      
+
     }
     
     
@@ -258,6 +260,22 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
     
     //    self.vinScanned = false
   }
+  
+  
+  
+  
+  
+  
+  func createAndRemoveRects(_ rect: CGRect) {
+    self.contentView.layer.sublayers?.removeSubrange(2...)
+    if self.loaded != self.scanThreshold {
+        self.createCALayerFromRect(rect: rect)
+    }
+  }
+  
+  
+  
+  
   
   
   
@@ -274,6 +292,9 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
           let regionBox = self.highlightWord(box: rg)
           
           if boxes.count == 17 {
+            
+            self.createAndRemoveRects(regionBox)
+            
             if self.rectOfInterest.contains(regionBox) {
               if self.loaded == self.scanThreshold {
                 print("scanned")
@@ -289,18 +310,15 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
                   self.postImage(croppedImage: croppedUIImage)
                 }
                 // Next segment used only for debugging.
-                let imageIllustration = UIImageView(image: croppedUIImage)
-                imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
-                imageIllustration.frame.size = croppedUIImage.size
-                imageIllustration.backgroundColor = UIColor.green
-                self.contentView.addSubview(imageIllustration)
-                
-                
+//                let imageIllustration = UIImageView(image: croppedUIImage)
+//                imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
+//                imageIllustration.frame.size = croppedUIImage.size
+//                imageIllustration.backgroundColor = UIColor.green
+//                self.contentView.addSubview(imageIllustration)
                 //
+                
               } else {
                 self.loaded += 1
-                if self.loaded != 0 { self.contentView.layer.sublayers?.removeSubrange(2...) }
-                self.createCALayerFromRect(rect: regionBox)
               }
             }
           }

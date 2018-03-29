@@ -13,12 +13,17 @@ class VINModul : RCTEventEmitter {
   
   @objc(EventToJS:)
   func EventToJS(name: String) {
-    print("IOS. Event with name:", name)
+    print("IOS. Event with name")
+  }
+  
+  @objc(ReturnVIN:)
+  func ReturnVIN(VIN: String) {
+    print("Returned VIN")
   }
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["EventToJS"]
+    return ["EventToJS", "ReturnVIN"]
   }
   
   
