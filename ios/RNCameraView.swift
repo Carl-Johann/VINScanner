@@ -12,6 +12,13 @@ import UIKit
 import AVFoundation
 import Vision
 
+
+//var EventEmitter = RCTEventEmitter()
+//class EventEmitter : RCTEventEmitter {
+//
+//}
+
+
 @objc(RNCameraViewSwift)
 class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate {
   
@@ -35,12 +42,17 @@ class RNGradientViewManager : RCTViewManager, AVCaptureVideoDataOutputSampleBuff
   
   override func view() -> UIView! {
     startLiveVideo()
-    
+  
     let rectOfInterest = UIView(frame: self.rectOfInterest)
     rectOfInterest.layer.cornerRadius = 8
     rectOfInterest.layer.borderWidth = 4
     rectOfInterest.layer.borderColor = UIColor.lightGray.cgColor
     contentView.addSubview(rectOfInterest)
+
+    
+    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+      eventEmitter.sendEvent(withName: "EventToJS", body: "123")
+    }
     
     return contentView
   }
