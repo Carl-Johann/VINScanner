@@ -16,6 +16,11 @@ class VINModul : RCTEventEmitter {
     print("IOS. Event with name")
   }
   
+  @objc(RaiseAlert)
+  func RaiseAlert() {
+    print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
+  }
+  
   @objc(ReturnVIN:)
   func ReturnVIN(VIN: String) {
     print("Returned VIN")
@@ -23,7 +28,7 @@ class VINModul : RCTEventEmitter {
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["EventToJS", "ReturnVIN"]
+    return ["EventToJS", "ReturnVIN", "RaiseAlert"]
   }
   
   

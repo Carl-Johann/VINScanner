@@ -15,9 +15,9 @@ import Vision
 
 @objc(RNCameraViewSwift)
 class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate {
-  
+  let screenWidth = UIScreen.main.bounds.width
+  let screenHeight = UIScreen.main.bounds.height
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-  var requests = [VNRequest]()
   let urlSession = URLSession.shared
   
   let session = AVCaptureSession()
@@ -40,12 +40,16 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     let rectOfInterest = UIView(frame: self.rectOfInterest)
     rectOfInterest.layer.cornerRadius = 8
     rectOfInterest.layer.borderWidth = 4
+    rectOfInterest.tag = 99
     rectOfInterest.layer.borderColor = UIColor.lightGray.cgColor
     contentView.addSubview(rectOfInterest)
-
+    
+    // DON'T REMOVE. This is removed right after launch, but will crash without it.
     let layerDummy = CALayer()
     contentView.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
     contentView.layer.addSublayer(layerDummy)
+    ///////////////////////////////////////////////////////////////////////////////
+    
     
 //    WORKS!!
 //    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
@@ -55,8 +59,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     return contentView
   }
-  
-  
   
   
   
@@ -74,16 +76,22 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     let imageLayer = AVCaptureVideoPreviewLayer(session: session)
     imageLayer.frame = contentView.bounds
     contentView.layer.addSublayer(imageLayer)
-    
+    startSession()
+  }
+  func startSession() {
+    loaded = 0
+    vinScanned = false
     session.startRunning()
   }
   
   
+  
+  
   //  func highlightLetters(box: VNRectangleObservation) {
-  //    let xCord = box.topLeft.x * contentView.frame.size.width
-  //    let yCord = (1 - box.topLeft.y) * contentView.frame.size.height
-  //    let width = (box.topRight.x - box.bottomLeft.x) * contentView.frame.size.width
-  //    let height = (box.topLeft.y - box.bottomLeft.y) * contentView.frame.size.height
+  //      let xCord = box.topLeft.x * contentView.frame.size.width
+  //      let yCord = (1 - box.topLeft.y) * contentView.frame.size.height
+  //      let width = (box.topRight.x - box.bottomLeft.x) * contentView.frame.size.width
+  //      let height = (box.topLeft.y - box.bottomLeft.y) * contentView.frame.size.height
   //
   //    let outline = CALayer()
   //    outline.frame = CGRect(x: xCord, y: yCord, width: width, height: height)
@@ -142,6 +150,120 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   
+  func compareVINCharachtersWithRetrieved(_ symbols: [[String : AnyObject]], _ rg: VNTextObservation, _ originalImage: UIImage, _ croppedImage: UIImage) {
+    var VINDic: Dictionary = [Int : String]()
+    
+    // We have a manual index counter (instead of symbols.enumerated()) because we dont want index increments on whitespaces.
+    var indexValue = 0
+    print(123, symbols)
+    for symbol in symbols {
+      guard var text = symbol["text"] as? String else { print("text error at", index, "for symbol:", symbol); return }
+//      guard let boundingBox = symbol["boundingBox"] as? [String : AnyObject] else { print("boundingBox error"); return }
+//      guard let vertices = boundingBox["vertices"] as? [[String : AnyObject]] else { print("vertices error"); return }
+      
+      
+      
+      // I, O and Q are not not allowed in a VIN so they are replaced with what the could be misinterpreted as.
+      // All charachters in a VIN are capitalizd aswell.
+      text = text.capitalized
+      text = text.replacingOccurrences(of: "I", with: "1")
+      text = text.replacingOccurrences(of: "Q", with: "0")
+      text = text.replacingOccurrences(of: "O", with: "0")
+      text = text.stripped
+      
+      // We don't strip whitespaces because google can misunderstand a letter, but not whitespaces.
+      // They should not be included
+      if text != " " { VINDic[indexValue] = text }
+      indexValue += 1
+    }
+    
+    
+    let sortedDict = VINDic.sorted(by: { $0.0 < $1.0 })
+    print(VINDic)
+    print(sortedDict, VINDic.count)
+    
+    //
+    // Decide if the VIN is acceptable (length wise etc.)
+    //
+    
+    DispatchQueue.main.async {
+      if let viewWithTag = self.contentView.viewWithTag(99) { viewWithTag.removeFromSuperview() }
+      self.contentView.layer.sublayers?.removeAll()
+
+      for (key, value) in sortedDict {
+        let symbol = symbols[key]
+        guard let boundingBox = symbol["boundingBox"] as? [String : AnyObject] else { print("boundingBox error"); return }
+        guard let vertices = boundingBox["vertices"] as? [[String : AnyObject]] else { print("vertices error"); return }
+        
+        let bottomLeft: CGPoint = CGPoint(x: vertices[0]["x"] as! Int, y: vertices[0]["y"] as! Int)
+        let topRight: CGPoint = CGPoint(x: vertices[2]["x"] as! Int, y: vertices[2]["y"] as! Int)
+        let topLeft: CGPoint = CGPoint(x: vertices[3]["x"] as! Int, y: vertices[3]["y"] as! Int)
+        
+        let xCord = bottomLeft.x
+        let yCord = bottomLeft.y
+        
+        let width = (topRight.x - topLeft.x)
+//          * croppedImage.size.width
+        let height = (topLeft.y - bottomLeft.y)
+//          * croppedImage.size.height
+        
+        let charRect = CGRect(x: xCord, y: yCord, width: width, height: height)
+        
+        guard let scannedImageAsCG = croppedImage.cgImage else { print("scannedImageAsCG error"); return }
+        guard let croppedCGImage = scannedImageAsCG.cropping(to: charRect) else { print("croppedCGImage error"); return }
+        let croppedUIImage = UIImage(cgImage: croppedCGImage)
+
+        // We need to set the size of the images to something that will fit, but not be overly stretched.
+        let smallImgWidthScreen = (self.screenWidth * 0.9)/17
+        let smallImgWidthMax: CGFloat = 25.0
+        let smallImgWidth = smallImgWidthScreen < smallImgWidthMax ? smallImgWidthScreen : smallImgWidthMax
+        
+        // The bounding boxes returned from Google are on average 2:1 height compared to width
+        let smallImgHeight = smallImgWidth * 2
+        let imgGap = (((self.screenWidth - (smallImgWidth * 17))/17) + (smallImgWidth * 0.5))
+        
+        print(key, imgGap + (CGFloat(key) * smallImgWidth))
+//        let imageIllustration = UIImageView(image: croppedUIImage)
+        let imageIllustration = UIView()
+//        imageIllustration.contentMode = UIViewContentMode.scaleToFill
+        imageIllustration.center = CGPoint(x: imgGap + (CGFloat(key) * smallImgWidth), y: self.screenHeight * 0.3)
+        imageIllustration.frame.size = CGSize(width: smallImgWidth, height: smallImgHeight)
+        imageIllustration.backgroundColor = UIColor.green
+        self.contentView.addSubview(imageIllustration)
+        
+        print("--------------------")
+      }
+      
+      
+      
+      
+//      Crops the images and adds them in !one! layer. Could be used for test purposes
+//
+//      for (index, box) in rg.characterBoxes!.enumerated() {
+//        let xCord = box.topLeft.x * self.contentView.frame.size.width
+//        let yCord = (1 - box.topLeft.y) * self.contentView.frame.size.height
+//        let width = (box.topRight.x - box.bottomLeft.x) * self.contentView.frame.size.width
+//        let height = (box.topLeft.y - box.bottomLeft.y) * self.contentView.frame.size.height
+//        let rectToCropTo = CGRect(x: xCord, y: yCord, width: width, height: height)
+//
+//        guard let scannedImageAsCG = originalImage.cgImage else { print("scannedImageAsCG error"); return }
+//        guard let croppedCGImage = scannedImageAsCG.cropping(to: rectToCropTo) else { print("croppedCGImage erro"); return }
+//        let croppedUIImage = UIImage(cgImage: croppedCGImage)
+//
+//
+//        let imageIllustration = UIImageView(image: croppedUIImage)
+//        imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height * 0.3)
+//        imageIllustration.frame.size = croppedUIImage.size
+//        imageIllustration.backgroundColor = UIColor.green
+//        self.contentView.addSubview(imageIllustration)
+//      }
+      
+     
+      
+      
+    }
+    
+  }
   
   
   
@@ -159,12 +281,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
         self.detectTextHandler(request: request, error: error, image: outputImage, pixelBuffer: pixelBuffer)
       }
       textRequest.reportCharacterBoxes = true
-      
-      //    DispatchQueue.main.async {
-      //      if self.loaded == self.scanThreshold {
-      //          self.contentView.layer.sublayers?.removeSubrange(2...)
-      //      }
-      //    }
+
+
       
       if let camData = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil) {
         requestOptions = [.cameraIntrinsics:camData]
@@ -186,80 +304,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   
-  func postImage(croppedImage: UIImage) {
-    print("send shit")
-    //request.httpBody = postString.data(using: .utf8)
-    
-    let imagePNG = UIImagePNGRepresentation(croppedImage)!
-    let imageAsBase64 = imagePNG.base64EncodedString()
-    
-    struct RequestsStruct: Codable {
-      let requests: [RequestStruct]
-    }
-    
-    struct RequestStruct: Codable {
-      let image: ImageStruct
-      let features: [TypeStruct]
-      
-    }
-    
-    struct TypeStruct: Codable {
-      let type: String
-      let maxResults: Int
-    }
-    
-    struct ImageStruct: Codable {
-      let content: String
-    }
-    
-    let types = TypeStruct(type: "TEXT_DETECTION", maxResults: 1)
-    let imags = ImageStruct(content: imageAsBase64)
-    let requests = RequestStruct(image: imags, features: [types])
-    let requestss = RequestsStruct(requests: [requests])
-    
-    let encodedData = try? JSONEncoder().encode(requestss)
-    
-    let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
-    //    print("json", json!)
-    let valid = JSONSerialization.isValidJSONObject(json!) // true
-    print("is JSON valid:", valid)
-    let jsonData = try? JSONSerialization.data(withJSONObject: json!)
-    
-    var request = URLRequest(url: URL(string: "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyB8WDzdr9pPDVjqc4txtB6M5ClrY-P_8q8")!)
-    
-    request.httpBody = jsonData
-    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.httpMethod = "POST"
-    let task = self.urlSession.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
-      
-      let parsedResult = try! JSONSerialization.jsonObject(with: requestData!, options: .allowFragments) as AnyObject
-      print("data", parsedResult)
-      
-//      guard let data = parsedResult["responses"] as? [String : AnyObject] else { return }
-      
-      // CHECK IF VIN IS 17 CHARS LONG, IF NOT RETRY, ELSE:
-      // CONVERT: TO SWIFT.
-      //      toUpperCase().trim().replace('.', '').replace(/[\W_]+/g,'').replace(/\s/g, '')
-      //
-      //      // The letters I, O and Q aren't allowed in a VIN (to be confused with 1 and 0) so we replace them if they exist
-      //      result.replace(/I|O|Q/g, char => {
-      //        if (char == 'I') { return 1 }
-      //        if (char == 'O' || 'Q') { return 0 }
-      //        })
-      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("Returning VIN")
-        eventEmitter.sendEvent(withName: "ReturnVIN", body: "WOLBE6EC7HG099479")
-      }
-      
-      
-
-    }
-    
-    
-    task.resume()
-    
-    //    self.vinScanned = false
-  }
   
   
   
@@ -297,7 +341,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
             
             if self.rectOfInterest.contains(regionBox) {
               if self.loaded == self.scanThreshold {
-                print("scanned")
+                print("Scanned 'VIN'")
                 self.vinScanned = true
                 
                 var scannedImage = UIImage(ciImage: image)
@@ -307,11 +351,18 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
                 let croppedCGImage = scannedImageAsCG.cropping(to: self.rectOfInterest)
                 let croppedUIImage = UIImage(cgImage: croppedCGImage!)
                 DispatchQueue.main.async {
-                  self.postImage(croppedImage: croppedUIImage)
+                  self.postImage(croppedImage: croppedUIImage, originalImage: scannedImage, rg: rg)
+                  self.session.stopRunning()
                 }
+//                for (index, box) in boxes.enumerated() {
+//                  print(index)
+//                  print("x", box.bottomLeft.x)
+//                  print("y", box.bottomLeft.y)
+//                  print("-------")
+//                }
                 // Next segment used only for debugging.
 //                let imageIllustration = UIImageView(image: croppedUIImage)
-//                imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
+//                imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height * 0.3)
 //                imageIllustration.frame.size = croppedUIImage.size
 //                imageIllustration.backgroundColor = UIColor.green
 //                self.contentView.addSubview(imageIllustration)
@@ -326,13 +377,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       }
     }
   }
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -360,48 +404,19 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   }
   
   
+  
 }
 
 
 
-extension UIImage {
+extension String {
   
-  func rotate(radians: Float) -> UIImage? {
-    var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
-    // Trim off the extremely small float value to prevent core graphics from rounding it up
-    newSize.width = floor(newSize.width)
-    newSize.height = floor(newSize.height)
-    
-    UIGraphicsBeginImageContext(newSize);
-    let context = UIGraphicsGetCurrentContext()!
-    
-    // Move origin to middle
-    context.translateBy(x: newSize.width/2, y: newSize.height/2)
-    // Rotate around middle
-    context.rotate(by: CGFloat(radians))
-    
-    self.draw(in: CGRect(x: -self.size.width/2, y: -self.size.height/2, width: self.size.width, height: self.size.height))
-    
-    let newImage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    
-    return newImage
-  }
-  
-  func resizeImage(targetSize: CGSize) -> UIImage {
-    let size = self.size
-    let widthRatio  = targetSize.width  / size.width
-    let heightRatio = targetSize.height / size.height
-    let newSize = widthRatio > heightRatio ?  CGSize(width: size.width * heightRatio, height: size.height * heightRatio) : CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-    let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-    
-    UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-    self.draw(in: rect)
-    let newImage = UIGraphicsGetImageFromCurrentImageContext()
-    
-    UIGraphicsEndImageContext()
-    
-    return newImage!
+  var stripped: String {
+    let okayChars = Set("ABCDEFGHJKLKMNPRSTUVWXYZ 1234567890")
+    return self.filter {okayChars.contains($0) }
   }
 }
+
+
+
 

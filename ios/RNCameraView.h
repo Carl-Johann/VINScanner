@@ -14,5 +14,6 @@
 
 @property (nonatomic, assign) NSArray *locations;
 @property (nonatomic, assign) NSArray *colors;
+
 @end
 
