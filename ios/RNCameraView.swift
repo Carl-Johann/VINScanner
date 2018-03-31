@@ -50,7 +50,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     contentView.layer.addSublayer(layerDummy)
     ///////////////////////////////////////////////////////////////////////////////
     
-    
 //    WORKS!!
 //    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
 //      eventEmitter.sendEvent(withName: "EventToJS", body: "123")
@@ -60,7 +59,10 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     return contentView
   }
   
-  
+  @objc(lort)
+  func lort() {
+    print("lort")
+  }
   
   
   func startLiveVideo() {
@@ -146,7 +148,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     }
   }
   
-  
+
   
   
   
@@ -155,7 +157,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     // We have a manual index counter (instead of symbols.enumerated()) because we dont want index increments on whitespaces.
     var indexValue = 0
-    print(123, symbols)
+//    print(123, symbols)
     for symbol in symbols {
       guard var text = symbol["text"] as? String else { print("text error at", index, "for symbol:", symbol); return }
 //      guard let boundingBox = symbol["boundingBox"] as? [String : AnyObject] else { print("boundingBox error"); return }
@@ -171,68 +173,91 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       text = text.replacingOccurrences(of: "O", with: "0")
       text = text.stripped
       
-      // We don't strip whitespaces because google can misunderstand a letter, but not whitespaces.
+      // We don't strip whitespaces because Google can misunderstand a letter, but not whitespaces.
       // They should not be included
       if text != " " { VINDic[indexValue] = text }
       indexValue += 1
     }
     
     
-    let sortedDict = VINDic.sorted(by: { $0.0 < $1.0 })
+//    let sortedDict = VINDic.sorted(by: { $0.0 < $1.0 })
     print(VINDic)
-    print(sortedDict, VINDic.count)
     
     //
     // Decide if the VIN is acceptable (length wise etc.)
     //
     
+    
     DispatchQueue.main.async {
       if let viewWithTag = self.contentView.viewWithTag(99) { viewWithTag.removeFromSuperview() }
       self.contentView.layer.sublayers?.removeAll()
-
-      for (key, value) in sortedDict {
+    
+      for i in 1...17 {
+//    for (key, value) in sortedDict {
+        let key = i - 1
+        let value = VINDic[i - 1]
         let symbol = symbols[key]
         guard let boundingBox = symbol["boundingBox"] as? [String : AnyObject] else { print("boundingBox error"); return }
         guard let vertices = boundingBox["vertices"] as? [[String : AnyObject]] else { print("vertices error"); return }
         
-        let bottomLeft: CGPoint = CGPoint(x: vertices[0]["x"] as! Int, y: vertices[0]["y"] as! Int)
-        let topRight: CGPoint = CGPoint(x: vertices[2]["x"] as! Int, y: vertices[2]["y"] as! Int)
-        let topLeft: CGPoint = CGPoint(x: vertices[3]["x"] as! Int, y: vertices[3]["y"] as! Int)
+        guard let bottomLeft: CGPoint = self.returnSecureCorner(indexInVertici: 0, vertices) else { return }
+        guard let topRight: CGPoint = self.returnSecureCorner(indexInVertici: 2, vertices) else { return }
+        guard let topLeft: CGPoint = self.returnSecureCorner(indexInVertici: 3, vertices) else { return }
         
-        let xCord = bottomLeft.x
-        let yCord = bottomLeft.y
+        
         
         let width = (topRight.x - topLeft.x)
-//          * croppedImage.size.width
         let height = (topLeft.y - bottomLeft.y)
-//          * croppedImage.size.height
-        
-        let charRect = CGRect(x: xCord, y: yCord, width: width, height: height)
+        let charRect = CGRect(x: bottomLeft.x, y: bottomLeft.y, width: width, height: height)
         
         guard let scannedImageAsCG = croppedImage.cgImage else { print("scannedImageAsCG error"); return }
         guard let croppedCGImage = scannedImageAsCG.cropping(to: charRect) else { print("croppedCGImage error"); return }
         let croppedUIImage = UIImage(cgImage: croppedCGImage)
 
-        // We need to set the size of the images to something that will fit, but not be overly stretched.
-        let smallImgWidthScreen = (self.screenWidth * 0.9)/17
-        let smallImgWidthMax: CGFloat = 25.0
+       
+        
+        let imgPerLayer: CGFloat = 9
+        // Converts 'key' to a float value with 'imgPerLayer' so that we don't have to do it everywhere below.
+        var keyF = CGFloat(key)
+        let defaultHeight = self.screenHeight * 0.25
+        
+        let smallImgWidthScreen = (self.screenWidth * 0.9)/imgPerLayer
+        let smallImgWidthMax: CGFloat = 45
         let smallImgWidth = smallImgWidthScreen < smallImgWidthMax ? smallImgWidthScreen : smallImgWidthMax
         
         // The bounding boxes returned from Google are on average 2:1 height compared to width
+        let layer = keyF < imgPerLayer ? 1 : 2
         let smallImgHeight = smallImgWidth * 2
-        let imgGap = (((self.screenWidth - (smallImgWidth * 17))/17) + (smallImgWidth * 0.5))
+        let imgGap = (self.screenWidth - (smallImgWidth * imgPerLayer)) / (imgPerLayer + 1)
         
-        print(key, imgGap + (CGFloat(key) * smallImgWidth))
-//        let imageIllustration = UIImageView(image: croppedUIImage)
-        let imageIllustration = UIView()
-//        imageIllustration.contentMode = UIViewContentMode.scaleToFill
-        imageIllustration.center = CGPoint(x: imgGap + (CGFloat(key) * smallImgWidth), y: self.screenHeight * 0.3)
+        // 'Resets' the offset when it starts adding the new layer
+        if layer == 2 { keyF -= imgPerLayer }
+  
+        
+        var imgOffset = (imgGap * (keyF + 1))
+        imgOffset = imgOffset + (CGFloat(Double(keyF) + 0.5) * smallImgWidth)
+        
+        
+        
+        let imageIllustration = UIImageView(image: croppedUIImage)
+        imageIllustration.contentMode = UIViewContentMode.scaleToFill
         imageIllustration.frame.size = CGSize(width: smallImgWidth, height: smallImgHeight)
         imageIllustration.backgroundColor = UIColor.green
+        imageIllustration.center = CGPoint(x: imgOffset, y: defaultHeight + (layer == 1 ? 0 : smallImgHeight * 1.8 ))
         self.contentView.addSubview(imageIllustration)
         
-        print("--------------------")
+        // For every character we add a TextField so we can manually change the values if the suck.
+        let textField = UITextField()
+        textField.frame.size = CGSize(width: smallImgWidth, height: smallImgWidth)
+        textField.backgroundColor = UIColor.lightGray
+        textField.adjustsFontSizeToFitWidth = true
+        textField.center = CGPoint(x: imgOffset, y: defaultHeight + (layer == 1 ? 0 : (smallImgHeight * 1.8)) + ((smallImgWidth * 1.5) + imgGap))
+        textField.text = value
+        textField.textAlignment = NSTextAlignment.center
+        self.contentView.addSubview(textField)
+        
       }
+
       
       
       
@@ -266,9 +291,27 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   }
   
   
-  
-  
-  
+  // indexInVert
+  // 0 = bottomLeft
+  // 1 = bottomRight
+  // 2 = topRight
+  // 3 = topLeft
+  func returnSecureCorner(indexInVertici: Int, _ verticies: [[String : AnyObject]]) -> CGPoint? {
+    var pointToReturn = CGPoint()
+    guard let xCord = verticies[indexInVertici]["x"] as? CGFloat else {
+      raiseMissingCoordinatesError(); print("missing x coordinate")
+      return nil
+    }
+    
+    guard let yCord = verticies[indexInVertici]["y"] as? CGFloat else {
+      raiseMissingCoordinatesError(); print("missing y coordinate")
+      return nil
+    }
+    
+    pointToReturn.x = xCord
+    pointToReturn.y = yCord
+    return pointToReturn
+  }
   
   
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {

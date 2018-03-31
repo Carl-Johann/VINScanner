@@ -14,9 +14,7 @@
 
 RCT_EXPORT_VIEW_PROPERTY(locations, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(colors, NSArray);
-RCT_EXTERN_METHOD(missingCoordinatesErrorFromJS:)
-
-
+RCT_EXTERN_METHOD(missingCoordinatesErrorFromJS:(nonnull NSNumber *)name)
 
 @end
 

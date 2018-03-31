@@ -8,6 +8,7 @@
 
 import Foundation
 
+@objc(RNCameraViewSwift)
 extension RNCameraViewSwift {
   
   
@@ -16,14 +17,17 @@ extension RNCameraViewSwift {
   // Missing Coordinates Error
   func raiseMissingCoordinatesError() {
     guard let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter else { print("ERROR at raiseMissingCoordinatesError"); return }
-    eventEmitter.sendEvent(withName: "missingCoordinatesErrorFromJS", body: "")
+    eventEmitter.sendEvent(withName: "RaiseMissingCoordinatesAlert", body: "")
 
   }
   
-  @objc(missingCoordinatesErrorFromJS)
-  func missingCoordinatesErrorFromJS() {
+  @objc(missingCoordinatesErrorFromJS:)
+  func missingCoordinatesErrorFromJS(_ name: Int) {
     print("missingCoordinatesError called from javascript")
-    startSession()
+
+    // For debugging purposes we startLiveVideo. Prod should be startSession()
+    startLiveVideo()
+    //    startSession()
   }
   //  
   

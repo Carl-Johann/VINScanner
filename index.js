@@ -20,13 +20,13 @@ class App extends Component {
         var RNCameraViewSwiftManager = NativeModules.RNCameraViewSwift;
         // RNCameraViewSwiftManager.alertFunction(2);
 
-        moduleEvent.addListener('missingCoordinatesErrorFromJS', response => {
+        moduleEvent.addListener('RaiseMissingCoordinatesAlert', response => {
             console.log("Asked to raise ios native alert", JSON.stringify(response, null, 2))
             Alert.alert(
                 "Scan Not Possible",
                 "Looks like the whole VIN wasn't inside the rectangle",
                 [
-                    {text: "Try Again", onPress: () => RNCameraViewSwiftManager.alertFunction() }
+                    {text: "Try Again", onPress: () => { console.log(123, RNCameraViewSwiftManager); RNCameraViewSwiftManager.missingCoordinatesErrorFromJS(123) }}
                 ]
             )
 
