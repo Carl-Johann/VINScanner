@@ -21,14 +21,24 @@ class VINModul : RCTEventEmitter {
     print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
   }
   
+  @objc(ShouldShowVinDetail:)
+  func ShouldShowVinDetail(_ toShow: Bool) {
+    print("Asking JS to either show or hide VIN detail")
+  }
+  
   @objc(ReturnVIN:)
   func ReturnVIN(VIN: String) {
     print("Returned VIN")
   }
   
+  @objc(VINExists:)
+  func VINExists(_ data: [String : AnyObject]) {
+    print("VIN exists. Sending data to JS")
+  }
+  
   @objc
   override func supportedEvents() -> [String]! {
-    return ["EventToJS", "ReturnVIN", "RaiseMissingCoordinatesAlert"]
+    return ["EventToJS", "ReturnVIN", "RaiseMissingCoordinatesAlert", "VINExists", "ShouldShowVinDetail"]
   }
   
   

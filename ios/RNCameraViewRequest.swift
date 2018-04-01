@@ -11,11 +11,7 @@ import Vision
 
 extension RNCameraViewSwift {
   
-  
-  
-  
   func postImage(croppedImage: UIImage, originalImage: UIImage, rg: VNTextObservation) {
-    //request.httpBody = postString.data(using: .utf8)
     
     let imagePNG = UIImagePNGRepresentation(croppedImage)!
     let imageAsBase64 = imagePNG.base64EncodedString()
@@ -39,17 +35,14 @@ extension RNCameraViewSwift {
       let content: String
     }
     
-    let types = TypeStruct(type: "TEXT_DETECTION", maxResults: 1)
-    let imags = ImageStruct(content: imageAsBase64)
-    let requests = RequestStruct(image: imags, features: [types])
-    let requestss = RequestsStruct(requests: [requests])
+    let typeStruct = TypeStruct(type: "TEXT_DETECTION", maxResults: 1)
+    let imageStruct = ImageStruct(content: imageAsBase64)
+    let requestStruct = RequestStruct(image: imageStruct, features: [typeStruct])
+    let requestsStruct = RequestsStruct(requests: [requestStruct])
     
-    let encodedData = try? JSONEncoder().encode(requestss)
+    let encodedData = try? JSONEncoder().encode(requestsStruct)
     
     let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
-    //    print("json", json!)
-//    let valid = JSONSerialization.isValidJSONObject(json!) // true
-//    print("is JSON valid:", valid)
     let jsonData = try? JSONSerialization.data(withJSONObject: json!)
     
     var request = URLRequest(url: URL(string: "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyB8WDzdr9pPDVjqc4txtB6M5ClrY-P_8q8")!)
@@ -59,25 +52,8 @@ extension RNCameraViewSwift {
     request.httpMethod = "POST"
     let task = self.urlSession.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
       
-      
-      
-//      let parsedResult = try! JSONSerialization.jsonObject(with: requestData!, options: .allowFragments) as AnyObject
-//      print("data", parsedResult)
-      
-      self.compareVINAndImage(originalImage, requestData!, rg, croppedImage)
-//            guard let data = parsedResult["responses"] as? [String : AnyObject] else { return }
-      
-      // CHECK IF VIN IS 17 CHARS LONG, IF NOT RETRY, ELSE:
-      // CONVERT: TO SWIFT.
-      //      toUpperCase().trim().replace('.', '').replace(/[\W_]+/g,'').replace(/\s/g, '')
-      //
-      //      // The letters I, O and Q aren't allowed in a VIN (to be confused with 1 and 0) so we replace them if they exist
-      //      result.replace(/I|O|Q/g, char => {
-      //        if (char == 'I') { return 1 }
-      //        if (char == 'O' || 'Q') { return 0 }
-      //        })
-      
-      
+      self.compareVINAndImage(requestData!, rg, croppedImage)
+
       
       
 //      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
@@ -95,7 +71,7 @@ extension RNCameraViewSwift {
 
 
 
-  func compareVINAndImage(_ originalImage: UIImage, _ data: Data, _ rg: VNTextObservation, _ croppedImage: UIImage) {
+  func compareVINAndImage( _ data: Data, _ rg: VNTextObservation, _ croppedImage: UIImage) {
     let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
     
     guard let parsedJSON = json as? [String : AnyObject] else { print("parsedJSON error"); return }
@@ -108,10 +84,68 @@ extension RNCameraViewSwift {
     guard let words = paragraphs[0]["words"] as? [[String : AnyObject]] else { print("words error"); return }
     guard let symbols = words[0]["symbols"] as? [[String : AnyObject]] else { print("symbols error"); return }
     
-    print("Retrieved VIN:", retrievedVIN)
-    self.compareVINCharachtersWithRetrieved(symbols, rg, originalImage, croppedImage)
+    validateVIN(retrievedVIN)
+    // If the request was bad:
+    // self.compareVINCharachtersWithRetrieved(symbols, rg, croppedImage)
+    // It allows the user to maunally change characters
   }
+  
+  
+  
+  func validateVIN(_ VIN: String) {
+    
+    var cleanedVIN = cleanVIN(VIN)
+    cleanedVIN = String(cleanedVIN.filter { !" \n\t\r".contains($0) })
+    print("Cleaned VIN", cleanedVIN)
+    
+    struct CodableVINStruct: Codable {
+      let VIN: String
+    }
+    
+    let VINStruct = CodableVINStruct(VIN: cleanedVIN)
+    let encodedData = try? JSONEncoder().encode(VINStruct)
+    let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
+    let jsonData = try? JSONSerialization.data(withJSONObject: json!)
+    var request = URLRequest(url: URL(string: "https://prod-17.northeurope.logic.azure.com:443/workflows/ccf987eef25e4d3c930573724579a2b5/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ad4tVWWLhUpPRFDxT7T-BOjwX8y-ZsUEOhaKjP6gFR8")!)
+    
+    request.httpBody = jsonData
+    
+    request.addValue("0e6f5455-00e4-402a-a9b6-0956debb937b", forHTTPHeaderField: "subscription-id")
+    request.addValue("application/json", forHTTPHeaderField: "content-type")
+    request.httpMethod = "POST"
+    let task = self.urlSession.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
+      guard let statusCode = (requestResponse as? HTTPURLResponse)?.statusCode else { return }
+      print("Post statusCode:", statusCode)
+      
+      if let err = error {
+        print("ERROR", err)
+        // Show the user an error
+      }
+      
+      guard let data = requestData else { print("error data"); return }
+      let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+      
+      guard let jsonSafe = json as? [String : AnyObject] else { print("error json"); return }
+      guard let table1 = jsonSafe["Table1"] as? [[String : AnyObject]] else { print("error table1"); return }
+      
+      
+      // Send the data to React-Native
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("Returning VIN")
+        eventEmitter.sendEvent(withName: "VINExists", body: table1[0])
+      }
+      
+    }
+    
+    
+    task.resume()
+  }
+  
+  
+  
 }
+
+
 
 
 
