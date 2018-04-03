@@ -295,13 +295,13 @@ class App extends Component {
                 />
                 {/*<Animated.View style={{ position: 'absolute', bottom: dataFromVINComponentHeight }}>*/}
                     { shouldShowVINTitleDetail && (
-                        {/*<Animated.View>
+                        /*<Animated.View>
                             <VINDetailView
                                 bottom={hideAnim}
                                 checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
                                 VIN={VIN}
                             />
-                        </Animated.View>*/}
+                        </Animated.View>*/
 
                         <Animated.View style={{ bottom: hideAnim }}>
                             <Animated.View style={[ styles.VINDetailStyle, { height: 120, width: screenWidth() * 0.85, alignItems: 'center', justifyContent: 'center' }]} >
