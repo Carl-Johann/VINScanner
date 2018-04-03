@@ -9,25 +9,9 @@
 import Foundation
 import UIKit
 
-extension RNCameraViewSwift {
-  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    // A TextField can only have 1 character.
-    guard let text = textField.text else { return true }
-    let newLength = text.count + string.count - range.length
-    return newLength <= 1
-  }
-  
-  func textFieldDidEndEditing(_ textField: UITextField) {
-    // If a textfield was left blank, we make the user aware
-    if textField.text?.count != 1 {
-      textField.layer.borderWidth = 2
-      textField.layer.borderColor = UIColor.red.cgColor
-    } else {
-      textField.layer.borderWidth = 0.4
-      textField.layer.borderColor = UIColor.black.withAlphaComponent(0.8).cgColor
-    }
-  }
-}
+//extension RNCameraViewSwift {
+//  
+//}
 
 class ComparisonTextField : UITextField {
   

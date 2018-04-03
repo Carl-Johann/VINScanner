@@ -26,9 +26,40 @@ extension RNCameraViewSwift {
     print("missingCoordinatesError called from javascript")
 
     // For debugging purposes we startLiveVideo. Prod should be startSession()
-    startLiveVideo()
-    //    startSession()
+//    startLiveVideo()
+        self.showCameraView()
   }
-  //  
+  //
+
+  
+  
+ 
+  // This function gets called when the VIN doens't exist in the database. The user either clicks 'Check VIN' or
+  // 'Scan Again'. If the user wants to scan vin we show the the compareVINCharachtersWithRetrieved()
+  @objc(checkVINOrScanAgain:)
+  func checkVINOrScanAgain(_ ShouldScan: Bool) {
+    print("checkVINOrScanAgain called from javascript with value", ShouldScan)
+    
+    
+    if ShouldScan == true {
+    // User wants to scan.
+      self.showCameraView()
+    
+    } else if ShouldScan == false {
+    // User wants to change characters manually
+//      self.hideCameraView()
+      self.showVINCorrectionView()
+      self.compareVINCharachtersWithRetrieved()
+    
+    } else {
+      // Something isn't right if it gets here
+      print("ERROR compareVINWaitGroup.leave() ERROR")
+      self.showCameraView()
+    }
+  }
+  
+  
+  
+  
   
 }

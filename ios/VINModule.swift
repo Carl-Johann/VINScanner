@@ -16,13 +16,18 @@ class VINModul : RCTEventEmitter {
     print("IOS. Event with name")
   }
   
+  @objc(ShouldShowVinDetail)
+  func ShouldShowVinDetail() {
+    print("ShouldShowVinDetail was called from swift")
+  }
+  
   @objc(RaiseMissingCoordinatesAlert)
   func RaiseMissingCoordinatesAlert() {
     print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
   }
   
-  @objc(ShouldShowVinDetail:)
-  func ShouldShowVinDetail(_ toShow: Bool) {
+  @objc(DoesVINExistInDatabase:)
+  func DoesVINExistInDatabase(_ toShow: Bool) {
     print("Asking JS to either show or hide VIN detail")
   }
   
@@ -31,14 +36,14 @@ class VINModul : RCTEventEmitter {
     print("Returned VIN")
   }
   
-  @objc(VINExists:)
-  func VINExists(_ data: [String : AnyObject]) {
+  @objc(VINIsAVIN:)
+  func VINIsAVIN(_ data: [String : AnyObject]) {
     print("VIN exists. Sending data to JS")
   }
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["EventToJS", "ReturnVIN", "RaiseMissingCoordinatesAlert", "VINExists", "ShouldShowVinDetail"]
+    return ["EventToJS", "ReturnVIN", "RaiseMissingCoordinatesAlert", "VINIsAVIN", "DoesVINExistInDatabase", "ShouldShowVinDetail"]
   }
   
   

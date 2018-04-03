@@ -68,15 +68,28 @@ extension RNCameraViewSwift {
     //    self.vinScanned = false
   }
   
-
+  func resetCheckOrScanAttributes() {
+    self.croppedImageForScan = nil
+    self.VINForScan = nil
+    self.symbolsForScan = nil
+  }
+  
+  func setCheckOrScanAttribues(_ croppedImageForScan: UIImage, _ VINForScan: String, _ symbolsForScan: [[String : AnyObject]]) {
+    self.croppedImageForScan = croppedImageForScan
+    self.VINForScan = VINForScan
+    self.symbolsForScan = symbolsForScan
+  }
 
 
   func compareVINAndImage( _ data: Data, _ rg: VNTextObservation, _ croppedImage: UIImage) {
     let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
     
     guard let parsedJSON = json as? [String : AnyObject] else { print("parsedJSON error"); return }
+    print("parsedJSON", parsedJSON)
     guard let responses = parsedJSON["responses"] as? [[String : AnyObject]] else { print("responses error"); return }
+    
     guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else { print("fullTextAnnotation error"); return }
+    
     guard let retrievedVIN = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
     guard let pages = fullTextAnnotation["pages"] as? [[String : AnyObject]] else { print("pages error"); return }
     guard let blocks = pages[0]["blocks"] as? [[String : AnyObject]] else { print("blocks error"); return }
@@ -84,25 +97,55 @@ extension RNCameraViewSwift {
     guard let words = paragraphs[0]["words"] as? [[String : AnyObject]] else { print("words error"); return }
     guard let symbols = words[0]["symbols"] as? [[String : AnyObject]] else { print("symbols error"); return }
     
-    validateVIN(retrievedVIN)
-    // If the request was bad:
-    // self.compareVINCharachtersWithRetrieved(symbols, rg, croppedImage)
-    // It allows the user to maunally change characters
-  }
-  
-  
-  
-  func validateVIN(_ VIN: String) {
-    
-    var cleanedVIN = cleanVIN(VIN)
+    var cleanedVIN = cleanVIN(retrievedVIN)
     cleanedVIN = String(cleanedVIN.filter { !" \n\t\r".contains($0) })
     print("Cleaned VIN", cleanedVIN)
+    
+    // If the VIN could actually be an actual VIN we notify JS
+    if cleanedVIN.count == 17 {
+      
+      // We might have a VIN that exists in the database, so we check(validate) it
+      validateVIN(cleanedVIN, croppedImage, symbols)
+      resetCheckOrScanAttributes()
+      
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("ShouldShow VIN box = true")
+        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
+      }
+    } else if cleanedVIN.count > 15 {
+    // We also check for VIN length in JS, so if Google didn't get 1 or 2 characters the user wil be promted to 'scan again'
+    // or 'check VIN' manually
+      setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
+      
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("ShouldShow VIN box = true")
+        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
+      }
+      
+    } else {
+    // else we notify JS too, but theres no 'VIN'
+      resetCheckOrScanAttributes()
+      
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("ShouldShow VIN box = false")
+        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : false, "VIN" : "" ])
+      }
+    }
+  }
+  
+//  if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+//    print("Returning VIN")
+//    eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
+//  }
+  
+  func validateVIN(_ VIN: String, _ croppedImage: UIImage = UIImage(), _ symbols: [[String : AnyObject]] = [[String : AnyObject]]()) {
     
     struct CodableVINStruct: Codable {
       let VIN: String
     }
     
-    let VINStruct = CodableVINStruct(VIN: cleanedVIN)
+//    let VINStruct = CodableVINStruct(VIN: VIN)W0LBD6EA0HG084887
+    let VINStruct = CodableVINStruct(VIN: "W0LBD6EA0HG084887")
     let encodedData = try? JSONEncoder().encode(VINStruct)
     let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
     let jsonData = try? JSONSerialization.data(withJSONObject: json!)
@@ -115,25 +158,43 @@ extension RNCameraViewSwift {
     request.httpMethod = "POST"
     let task = self.urlSession.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
       guard let statusCode = (requestResponse as? HTTPURLResponse)?.statusCode else { return }
-      print("Post statusCode:", statusCode)
       
       if let err = error {
         print("ERROR", err)
         // Show the user an error
       }
       
-      guard let data = requestData else { print("error data"); return }
-      let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
       
-      guard let jsonSafe = json as? [String : AnyObject] else { print("error json"); return }
-      guard let table1 = jsonSafe["Table1"] as? [[String : AnyObject]] else { print("error table1"); return }
-      
-      
-      // Send the data to React-Native
-      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("Returning VIN")
-        eventEmitter.sendEvent(withName: "VINExists", body: table1[0])
+      if statusCode == 200 {
+        print("VIN exists in the database")
+        // VIN exists. Send the data to React-Native
+        
+        // The fact that the VIN exists means the user won't be promted to choose weather or not to scan or check VI
+        self.resetCheckOrScanAttributes()
+        
+        guard let data = requestData else { print("error data"); return }
+        let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+        guard let jsonSafe = json as? [String : AnyObject] else { print("error json"); return }
+        guard let table1 = jsonSafe["Table1"] as? [[String : AnyObject]] else { print("error table1"); return }
+        
+        if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+          eventEmitter.sendEvent(withName: "DoesVINExistInDatabase", body: ["VINData" : table1[0]])
+        }
+        
+      } else if statusCode == 404 {
+        print("VIN does NOT exists in the database")
+        if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+          
+          self.setCheckOrScanAttribues(croppedImage, VIN, symbols)
+          
+          // The will be asked to 'check vin' or 'scan again'. If they decide to check,
+          // 'compareVINCharachtersWithRetrieved()' needs the data from 'self'
+          self.hideCameraView()
+          self.hideVINCorrectionView()
+          eventEmitter.sendEvent(withName: "DoesVINExistInDatabase", body: ["VINData" : ""])
+        }
       }
+      
       
     }
     

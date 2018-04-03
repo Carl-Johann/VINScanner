@@ -17,26 +17,42 @@ import Vision
 class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate, UITextFieldDelegate {
   let screenWidth = UIScreen.main.bounds.width
   let screenHeight = UIScreen.main.bounds.height
+  
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  var cameraView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  var VINCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  
   let urlSession = URLSession.shared
-  var mask = CALayer()
-  var successRect = UIView()
+  var mask: CALayer = CALayer()
+  var successRect: UIView = UIView()
   
   let session = AVCaptureSession()
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
-  let rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.45),
-                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.05),
-                              width: UIScreen.main.bounds.width * 0.9,
-                              height: UIScreen.main.bounds.height * 0.1)
+  let rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
+                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.0375),
+                              width: UIScreen.main.bounds.width * 0.75,
+                              height: UIScreen.main.bounds.height * 0.075)
   var loaded = 0
   var vinScanned: Bool = false
   //  How many times the camera will have to detect a 17 charachter word
   let scanThreshold: Int = 6
   
   
+  var userWantsToScan: Bool? = nil
+  var croppedImageForScan: UIImage? = nil
+  var VINForScan: String? = nil
+//  var rgForScan: VNTextObservation? = nil
+  var symbolsForScan: [[String : AnyObject]]? = nil
+  
+  
+  
+  
+  
   
   
   override func view() -> UIView! {
+    // Shoulc be hidden in the beginning
+    VINCorrectionView.alpha = 0
     startLiveVideo()
     
     
@@ -46,14 +62,14 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     viewOfInterest.layer.borderWidth = 4
     viewOfInterest.tag = 99
     viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
-    contentView.addSubview(viewOfInterest)
-  
+    cameraView.addSubview(viewOfInterest)
+    
     
     self.successRect.frame = self.rectOfInterest
     self.successRect.layer.cornerRadius = 8
     self.successRect.layer.borderWidth = 4
     self.successRect.layer.borderColor = UIColor.green.cgColor
-    contentView.addSubview(self.successRect)
+    cameraView.addSubview(self.successRect)
     
     self.mask.contentsGravity = kCAGravityResizeAspect
     self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: screenHeight * 0.1)
@@ -63,24 +79,27 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     self.successRect.layer.mask = self.mask
     
     
-    
-    
     // DON'T REMOVE. This is removed right after launch, but will crash without it.
     let layerDummy = CALayer()
-    contentView.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-    contentView.layer.addSublayer(layerDummy)
+    layerDummy.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+    cameraView.layer.addSublayer(layerDummy)
     ///////////////////////////////////////////////////////////////////////////////
     
     // Creates a gesture recognizer that hides the keyboard when the screen is clicked
-    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(contentView.endEditing(_:)))
-    contentView.addGestureRecognizer(tap)
-    contentView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
+    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(VINCorrectionView.endEditing(_:)))
+    VINCorrectionView.addGestureRecognizer(tap)
+    VINCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
+    self.contentView.addSubview(cameraView)
+    self.contentView.addSubview(VINCorrectionView)
     return contentView
   }
   
   
-  func startLiveVideo() {
+  func startLiveVideo() {        
+    
+    for input in self.session.inputs { self.session.removeInput(input) }
+    for output in self.session.outputs { self.session.removeOutput(output) }
     
     //    check for sim or retarded device
     let deviceInput = try! AVCaptureDeviceInput(device: captureDevice!)
@@ -90,31 +109,90 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     session.addInput(deviceInput)
     session.addOutput(deviceOutput)
     
-    let imageLayer = AVCaptureVideoPreviewLayer(session: session)
-    imageLayer.frame = contentView.bounds
-    contentView.layer.addSublayer(imageLayer)
-    startSession()
+    
+//      self.contentView.subviews.forEach({ $0.removeFromSuperview() })
+    let imageLayer = AVCaptureVideoPreviewLayer(session: self.session)
+    imageLayer.frame = self.contentView.bounds
+    self.cameraView.layer.addSublayer(imageLayer)
+//    }
+    
+    
+    showCameraView()
+    
   }
   
-  func startSession() {
-    loaded = 0
-    vinScanned = false
-    session.startRunning()
-    UIView.animate(withDuration: 0.7, animations: {
-      self.contentView.alpha = 1
-    })
-  }
-  
-  func stopSession() {
-    self.contentView.backgroundColor = UIColor(hex: "#E5E5E5")
-    UIView.animate(withDuration: 0.7, animations: {
-      self.contentView.alpha = 0
-    }, completion: { success in
-      self.session.stopRunning()
+  func showCameraView() {
+    DispatchQueue.main.async {
+      self.loaded = 0
+      self.vinScanned = false
+      self.session.startRunning()
+      
+      self.contentView.bringSubview(toFront: self.cameraView)
+      
+      
+      let viewOfInterest = UIView(frame: self.rectOfInterest)
+      viewOfInterest.layer.cornerRadius = 8
+      viewOfInterest.layer.borderWidth = 4
+      viewOfInterest.tag = 99
+      viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
+      self.cameraView.addSubview(viewOfInterest)
+      
+      self.successRect.frame = self.rectOfInterest
+      self.successRect.layer.cornerRadius = 8
+      self.successRect.layer.borderWidth = 4
+      self.successRect.layer.borderColor = UIColor.green.cgColor
+      self.cameraView.addSubview(self.successRect)
+      
+      self.mask.contentsGravity = kCAGravityResizeAspect
       self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: self.screenHeight * 0.1)
-    })
+      self.mask.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+      self.mask.backgroundColor = UIColor.orange.cgColor
+      self.mask.position = CGPoint(x: self.successRect.frame.size.width/2, y: self.successRect.frame.size.height/2)
+      self.successRect.layer.mask = self.mask
+      
+      
+      
+      
+      
+      self.contentView.bringSubview(toFront: self.successRect)
+      UIView.animate(withDuration: 0.7, animations: {
+        self.cameraView.alpha = 1
+      })
+    }
   }
   
+  
+  func hideCameraView() {
+    DispatchQueue.main.async {
+      self.contentView.backgroundColor = UIColor(hex: "#E5E5E5")
+      self.contentView.sendSubview(toBack: self.cameraView)
+      
+      UIView.animate(withDuration: 0.7, animations: {
+        self.cameraView.alpha = 0
+      }, completion: { success in
+        self.session.stopRunning()
+        self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: self.screenHeight * 0.1)
+      })
+    }
+  }  
+  func showVINCorrectionView() {
+    DispatchQueue.main.async {
+      
+      self.contentView.bringSubview(toFront: self.VINCorrectionView)
+      UIView.animate(withDuration: 0.7, animations: {
+        self.VINCorrectionView.alpha = 1
+      })
+    }
+  }
+  func hideVINCorrectionView() {
+    DispatchQueue.main.async {
+      
+      self.contentView.sendSubview(toBack: self.VINCorrectionView)
+      UIView.animate(withDuration: 0.7, animations: {
+        self.VINCorrectionView.alpha = 0
+      })
+    }
+  }
   
   
   
@@ -261,11 +339,13 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
                 // Stops the session, and posts the image for proccesing
                 DispatchQueue.main.async {
                   self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!, rg: rg)
+                  // 1.
                   if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
                     print("Returning VIN")
                     eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
                   }
-                  self.stopSession()
+                  
+                  self.hideCameraView()
                 }
 
               } else {
