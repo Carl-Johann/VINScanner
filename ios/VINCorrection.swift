@@ -136,8 +136,11 @@ extension RNCameraViewSwift {
           let textField = ComparisonTextField(size: CGSize(width: smallImgWidth, height: smallImgWidth))
           let extraTextFieldOffset = (layer == 1 ? 0 : (smallImgHeight * 1.8)) + ((smallImgWidth * 1.5) + imgGap)
           textField.center = CGPoint(x: imgOffset, y: defaultHeight + extraTextFieldOffset)
-          let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: key)
-          textField.text = String(scannedVIN[text])
+          
+          if i <= scannedVIN.count {
+            let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: key)
+            textField.text = String(scannedVIN[text])
+          }
           textField.tag = 100 + i
           textField.delegate = self
           

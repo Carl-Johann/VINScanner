@@ -11,6 +11,13 @@ import Vision
 
 extension RNCameraViewSwift {
   
+  func ERRORHideAndResetEverything() {
+    resetCheckOrScanAttributes()
+    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+      eventEmitter.sendEvent(withName: "hideAndResetEverything", body: "")
+    }
+  }
+  
   func postImage(croppedImage: UIImage, originalImage: UIImage, rg: VNTextObservation) {
     
     let imagePNG = UIImagePNGRepresentation(croppedImage)!
@@ -54,12 +61,6 @@ extension RNCameraViewSwift {
       
       self.compareVINAndImage(requestData!, rg, croppedImage)
 
-      
-      
-//      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-//        print("Returning VIN")
-//        eventEmitter.sendEvent(withName: "ReturnVIN", body: "WOLBE6EC7HG099479")
-//      }                
     }
     
     
@@ -85,10 +86,11 @@ extension RNCameraViewSwift {
     let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
     
     guard let parsedJSON = json as? [String : AnyObject] else { print("parsedJSON error"); return }
-    print("parsedJSON", parsedJSON)
+//    print("parsedJSON", parsedJSON)
     guard let responses = parsedJSON["responses"] as? [[String : AnyObject]] else { print("responses error"); return }
     
-    guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else { print("fullTextAnnotation error"); return }
+    guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else {
+      print("fullTextAnnotation error"); ERRORHideAndResetEverything(); return }
     
     guard let retrievedVIN = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
     guard let pages = fullTextAnnotation["pages"] as? [[String : AnyObject]] else { print("pages error"); return }
@@ -103,33 +105,32 @@ extension RNCameraViewSwift {
     
     // If the VIN could actually be an actual VIN we notify JS
     if cleanedVIN.count == 17 {
-      
       // We might have a VIN that exists in the database, so we check(validate) it
       validateVIN(cleanedVIN, croppedImage, symbols)
       resetCheckOrScanAttributes()
       
       if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("ShouldShow VIN box = true")
         eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
       }
-    } else if cleanedVIN.count > 15 {
+      
+      
+    } else if cleanedVIN.count >= 15 {
     // We also check for VIN length in JS, so if Google didn't get 1 or 2 characters the user wil be promted to 'scan again'
     // or 'check VIN' manually
       setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
-      
       if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("ShouldShow VIN box = true")
         eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
       }
+      
       
     } else {
     // else we notify JS too, but theres no 'VIN'
       resetCheckOrScanAttributes()
-      
       if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("ShouldShow VIN box = false")
         eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : false, "VIN" : "" ])
       }
+      
+      
     }
   }
   
@@ -140,12 +141,21 @@ extension RNCameraViewSwift {
   
   func validateVIN(_ VIN: String, _ croppedImage: UIImage = UIImage(), _ symbols: [[String : AnyObject]] = [[String : AnyObject]]()) {
     
+    // We dont bother validation the VIN if it ins't 17 characters long
+    if VIN.count != 17 {
+      print("VIN is not 17 long. Skipping validation.", VIN.count)
+      self.hideCameraView()
+      self.hideVINCorrectionView()
+      return
+    }
+    
+    
     struct CodableVINStruct: Codable {
       let VIN: String
     }
     
-//    let VINStruct = CodableVINStruct(VIN: VIN)W0LBD6EA0HG084887
-    let VINStruct = CodableVINStruct(VIN: "W0LBD6EA0HG084887")
+    let VINStruct = CodableVINStruct(VIN: VIN)
+    
     let encodedData = try? JSONEncoder().encode(VINStruct)
     let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
     let jsonData = try? JSONSerialization.data(withJSONObject: json!)
@@ -189,17 +199,16 @@ extension RNCameraViewSwift {
           
           // The will be asked to 'check vin' or 'scan again'. If they decide to check,
           // 'compareVINCharachtersWithRetrieved()' needs the data from 'self'
-          self.hideCameraView()
-          self.hideVINCorrectionView()
+          
           eventEmitter.sendEvent(withName: "DoesVINExistInDatabase", body: ["VINData" : ""])
         }
       }
-      
-      
     }
     
-    
     task.resume()
+    
+    self.hideCameraView()
+    self.hideVINCorrectionView()
   }
   
   

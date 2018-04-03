@@ -29,9 +29,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   let session = AVCaptureSession()
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
   let rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
-                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.0375),
+                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.045),
                               width: UIScreen.main.bounds.width * 0.75,
-                              height: UIScreen.main.bounds.height * 0.075)
+                              height: UIScreen.main.bounds.height * 0.09)
   var loaded = 0
   var vinScanned: Bool = false
   //  How many times the camera will have to detect a 17 charachter word
@@ -57,26 +57,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     
     // The scanned VIN should be inside of the rect
-    let viewOfInterest = UIView(frame: self.rectOfInterest)
-    viewOfInterest.layer.cornerRadius = 8
-    viewOfInterest.layer.borderWidth = 4
-    viewOfInterest.tag = 99
-    viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
-    cameraView.addSubview(viewOfInterest)
-    
-    
-    self.successRect.frame = self.rectOfInterest
-    self.successRect.layer.cornerRadius = 8
-    self.successRect.layer.borderWidth = 4
-    self.successRect.layer.borderColor = UIColor.green.cgColor
-    cameraView.addSubview(self.successRect)
-    
-    self.mask.contentsGravity = kCAGravityResizeAspect
-    self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: screenHeight * 0.1)
-    self.mask.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-    self.mask.backgroundColor = UIColor.orange.cgColor
-    self.mask.position = CGPoint(x: successRect.frame.size.width/2, y: successRect.frame.size.height/2)
-    self.successRect.layer.mask = self.mask
+    self.createUIScanRects()
     
     
     // DON'T REMOVE. This is removed right after launch, but will crash without it.
@@ -121,6 +102,28 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
   }
   
+  func createUIScanRects() {
+    let viewOfInterest = UIView(frame: self.rectOfInterest)
+    viewOfInterest.layer.cornerRadius = 8
+    viewOfInterest.layer.borderWidth = 4
+    viewOfInterest.tag = 99
+    viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
+    self.cameraView.addSubview(viewOfInterest)
+    
+    self.successRect.frame = self.rectOfInterest
+    self.successRect.layer.cornerRadius = 8
+    self.successRect.layer.borderWidth = 4
+    self.successRect.layer.borderColor = UIColor.green.cgColor
+    self.cameraView.addSubview(self.successRect)
+    
+    self.mask.contentsGravity = kCAGravityResizeAspect
+    self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: self.screenHeight * 0.1)
+    self.mask.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+    self.mask.backgroundColor = UIColor.orange.cgColor
+    self.mask.position = CGPoint(x: self.successRect.frame.size.width/2, y: self.successRect.frame.size.height/2)
+    self.successRect.layer.mask = self.mask
+  }
+  
   func showCameraView() {
     DispatchQueue.main.async {
       self.loaded = 0
@@ -128,30 +131,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       self.session.startRunning()
       
       self.contentView.bringSubview(toFront: self.cameraView)
-      
-      
-      let viewOfInterest = UIView(frame: self.rectOfInterest)
-      viewOfInterest.layer.cornerRadius = 8
-      viewOfInterest.layer.borderWidth = 4
-      viewOfInterest.tag = 99
-      viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
-      self.cameraView.addSubview(viewOfInterest)
-      
-      self.successRect.frame = self.rectOfInterest
-      self.successRect.layer.cornerRadius = 8
-      self.successRect.layer.borderWidth = 4
-      self.successRect.layer.borderColor = UIColor.green.cgColor
-      self.cameraView.addSubview(self.successRect)
-      
-      self.mask.contentsGravity = kCAGravityResizeAspect
-      self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: self.screenHeight * 0.1)
-      self.mask.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-      self.mask.backgroundColor = UIColor.orange.cgColor
-      self.mask.position = CGPoint(x: self.successRect.frame.size.width/2, y: self.successRect.frame.size.height/2)
-      self.successRect.layer.mask = self.mask
-      
-      
-      
+      // The scanrects disappear for some reason
+      //if we dont' show them every time cameraview has been send to background
+      self.createUIScanRects()
       
       
       self.contentView.bringSubview(toFront: self.successRect)
@@ -160,8 +142,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       })
     }
   }
-  
-  
   func hideCameraView() {
     DispatchQueue.main.async {
       self.contentView.backgroundColor = UIColor(hex: "#E5E5E5")
@@ -313,13 +293,15 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           let regionBox = self.highlightWord(box: rg)
           
           // If the 'word' has 17 boxes, which isn't always 17 letters and numbers
-          if boxes.count == 17 {
+//          if boxes.count == 17 {
+          if self.rectOfInterest.contains(regionBox) {
+          
             // We only create boxes around expected VINs
 //            self.createAndRemoveRects(regionBox)
             
             // If the scanned VIN is inside the rect of interest.
             // We cant just take pictures of everything on screen being 17 boxes long
-            if self.rectOfInterest.contains(regionBox) {
+              if boxes.count > 12 && boxes.count < 18 {
               
               // If we have scanned a VIN as many times as we have specified
               if self.loaded == self.scanThreshold {
@@ -341,15 +323,15 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
                   self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!, rg: rg)
                   // 1.
                   if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+                    print("------------------------------------------------------------")
                     print("Returning VIN")
                     eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
                   }
-                  
                   self.hideCameraView()
                 }
-
+                
+              
               } else {
-//                self.loaded += 1
                 self.IncrementLoadBar()
               }
             }
@@ -362,8 +344,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   func IncrementLoadBar() {
-    self.loaded += 1
-    if self.loaded <= self.scanThreshold {
+    
+    if self.loaded <= self.scanThreshold + 1 {
       let widthToincrement = (screenWidth * 0.9)/CGFloat(scanThreshold)
       var maskWidth = mask.bounds.width
       maskWidth += widthToincrement
@@ -371,6 +353,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
         self.mask.bounds = CGRect(x: 0, y: 0, width: maskWidth, height: self.screenHeight * 0.1)
       })
     }
+    self.loaded += 1
   }
   
   

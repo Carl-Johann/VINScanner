@@ -11,10 +11,7 @@ import Foundation
 @objc(VINModul)
 class VINModul : RCTEventEmitter {
   
-  @objc(EventToJS:)
-  func EventToJS(name: String) {
-    print("IOS. Event with name")
-  }
+  
   
   @objc(ShouldShowVinDetail)
   func ShouldShowVinDetail() {
@@ -31,9 +28,9 @@ class VINModul : RCTEventEmitter {
     print("Asking JS to either show or hide VIN detail")
   }
   
-  @objc(ReturnVIN:)
-  func ReturnVIN(VIN: String) {
-    print("Returned VIN")
+  @objc(hideAndResetEverything)
+  func hideAndResetEverything() {
+    print("Resets everything. An error occured")
   }
   
   @objc(VINIsAVIN:)
@@ -43,7 +40,7 @@ class VINModul : RCTEventEmitter {
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["EventToJS", "ReturnVIN", "RaiseMissingCoordinatesAlert", "VINIsAVIN", "DoesVINExistInDatabase", "ShouldShowVinDetail"]
+    return ["ShouldShowVinDetail", "RaiseMissingCoordinatesAlert", "DoesVINExistInDatabase", "hideAndResetEverything", "VINIsAVIN"]
   }
   
   

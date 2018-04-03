@@ -38,7 +38,7 @@ extension RNCameraViewSwift {
   // 'Scan Again'. If the user wants to scan vin we show the the compareVINCharachtersWithRetrieved()
   @objc(checkVINOrScanAgain:)
   func checkVINOrScanAgain(_ ShouldScan: Bool) {
-    print("checkVINOrScanAgain called from javascript with value", ShouldScan)
+//    print("checkVINOrScanAgain called from javascript with value", ShouldScan)
     
     
     if ShouldScan == true {
@@ -47,7 +47,6 @@ extension RNCameraViewSwift {
     
     } else if ShouldScan == false {
     // User wants to change characters manually
-//      self.hideCameraView()
       self.showVINCorrectionView()
       self.compareVINCharachtersWithRetrieved()
     

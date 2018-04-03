@@ -4,10 +4,6 @@ let RNLinearGradient = requireNativeComponent('RNCameraViewSwift', RNCameraView)
 
 class RNCameraView extends Component {
 
-  componentDidMount() {
-
-    // console.log("skinke")
-  }
 
   render() {
     let { colors, locations, ...otherProps } = this.props;
