@@ -167,7 +167,7 @@ class App extends Component {
             Alert.alert(
                 "An Error occured",
                 "Something that shouldn't happen, happend",
-                [{ text: "OK", onPress: () => { checkVINOrScanAgain(true) } }]
+                [{ text: "OK", onPress: () => { this.checkVINOrScanAgain(true) } }]
             )
         })
     }

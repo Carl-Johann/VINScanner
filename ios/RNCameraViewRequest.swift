@@ -18,7 +18,8 @@ extension RNCameraViewSwift {
     }
   }
   
-  func postImage(croppedImage: UIImage, originalImage: UIImage, rg: VNTextObservation) {
+  func postImage(croppedImage: UIImage, originalImage: UIImage, _ rg: VNTextObservation = VNTextObservation()) {
+    
     
     let imagePNG = UIImagePNGRepresentation(croppedImage)!
     let imageAsBase64 = imagePNG.base64EncodedString()
@@ -51,7 +52,7 @@ extension RNCameraViewSwift {
     
     let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
     let jsonData = try? JSONSerialization.data(withJSONObject: json!)
-    
+//    print("img size", imageAsBase64)
     var request = URLRequest(url: URL(string: "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyB8WDzdr9pPDVjqc4txtB6M5ClrY-P_8q8")!)
     
     request.httpBody = jsonData
@@ -60,13 +61,13 @@ extension RNCameraViewSwift {
     let task = self.urlSession.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
       
       self.compareVINAndImage(requestData!, rg, croppedImage)
-
+      self.vinScanned = false
     }
     
     
     task.resume()
     
-    //    self.vinScanned = false
+    
   }
   
   func resetCheckOrScanAttributes() {
@@ -86,7 +87,7 @@ extension RNCameraViewSwift {
     let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
     
     guard let parsedJSON = json as? [String : AnyObject] else { print("parsedJSON error"); return }
-//    print("parsedJSON", parsedJSON)
+//    print("json", json)
     guard let responses = parsedJSON["responses"] as? [[String : AnyObject]] else { print("responses error"); return }
     
     guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else {

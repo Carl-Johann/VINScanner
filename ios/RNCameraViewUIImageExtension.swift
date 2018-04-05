@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension UIColor {
   convenience init(hex: String, alpha: CGFloat = 1.0) {
@@ -29,6 +30,36 @@ extension UIColor {
   }
 }
 
+extension UIView {
+  
+  var snapshot: UIImage? {
+    UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
+    defer { UIGraphicsEndImageContext() }
+    drawHierarchy(in: bounds, afterScreenUpdates: true)
+    return UIGraphicsGetImageFromCurrentImageContext()
+  }
+  
+  
+  func capture() -> UIImage? {
+    var image: UIImage?
+    
+    if #available(iOS 10.0, *) {
+      let format = UIGraphicsImageRendererFormat()
+      format.opaque = isOpaque
+      let renderer = UIGraphicsImageRenderer(size: frame.size, format: format)
+      image = renderer.image { context in
+        drawHierarchy(in: frame, afterScreenUpdates: true)
+      }
+    } else {
+      UIGraphicsBeginImageContextWithOptions(frame.size, isOpaque, UIScreen.main.scale)
+      drawHierarchy(in: frame, afterScreenUpdates: true)
+      image = UIGraphicsGetImageFromCurrentImageContext()
+      UIGraphicsEndImageContext()
+    }
+    
+    return image
+  }
+}
 
 
 extension UIImage {

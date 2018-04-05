@@ -26,6 +26,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var mask: CALayer = CALayer()
   var successRect: UIView = UIView()
   
+  var takePicture = false
+  
   let session = AVCaptureSession()
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
   let rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
@@ -55,6 +57,24 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     VINCorrectionView.alpha = 0
     startLiveVideo()
     
+    let button = UIButton()
+    let buttonWidth = self.screenWidth * 0.75
+    button.frame = CGRect.init(x: 0, y: self.screenHeight * 0.75, width: buttonWidth, height: 55)
+    button.center = CGPoint(x: self.screenWidth/2 , y: self.screenHeight * 0.75)
+    button.setTitle("Manual Scan", for: .normal)
+    button.setTitleColor(UIColor.black, for: .normal)
+    button.adjustsImageWhenHighlighted = true
+    button.backgroundColor = UIColor(hex: "#ffb307")
+    button.layer.cornerRadius = 4
+    button.layer.borderWidth = 2
+    button.layer.borderColor = UIColor(hex: "#ffb307").cgColor
+    button.titleLabel?.textAlignment = NSTextAlignment.center
+    button.titleLabel!.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 24)
+    button.showsTouchWhenHighlighted = true
+    button.isUserInteractionEnabled = true
+    button.titleLabel!.textColor = UIColor.black
+    button.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
+    self.cameraView.addSubview(button)
     
     // The scanned VIN should be inside of the rect
     self.createUIScanRects()
@@ -94,6 +114,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
 //      self.contentView.subviews.forEach({ $0.removeFromSuperview() })
     let imageLayer = AVCaptureVideoPreviewLayer(session: self.session)
     imageLayer.frame = self.contentView.bounds
+    
     self.cameraView.layer.addSublayer(imageLayer)
 //    }
     
@@ -109,6 +130,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     viewOfInterest.tag = 99
     viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
     self.cameraView.addSubview(viewOfInterest)
+    
     
     self.successRect.frame = self.rectOfInterest
     self.successRect.layer.cornerRadius = 8
@@ -225,15 +247,34 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     return text
   }
   
+  open func takeScreenshot(_ shouldSave: Bool = true) -> UIImage? {
+    UIGraphicsBeginImageContext(self.contentView.frame.size)
+    self.cameraView.layer.render(in: UIGraphicsGetCurrentContext()!)
+    let image = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+  
+    return image
+  }
+  
+  
+  @objc fileprivate func manualScan(sender: UIButton) {
+    self.takePicture = true
+    
+//    UIGraphicsBeginImageContext(self.view.bounds.size)
+//    self.view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
+//    let image = UIGraphicsGetImageFromCurrentImageContext()
+//    UIGraphicsEndImageContext()
+  }
 
-
+  
   
   
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-    if !self.vinScanned {
-      guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+    if self.vinScanned == false {
+      
+      guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { self.takePicture = false; return }
       var requestOptions:[VNImageOption : Any] = [:]
-      guard let outputImage = getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
+      guard let outputImage = getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else { self.takePicture = false; return }
       
       let textRequest = VNDetectTextRectanglesRequest { request, error in
         self.detectTextHandler(request: request, error: error, image: outputImage, pixelBuffer: pixelBuffer)
@@ -247,12 +288,43 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       
       let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: CGImagePropertyOrientation.right, options: requestOptions)
       
-      
-      do {
-        try imageRequestHandler.perform([textRequest])
-      } catch {
-        print(error)
+
+      if self.takePicture == false {
+        do {
+          try imageRequestHandler.perform([textRequest])
+        } catch {
+          print(error)
+        }
+      } else {
+        
+        DispatchQueue.main.async {
+        self.takePicture = false
+        self.vinScanned = true
+        let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer)
+        var scannedImage = UIImage(ciImage: image!)
+        scannedImage = scannedImage.rotate(radians: .pi / 2)!
+        scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
+        guard let scannedImageAsCG = scannedImage.cgImage else { return }
+        
+        // Cropping image
+        let croppedCGImage = scannedImageAsCG.cropping(to: self.rectOfInterest)
+        let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+        
+        
+        // Stops the session, and posts the image for proccesing
+        
+          self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image!).rotate(radians: .pi / 2)!)
+          // 1.
+          if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+            print("------------------------------------------------------------")
+            print("Returning VIN")
+            eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
+          }
+//          self.hideCameraView()
+          print(123)
+        }
       }
+//      self.takePicture = false
     }
   }
   
@@ -280,6 +352,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   // Called from CaptureOutput
   func detectTextHandler(request: VNRequest, error: Error?, image: CIImage, pixelBuffer: CVPixelBuffer) {
+    print(4)
+//    self.takePicture = false
     if !self.vinScanned {
       // Get the results
       guard let observations = request.results else { return }
@@ -320,7 +394,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
                 
                 // Stops the session, and posts the image for proccesing
                 DispatchQueue.main.async {
-                  self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!, rg: rg)
+                  self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!, rg)
                   // 1.
                   if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
                     print("------------------------------------------------------------")
