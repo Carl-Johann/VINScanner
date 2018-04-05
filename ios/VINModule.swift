@@ -23,6 +23,12 @@ class VINModul : RCTEventEmitter {
     print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
   }
   
+  @objc(VINNotReturned)
+  func VINNotReturned() {
+    print("VIN not return error posted to JS")
+  }
+  
+  
   @objc(DoesVINExistInDatabase:)
   func DoesVINExistInDatabase(_ toShow: Bool) {
     print("Asking JS to either show or hide VIN detail")
@@ -40,7 +46,7 @@ class VINModul : RCTEventEmitter {
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["ShouldShowVinDetail", "RaiseMissingCoordinatesAlert", "DoesVINExistInDatabase", "hideAndResetEverything", "VINIsAVIN"]
+    return ["ShouldShowVinDetail", "RaiseMissingCoordinatesAlert", "VINNotReturned", "DoesVINExistInDatabase", "hideAndResetEverything", "VINIsAVIN"]
   }
   
   

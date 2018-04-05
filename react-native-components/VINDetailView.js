@@ -12,31 +12,35 @@ const screenWidth = () => { return Dimensions.get('window').width }
 
 
 const VINDetailView = ({ VIN, checkVINOrScanAgain, hideAnim, VINTitleComponentHeight, dataFromVINComponentHeight, shouldShowVIN, VINData, DoesVINExist }) => {
-    // console.log(1313131313)
-    return (
-        <Animated.View style={{ bottom: hideAnim }}>
-            <Animated.View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail, { height: VINTitleComponentHeight } ]}>
-                <Text style={[ styles.detailText, { fontSize: 24 } ]}>VIN</Text>
-                <LineBreaker margin={ 7 } />
 
+    return (
+        <Animated.View style={{ bottom: hideAnim, backgroundColor: '#282828' }}>
+            <View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail ]}>
+                <Text style={[ styles.detailText, { fontSize: 24 } ]}>VIN</Text>
+
+                <LineBreaker margin={ 7 } />
                 <VINTitleView
                     VIN={ VIN }
                     shouldShowVIN={ shouldShowVIN }
+                    VINTitleComponentHeight={ VINTitleComponentHeight }
                     checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
                 />
-                <LineBreaker margin={ 7 } />
-            </Animated.View>
+                {/*<LineBreaker margin={ 7 } />*/}
+            </View>
 
-            <Animated.View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle, { height: dataFromVINComponentHeight }]} >
+            <View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle ]} >
                 <Text style={[ styles.detailText, { fontSize: 24 } ]}>Car Details</Text>
-                <View >
-                    <DataFromVINView
-                        checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
-                        DoesVINExist={ DoesVINExist }
-                        VINData={ VINData }
-                    />
-                </View>
-            </Animated.View>
+
+                <LineBreaker margin={ 7 } />
+                <DataFromVINView
+                    checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                    dataFromVINComponentHeight={ dataFromVINComponentHeight }
+                    DoesVINExist={ DoesVINExist }
+                    VINData={ VINData }
+                />
+                <LineBreaker margin={ 7 } />
+            </View>
+
         </Animated.View>
     )
 }
@@ -59,9 +63,8 @@ const styles = StyleSheet.create({
 
     VINTitleBoxDetail: {
         width: Dimensions.get('window').width * 0.85,
-        justifyContent: 'center',
         alignItems: 'center',
-        height: 120,
+        // height: 120,
     },
 
 

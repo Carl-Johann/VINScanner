@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, SafeAreaView, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules, Animated, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules, Animated, Alert, ActionSheetIOS, TouchableOpacity } from 'react-native';
 import RNCameraView from './ios-native-components/RNCameraView'
 import Dimensions from 'Dimensions'
 import SpinKit from './react-native-components/SpinKit'
@@ -7,14 +7,14 @@ import VINDetailView from './react-native-components/VINDetailView'
 import amYellow from './react-native-components/colors'
 
 
-let titleVINComponentHeight = 120
-let tallTitleVINComponentHeight = 195
+export let titleVINComponentHeight = 120
+export let tallTitleVINComponentHeight = 195
 
-let dataFromVINComponentHeight = 135
-let tallDataFromVINComponentHeight = 200
+export let VINComponentHeight = 135
+export let tallDataFromVINComponentHeight = 200
 
-let marginToEdge = Dimensions.get('window').width * 0.05
-let hideAnimStartValue = -titleVINComponentHeight - titleVINComponentHeight - (2 * marginToEdge)
+export let marginToEdge = Dimensions.get('window').width * 0.05
+export let hideAnimStartValue = -titleVINComponentHeight - VINComponentHeight - marginToEdge
 
 // 1. shouldShowVINTitleDetail  false -> true | When the app is done scanning. BEFORE cropped image is sent to Google. Loading spinner going.
 // 2. shouldShowVIN             false -> true | If Google could read a VIN. Else show a 'Scan Again' button
@@ -34,21 +34,23 @@ class App extends Component {
         shouldShowVINDataDetail: false, // false
         DoesVINExist: null, //null
         VINData: {}, // {}
-        // {"primary_key":1,"site":"HQ","chassis":"W0LBD6EA0HG084887","model":"ASTRA ENJOY 5D 1.0T 105HK MTA"}
-        dataFromVINComponentHeight: new Animated.Value(dataFromVINComponentHeight), // 135
+
+        dataFromVINComponentHeight: new Animated.Value(VINComponentHeight), // 135
         VINTitleComponentHeight: new Animated.Value(titleVINComponentHeight),
         hideAnim: new Animated.Value(hideAnimStartValue),
 
+
         // shouldShowVINTitleDetail: true, // false
-        // shouldShowVIN: false, //null
+        // shouldShowVIN: null, //null
         // VIN: "W0LBD6EA0HG084887", // ""
 
 
-        // shouldShowVINDataDetail: true, // false
-        // DoesVINExist: true, //null
+        // shouldShowVINDataDetail: false, // false
+        // DoesVINExist: null, //null
         // VINData: {"primary_key":1,"site":"HQ","chassis":"W0LBD6EA0HG084887","model":"ASTRA ENJOY 5D 1.0T 105HK MTA"}, // {}
         // // {"primary_key":1,"site":"HQ","chassis":"W0LBD6EA0HG084887","model":"ASTRA ENJOY 5D 1.0T 105HK MTA"}
-        // dataFromVINComponentHeight: new Animated.Value(135), // 135
+        // dataFromVINComponentHeight: new Animated.Value(VINComponentHeight), // 135
+        // VINTitleComponentHeight: new Animated.Value(titleVINComponentHeight),
         // hideAnim: new Animated.Value(hideAnimStartValue),
     }
 
@@ -68,15 +70,15 @@ class App extends Component {
             )
         })
 
-
+            // Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + marginToEdge  }).start()
         // 1. This is the first box
         moduleEvent.addListener('ShouldShowVinDetail', response => {
             this.setState({ shouldShowVINTitleDetail: true })
-            // console.log(1)
-            Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + marginToEdge }).start()
+
+            Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + marginToEdge  }).start()
         })
 
-
+        this.state.hideAnim.is
         // 2. This is the first box
         moduleEvent.addListener('VINIsAVIN', response => {
             var JSONResponse = JSON.stringify(response, null, 2)
@@ -99,16 +101,16 @@ class App extends Component {
             // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VIN
 
                 if (String(JSONResponse["VIN"]).length == 17) {
-                    // console.log(3)
+
                     this.setState({
                         shouldShowVINTitleDetail: true,
                         shouldShowVIN: true,
                         VIN: JSONResponse["VIN"],
                     })
-                    Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + dataFromVINComponentHeight + ( 2 * marginToEdge ) }).start()
+                    Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + VINComponentHeight + ( 2 * marginToEdge ) }).start()
                 } else if (String(JSONResponse["VIN"]).length >= 15) {
-                    // gør øverste box større og vis kun den
-                    // console.log(4)
+
+
                     Animated.timing( this.state.VINTitleComponentHeight, { toValue: tallTitleVINComponentHeight }).start( () => {
                         this.setState({
                             shouldShowVINTitleDetail: true,
@@ -117,25 +119,20 @@ class App extends Component {
                         })
                     })
                 } else {
-                    console.log(5)
-                    console.log(5)
-                    console.log(5)
-                    console.log(5)
-                    console.log(5)
-                    console.log(5)
+
                     this.setState({
                         shouldShowVINTitleDetail: true,
                         shouldShowVIN: true,
                         VIN: JSONResponse["VIN"],
                     })
-                    Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + dataFromVINComponentHeight + ( 2 * marginToEdge ) }).start()
+                    Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + VINComponentHeight + ( 2 * marginToEdge ) }).start()
                 }
 
             }
         })
 
 
-        // 3.
+        // 3. This is the third box
         moduleEvent.addListener('DoesVINExistInDatabase', response => {
             var JSONResponse = JSON.stringify(response, null, 2)
             JSONResponse = JSON.parse(JSONResponse)
@@ -161,6 +158,7 @@ class App extends Component {
 
         })
 
+
         moduleEvent.addListener('hideAndResetEverything', response => {
             // 'checkVINOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
             // Also what we need here, so we reuse it
@@ -170,6 +168,22 @@ class App extends Component {
                 [{ text: "OK", onPress: () => { this.checkVINOrScanAgain(true) } }]
             )
         })
+
+        moduleEvent.addListener('VINNotReturned', response => {
+            // 'checkVINOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
+            // Also what we need here, so we reuse it
+
+            ActionSheetIOS.showActionSheetWithOptions({
+                options: ['Scan Again'],
+                title: "VIN Not Returned From Your Scan",
+                message: "Try to reposition the camera, and if necessary block any sun reflections from hitting the windshield.",
+                scanAgainButtonIndex: 0,
+            },
+                (buttonIndex) => {
+                    if (buttonIndex === 0) { this.checkVINOrScanAgain(true) }
+                }
+            );
+        })
     }
 
 
@@ -177,11 +191,12 @@ class App extends Component {
     checkVINOrScanAgain = (ShouldScan) => {
         var distance = hideAnimStartValue - 70
 
+
         Animated.timing( this.state.hideAnim, { toValue: distance }).start( () => {
             NativeModules.RNCameraViewSwift.checkVINOrScanAgain(ShouldScan)
             this.setState({
-                dataFromVINComponentHeight: new Animated.Value(dataFromVINComponentHeight),
                 VINTitleComponentHeight: new Animated.Value(titleVINComponentHeight),
+                dataFromVINComponentHeight: new Animated.Value(VINComponentHeight),
                 hideAnim: new Animated.Value(hideAnimStartValue),
                 shouldShowVINTitleDetail: false,
                 shouldShowVINDataDetail: false,
@@ -214,8 +229,9 @@ class App extends Component {
 
 
         return (
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#282828' }}>
                 <View style={ styles.container }>
+                    {/*<View style={{ flex: 1, bottom: 0, height: 667, width: 100, backgroundColor: 'orange' }} />*/}
                     <RNCameraView
                         style={ styles.camera }
                         locations={[0, .5, 1.0]}
@@ -252,7 +268,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         justifyContent :'flex-end',
-        backgroundColor: '#E5E5E5'
+        backgroundColor: '#282828'
     },
 
     camera: {
@@ -261,7 +277,8 @@ const styles = StyleSheet.create({
         left: 0,
         bottom: 0,
         right: 0,
-        backgroundColor: '#E5E5E5'
+        flex: 1,
+        backgroundColor: '#282828'
     }
 })
 

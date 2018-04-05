@@ -11,12 +11,13 @@ import Vision
 
 extension RNCameraViewSwift {
   
-  func ERRORHideAndResetEverything() {
+  func ERROR(_ errorFuncName: String) {
     resetCheckOrScanAttributes()
     if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-      eventEmitter.sendEvent(withName: "hideAndResetEverything", body: "")
+      eventEmitter.sendEvent(withName: errorFuncName, body: "")
     }
   }
+  
   
   func postImage(croppedImage: UIImage, originalImage: UIImage, _ rg: VNTextObservation = VNTextObservation()) {
     
@@ -91,7 +92,7 @@ extension RNCameraViewSwift {
     guard let responses = parsedJSON["responses"] as? [[String : AnyObject]] else { print("responses error"); return }
     
     guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else {
-      print("fullTextAnnotation error"); ERRORHideAndResetEverything(); return }
+      print("fullTextAnnotation error"); ERROR("VINNotReturned")	; return }
     
     guard let retrievedVIN = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
     guard let pages = fullTextAnnotation["pages"] as? [[String : AnyObject]] else { print("pages error"); return }

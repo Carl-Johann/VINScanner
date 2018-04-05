@@ -18,6 +18,10 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   let screenWidth = UIScreen.main.bounds.width
   let screenHeight = UIScreen.main.bounds.height
   
+//  var contentView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+//  var cameraView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+//  var VINCorrectionView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var cameraView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var VINCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
@@ -27,6 +31,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var successRect: UIView = UIView()
   
   var takePicture = false
+  let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
   
   let session = AVCaptureSession()
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
@@ -43,7 +48,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var userWantsToScan: Bool? = nil
   var croppedImageForScan: UIImage? = nil
   var VINForScan: String? = nil
-//  var rgForScan: VNTextObservation? = nil
   var symbolsForScan: [[String : AnyObject]]? = nil
   
   
@@ -57,40 +61,35 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     VINCorrectionView.alpha = 0
     startLiveVideo()
     
-    let button = UIButton()
+    // Manual Scan button
     let buttonWidth = self.screenWidth * 0.75
-    button.frame = CGRect.init(x: 0, y: self.screenHeight * 0.75, width: buttonWidth, height: 55)
+    let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Manual Scan")
     button.center = CGPoint(x: self.screenWidth/2 , y: self.screenHeight * 0.75)
-    button.setTitle("Manual Scan", for: .normal)
-    button.setTitleColor(UIColor.black, for: .normal)
-    button.adjustsImageWhenHighlighted = true
-    button.backgroundColor = UIColor(hex: "#ffb307")
-    button.layer.cornerRadius = 4
-    button.layer.borderWidth = 2
-    button.layer.borderColor = UIColor(hex: "#ffb307").cgColor
-    button.titleLabel?.textAlignment = NSTextAlignment.center
-    button.titleLabel!.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 24)
-    button.showsTouchWhenHighlighted = true
-    button.isUserInteractionEnabled = true
-    button.titleLabel!.textColor = UIColor.black
     button.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
     self.cameraView.addSubview(button)
     
     // The scanned VIN should be inside of the rect
     self.createUIScanRects()
     
-    
-    // DON'T REMOVE. This is removed right after launch, but will crash without it.
-    let layerDummy = CALayer()
-    layerDummy.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-    cameraView.layer.addSublayer(layerDummy)
-    ///////////////////////////////////////////////////////////////////////////////
-    
+
     // Creates a gesture recognizer that hides the keyboard when the screen is clicked
     let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(VINCorrectionView.endEditing(_:)))
     VINCorrectionView.addGestureRecognizer(tap)
     VINCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
+    
+    // Something weird happens where the the coordinates got a little confused,
+    // and when we would crop the image, it would not crop the right placte
+    if isIPhoneX {
+      self.cameraView.frame.origin.y -= 20
+      self.VINCorrectionView.frame.origin.y -= 20
+      self.contentView.frame.origin.y -= 20
+    }
+    
+    
+    self.contentView.backgroundColor = UIColor(hex: "#282828")
+    self.cameraView.backgroundColor = UIColor(hex: "#282828")
+    self.VINCorrectionView.backgroundColor = UIColor(hex: "#282828")
     self.contentView.addSubview(cameraView)
     self.contentView.addSubview(VINCorrectionView)
     return contentView
@@ -113,7 +112,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
 //      self.contentView.subviews.forEach({ $0.removeFromSuperview() })
     let imageLayer = AVCaptureVideoPreviewLayer(session: self.session)
-    imageLayer.frame = self.contentView.bounds
+    imageLayer.frame = self.contentView.frame
     
     self.cameraView.layer.addSublayer(imageLayer)
 //    }
@@ -221,19 +220,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     return CGRect(x: xCord, y: yCord, width: width, height: height)
   }
-  
-  
-//  func createCALayerFromRect(rect: CGRect) {
-//    let outline = CALayer()
-//    outline.frame = CGRect(x: rect.origin.x, y: rect.origin.y, width: rect.width, height: rect.height)
-//    outline.borderColor = UIColor.green.cgColor
-//    outline.cornerRadius = 3
-//    outline.borderWidth = 2
-//    if rect.width > 100 && rect.height > 25 {
-//      contentView.layer.addSublayer(outline)
-//    }
-//  }
-  
 
   func cleanVIN(_ VIN: String) -> String {
     var text = VIN
@@ -258,12 +244,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   @objc fileprivate func manualScan(sender: UIButton) {
+    // Since I couldn't figure out how to manually capture a frame,
+    // and taking a screenshot doesn't work on
     self.takePicture = true
-    
-//    UIGraphicsBeginImageContext(self.view.bounds.size)
-//    self.view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
-//    let image = UIGraphicsGetImageFromCurrentImageContext()
-//    UIGraphicsEndImageContext()
   }
 
   
@@ -298,62 +281,57 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       } else {
         
         DispatchQueue.main.async {
-        self.takePicture = false
-        self.vinScanned = true
-        let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer)
-        var scannedImage = UIImage(ciImage: image!)
-        scannedImage = scannedImage.rotate(radians: .pi / 2)!
-        scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
-        guard let scannedImageAsCG = scannedImage.cgImage else { return }
-        
-        // Cropping image
-        let croppedCGImage = scannedImageAsCG.cropping(to: self.rectOfInterest)
-        let croppedUIImage = UIImage(cgImage: croppedCGImage!)
-        
-        
-        // Stops the session, and posts the image for proccesing
-        
-          self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image!).rotate(radians: .pi / 2)!)
-          // 1.
-          if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-            print("------------------------------------------------------------")
-            print("Returning VIN")
-            eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
+          self.takePicture = false
+          guard let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else {
+            print("Couldn't get image from getImageFromSampleBuffer()"); return
           }
-//          self.hideCameraView()
-          print(123)
+          self.cropAndPostImage(image)
+          self.hideCameraView()
         }
       }
-//      self.takePicture = false
+    }
+  }
+  
+  
+  func cropAndPostImage(_ image: CIImage) {
+    DispatchQueue.main.async {
+
+      self.vinScanned = true
+      var scannedImage = UIImage(ciImage: image)
+      scannedImage = scannedImage.rotate(radians: .pi / 2)!
+//      print("image width", image.cgImage!.width)
+//      print("image height", image.cgImage!.height)
+      scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
+      guard let scannedImageAsCG = scannedImage.cgImage else { return }
+      
+      // Cropping image
+//      let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
+      var rect = CGRect()
+      rect = self.rectOfInterest
+      if self.isIPhoneX == true {
+        rect.origin.y = self.rectOfInterest.origin.y - 40
+      }
+      
+      let croppedCGImage = scannedImageAsCG.cropping(to: rect)
+      let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+      
+      // Stops the session, and posts the image for proccesing
+      
+      self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
+      // 1.
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("------------------------------------------------------------")
+        print("Returning VIN")
+        eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
+      }
+      
     }
   }
   
   
   
-  
-  
-  
-  
-  
-  
-  
-//
-//
-//  func createAndRemoveRects(_ rect: CGRect) {
-//    self.contentView.layer.sublayers?.removeSubrange(3...)
-//    if self.loaded != self.scanThreshold { self.createCALayerFromRect(rect: rect) }
-//  }
-//
-  
-  
-  
-  
-  
-  
   // Called from CaptureOutput
   func detectTextHandler(request: VNRequest, error: Error?, image: CIImage, pixelBuffer: CVPixelBuffer) {
-    print(4)
-//    self.takePicture = false
     if !self.vinScanned {
       // Get the results
       guard let observations = request.results else { return }
@@ -366,45 +344,15 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           guard let boxes = rg.characterBoxes else { return }
           let regionBox = self.highlightWord(box: rg)
           
-          // If the 'word' has 17 boxes, which isn't always 17 letters and numbers
-//          if boxes.count == 17 {
+          // If the scanned VIN is inside the rect of interest.
           if self.rectOfInterest.contains(regionBox) {
-          
-            // We only create boxes around expected VINs
-//            self.createAndRemoveRects(regionBox)
             
-            // If the scanned VIN is inside the rect of interest.
-            // We cant just take pictures of everything on screen being 17 boxes long
               if boxes.count > 12 && boxes.count < 18 {
               
               // If we have scanned a VIN as many times as we have specified
               if self.loaded == self.scanThreshold {
-                self.vinScanned = true
-                
-                // Rotates, and resizes the image so we can propperly crop it.
-                var scannedImage = UIImage(ciImage: image)
-                scannedImage = scannedImage.rotate(radians: .pi / 2)!
-                scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
-                guard let scannedImageAsCG = scannedImage.cgImage else { return }
-                
-                // Cropping image
-                let croppedCGImage = scannedImageAsCG.cropping(to: self.rectOfInterest)
-                let croppedUIImage = UIImage(cgImage: croppedCGImage!)
-                
-                
-                // Stops the session, and posts the image for proccesing
-                DispatchQueue.main.async {
-                  self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!, rg)
-                  // 1.
-                  if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-                    print("------------------------------------------------------------")
-                    print("Returning VIN")
-                    eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
-                  }
-                  self.hideCameraView()
-                }
-                
-              
+                self.cropAndPostImage(image)
+                self.hideCameraView()
               } else {
                 self.IncrementLoadBar()
               }

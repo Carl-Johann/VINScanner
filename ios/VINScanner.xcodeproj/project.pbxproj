@@ -45,7 +45,7 @@
 		D81D011D206D8FD60036F7B4 /* RNCameraViewRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */; };
 		D845F1E8206C327800AD3718 /* VINModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D845F1E6206C327800AD3718 /* VINModule.m */; };
 		D8BA4F03206ECD5A00DC8875 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F02206ECD5A00DC8875 /* Errors.swift */; };
-		D8BA4F052070110900DC8875 /* ComparisonTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* ComparisonTextField.swift */; };
+		D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* Subclasses.swift */; };
 		D8BA4F0720714ACA00DC8875 /* VINCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F0620714AC900DC8875 /* VINCorrection.swift */; };
 /* End PBXBuildFile section */
 
@@ -376,7 +376,7 @@
 		D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraViewRequest.swift; sourceTree = "<group>"; };
 		D845F1E6206C327800AD3718 /* VINModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VINModule.m; sourceTree = "<group>"; };
 		D8BA4F02206ECD5A00DC8875 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		D8BA4F042070110900DC8875 /* ComparisonTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonTextField.swift; sourceTree = "<group>"; };
+		D8BA4F042070110900DC8875 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
 		D8BA4F0620714AC900DC8875 /* VINCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VINCorrection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -530,7 +530,7 @@
 				D811A97F206BBA1000257868 /* RNCameraView.swift */,
 				D8BA4F0620714AC900DC8875 /* VINCorrection.swift */,
 				D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */,
-				D8BA4F042070110900DC8875 /* ComparisonTextField.swift */,
+				D8BA4F042070110900DC8875 /* Subclasses.swift */,
 				D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */,
 				D811A9B8206BBA8E00257868 /* RNCameraView.h */,
 				D811A9B6206BBA7000257868 /* RNCameraView.m */,
@@ -1171,7 +1171,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n\n\nif [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n    export SKIP_BUNDLING=true\nfi\n";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n\n\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1202,7 +1202,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8BA4F052070110900DC8875 /* ComparisonTextField.swift in Sources */,
+				D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				D81D011D206D8FD60036F7B4 /* RNCameraViewRequest.swift in Sources */,
 				D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */,
@@ -1264,7 +1264,7 @@
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 65MG9295K9;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1294,7 +1294,7 @@
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 65MG9295K9;
@@ -1321,6 +1321,7 @@
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1333,7 +1334,7 @@
 					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
 				);
 				INFOPLIST_FILE = VINScanner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1353,6 +1354,7 @@
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1364,7 +1366,7 @@
 					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
 				);
 				INFOPLIST_FILE = VINScanner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1517,6 +1519,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1532,7 +1535,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1559,6 +1562,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1568,7 +1572,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 4.0;
