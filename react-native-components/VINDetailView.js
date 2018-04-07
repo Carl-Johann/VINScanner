@@ -14,7 +14,7 @@ const screenWidth = () => { return Dimensions.get('window').width }
 const VINDetailView = ({ VIN, checkVINOrScanAgain, hideAnim, VINTitleComponentHeight, dataFromVINComponentHeight, shouldShowVIN, VINData, DoesVINExist }) => {
 
     return (
-        <Animated.View style={{ bottom: hideAnim, backgroundColor: '#282828' }}>
+        <Animated.View style={{ bottom: hideAnim }}>
             <View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail ]}>
                 <Text style={[ styles.detailText, { fontSize: 24 } ]}>VIN</Text>
 

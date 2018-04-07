@@ -47,6 +47,10 @@
 		D8BA4F03206ECD5A00DC8875 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F02206ECD5A00DC8875 /* Errors.swift */; };
 		D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* Subclasses.swift */; };
 		D8BA4F0720714ACA00DC8875 /* VINCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F0620714AC900DC8875 /* VINCorrection.swift */; };
+		D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */; };
+		D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */; };
+		D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */; };
+		D8F55AE22078DE7600B093C4 /* MoveBackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -378,6 +382,10 @@
 		D8BA4F02206ECD5A00DC8875 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		D8BA4F042070110900DC8875 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
 		D8BA4F0620714AC900DC8875 /* VINCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VINCorrection.swift; sourceTree = "<group>"; };
+		D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BackIconRight.png; path = ../../../../../Downloads/BackIconRight.png; sourceTree = "<group>"; };
+		D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BackIconLeft.png; sourceTree = "<group>"; };
+		D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconLeft.png; sourceTree = "<group>"; };
+		D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconRight.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -517,6 +525,7 @@
 		13B07FAE1A68108700A75B9A /* VINScanner */ = {
 			isa = PBXGroup;
 			children = (
+				D8F55AD82078BE0E00B093C4 /* Icons */,
 				D845F1E6206C327800AD3718 /* VINModule.m */,
 				D81D00E7206CFE610036F7B4 /* VINModule.swift */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -666,6 +675,17 @@
 				D8BA4F412071649B00DC8875 /* libRNSpinkit.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D8F55AD82078BE0E00B093C4 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */,
+				D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */,
+				D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */,
+				D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */,
+			);
+			name = Icons;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1136,6 +1156,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */,
+				D8F55AE22078DE7600B093C4 /* MoveBackIconRight.png in Resources */,
+				D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */,
+				D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
@@ -1171,7 +1195,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n\n\n";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n\nif [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n    export SKIP_BUNDLING=true\nfi\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -27,29 +27,7 @@ class YellowRoundedButton : UIButton {
 
     return button
   }
-  
-//  init(size: CGSize, title: String) {
-//    super.init(frame: .zero)
-//    self.setup(size, title)
-//    how
-//  }
-//
-//  required init?(coder aDecoder: NSCoder) {
-//    super.init(coder: aDecoder)!
-//  }
-//
-//  func setup(_ size: CGSize, _   title: String) {
-//
-//    self.frame.size = size
-//    self.setTitle("Manual Scan", for: .normal)
-//    self.setTitleColor(UIColor(hex: "#555555"), for: .normal)
-//    self.backgroundColor = UIColor(hex: "#ffb307")
-//    self.layer.cornerRadius = 4
-//    self.layer.borderWidth = 2
-//    self.layer.borderColor = UIColor(hex: "#ffb307").cgColor
-//    self.titleLabel?.textAlignment = NSTextAlignment.center
-//    self.titleLabel!.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 24)
-//  }
+
 }
 
 

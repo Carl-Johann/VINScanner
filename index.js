@@ -229,7 +229,7 @@ class App extends Component {
 
 
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#282828' }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
                 <View style={ styles.container }>
                     {/*<View style={{ flex: 1, bottom: 0, height: 667, width: 100, backgroundColor: 'orange' }} />*/}
                     <RNCameraView
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         justifyContent :'flex-end',
-        backgroundColor: '#282828'
+        // backgroundColor: '#282828'
     },
 
     camera: {
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         flex: 1,
-        backgroundColor: '#282828'
+        // backgroundColor: '#282828'
     }
 })
 

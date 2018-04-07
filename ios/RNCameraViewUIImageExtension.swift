@@ -64,6 +64,14 @@ extension UIView {
 
 extension UIImage {
   
+  func alpha(_ value:CGFloat) -> UIImage {
+    UIGraphicsBeginImageContextWithOptions(size, false, scale)
+    draw(at: CGPoint.zero, blendMode: .normal, alpha: value)
+    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    return newImage!
+  }
+  
   func rotate(radians: Float) -> UIImage? {
     var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
     // Trim off the extremely small float value to prevent core graphics from rounding it up

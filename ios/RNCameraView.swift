@@ -29,19 +29,19 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   let urlSession = URLSession.shared
   var mask: CALayer = CALayer()
   var successRect: UIView = UIView()
-  
+  var toolbar: UIToolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: UIScreen.main.bounds.width, height: 45))
   var takePicture = false
   let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
   
   let session = AVCaptureSession()
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
-  let rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
+  var rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
                               y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.045),
                               width: UIScreen.main.bounds.width * 0.75,
                               height: UIScreen.main.bounds.height * 0.09)
   var loaded = 0
   var vinScanned: Bool = false
-  //  How many times the camera will have to detect a 17 charachter word
+  //  How many times the camera will have to detect a charachter word
   let scanThreshold: Int = 6
   
   
@@ -57,9 +57,17 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   override func view() -> UIView! {
+    if isIPhoneX {
+      self.rectOfInterest.origin.y += 20
+      self.cameraView.frame.origin.y -= 20
+      self.VINCorrectionView.frame.origin.y -= 20
+      self.contentView.frame.origin.y -= 20
+    }
+    
     // Shoulc be hidden in the beginning
     VINCorrectionView.alpha = 0
     startLiveVideo()
+    
     
     // Manual Scan button
     let buttonWidth = self.screenWidth * 0.75
@@ -77,14 +85,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     VINCorrectionView.addGestureRecognizer(tap)
     VINCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
+    //init toolbar
+    //create left side empty space so that done button set on right side
     
-    // Something weird happens where the the coordinates got a little confused,
-    // and when we would crop the image, it would not crop the right placte
-    if isIPhoneX {
-      self.cameraView.frame.origin.y -= 20
-      self.VINCorrectionView.frame.origin.y -= 20
-      self.contentView.frame.origin.y -= 20
-    }
     
     
     self.contentView.backgroundColor = UIColor(hex: "#282828")
@@ -94,7 +97,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     self.contentView.addSubview(VINCorrectionView)
     return contentView
   }
-  
+
+
   
   func startLiveVideo() {        
     
@@ -309,7 +313,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       var rect = CGRect()
       rect = self.rectOfInterest
       if self.isIPhoneX == true {
-        rect.origin.y = self.rectOfInterest.origin.y - 40
+        print("is x")
+        rect.origin.y -= CGFloat(40)
       }
       
       let croppedCGImage = scannedImageAsCG.cropping(to: rect)

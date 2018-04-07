@@ -13,27 +13,45 @@ import UIKit
 extension RNCameraViewSwift {
   
   
-  // indexInVert
-  // 0 = bottomLeft
-  // 1 = bottomRight
-  // 2 = topRight
-  // 3 = topLeft  
-  func returnSecureCorner(indexInVertici: Int, _ verticies: [[String : AnyObject]]) -> CGPoint? {
-    var pointToReturn = CGPoint()
-    if let xCord = verticies[indexInVertici]["x"] as? CGFloat { pointToReturn.x = xCord } else { pointToReturn.x = 0 }
-    if let yCord = verticies[indexInVertici]["y"] as? CGFloat { pointToReturn.y = yCord } else { pointToReturn.y = 0 }
-    return pointToReturn
+  // MARK: - Setup Toolbar Items
+  func setupVINCorrectionKeyboardToolbar() {
+    
+    // To evenly space the buttons in the toolbar we need to add a flexbtn between them
+    let flexibleButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+    let barButtonInset: UIEdgeInsets = UIEdgeInsets(top: 4, left: 0, bottom: 0, right: 0)
+    let resizeTarget: CGSize = CGSize(width: 25, height: 25)
+    
+    
+    var BackIconLeftImage = UIImage(named: "BackIconLeft.png")
+    BackIconLeftImage = BackIconLeftImage?.resizeImage(targetSize: resizeTarget)
+    let BackIconLeft = UIBarButtonItem(image: BackIconLeftImage, style: .plain, target: self, action: #selector(self.moveActiveTextFieldLeft(sender:) ))
+    BackIconLeft.imageInsets = barButtonInset
+    
+    // We set the alpha to 0.7 because the BackIconLeft.png and BackIconRight.png
+    //have a slightly dimmer shade of blue and to match that the alpha is set to 0.7
+    guard let MoveBackIconLeftImage = UIImage(named: "MoveBackIconLeft.png")?.alpha(0.7) else { print("couldn't get MoveBackIconLeft.png with 0.7 alpha"); return }
+    let MoveBackIconLeft = UIBarButtonItem(image: MoveBackIconLeftImage, style: .plain, target: self, action: #selector(self.moveTextLeft(sender:) ))
+    MoveBackIconLeft.imageInsets = barButtonInset
+    
+    guard let MoveBackIconRightImage = UIImage(named: "MoveBackIconRight.png")?.alpha(0.7) else { print("couldn't get MoveBackIconRight.png with 0.7 alpha"); return }
+    let MoveBackIconRight = UIBarButtonItem(image: MoveBackIconRightImage, style: .plain, target: self, action: #selector(self.moveTextRight(sender:) ))
+    MoveBackIconRight.imageInsets = barButtonInset
+    //
+    
+    var BackIconRightImage = UIImage(named: "BackIconRight.png")
+    BackIconRightImage = BackIconRightImage?.resizeImage(targetSize: resizeTarget)
+    let BackIconRight = UIBarButtonItem(image: BackIconRightImage, style: .plain, target: self, action: #selector(self.moveActiveTextFieldRight(sender:) ))
+    BackIconRight.imageInsets = barButtonInset
+    
+    
+    toolbar.setItems([BackIconLeft, flexibleButton, MoveBackIconLeft, flexibleButton, MoveBackIconRight, flexibleButton, BackIconRight], animated: false)
   }
   
   
   
   
   
-  
-  
-  
-  
-  
+  // MARK: - Compare VIN Charachters With Retrieved
   func compareVINCharachtersWithRetrieved() {
     
     guard let symbols = self.symbolsForScan else {
@@ -71,8 +89,8 @@ extension RNCameraViewSwift {
         for i in 1...17 {
           
           let key = i - 1
-          let value = VINDic[i - 1]
-          let shouldShowSmallImages = VINDic.count == symbols.count ? true : false
+//          let value = VINDic[i - 1]
+//          let shouldShowSmallImages = VINDic.count == symbols.count ? true : false
           
           let imgPerLayer: CGFloat = 9
           // Converts 'key' to a float value with 'imgPerLayer' so that we don't have to do it everywhere below.
@@ -89,7 +107,7 @@ extension RNCameraViewSwift {
           
           // The bounding boxes returned from Google are on average 2:1 height compared to width
           let layer = keyF < imgPerLayer ? 1 : 2
-          let smallImgHeight = smallImgWidth * 2
+//          let smallImgHeight = smallImgWidth * 2
           let imgGap = (self.screenWidth - (smallImgWidth * imgPerLayer)) / (imgPerLayer + 1)
           
           // 'Resets' the offset when it starts adding the new layer
@@ -143,54 +161,118 @@ extension RNCameraViewSwift {
           let extraTextFieldOffset = (layer == 1 ? 0 : (smallImgWidth + imgGap))
           if CGFloat(i) > imgPerLayer { imgOffset += ((smallImgWidth * 0.5) + (imgGap * 0.5)) }
           textField.center = CGPoint(x: imgOffset, y: defaultHeight + extraTextFieldOffset)
+          textField.layer.cornerRadius = 1
           
           if i <= scannedVIN.count {
             let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: key)
             textField.text = String(scannedVIN[text])
           }
           textField.tag = 100 + i
+          textField.inputAccessoryView = self.toolbar
           textField.delegate = self
           
           // Some characters look alot like another, and can therefore be misidentified. We just make the user aware of them.
           textField = self.modifyTextFieldIfDangerous(textField) as! ComparisonTextField
-//          if isCharDangerous(value) {
-//            textField.font = UIFont(name: "AppleSDGothicNeo-SemiBold", size: 24)
-//            textField.textColor = UIColor(hex: "#cc0000")
-//            textField.layer.borderColor = UIColor.red.cgColor
-//          } else {
-//            textField.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 24)
-//            textField.textColor = UIColor(hex: "#555555")
-//            textField.layer.borderColor = UIColor.black.withAlphaComponent(0.8).cgColor
-//
-//          }
           
           self.VINCorrectionView.addSubview(textField)
           
         }
         
-        let buttonWidth = ((self.screenWidth * 0.75) / 2) - 5
         
+        let buttonWidth = ((self.screenWidth * 0.75) / 2) - 5
         let resendButon = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Resend")
         resendButon.center = CGPoint(x: ((self.screenWidth/2) - (buttonWidth/2)) - 5 , y: self.screenHeight * 0.75)
-        resendButon.addTarget(self, action: #selector(self.send(sender:)), for: .touchUpInside)
-        self.VINCorrectionView  .addSubview(resendButon)
-        
+        resendButon.addTarget(self, action: #selector(self.resendVINBtn(sender:)), for: .touchUpInside)
+        self.VINCorrectionView.addSubview(resendButon)
         
         let scanAgainButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Scan Again")
         scanAgainButton.center = CGPoint(x: ((self.screenWidth/2) + (buttonWidth/2)) + 5 , y: self.screenHeight * 0.75)
         scanAgainButton.addTarget(self, action: #selector(self.returnToCamera(sender:)), for: .touchUpInside)
         self.VINCorrectionView.addSubview(scanAgainButton)
-      
     }
   }
   
+  
+
+  
+  
+  
+  
+  
+  
+  
+  // MARK: - Button Functions
+  @objc fileprivate func moveActiveTextFieldLeft(sender: UIButton) {
+    print("moveActiveTextFieldLeft")
+    
+  }
+  
+  @objc fileprivate func moveTextLeft(sender: UIButton) {
+    print("moveActiveTextFieldLeft")
+    
+  }
+  
+  @objc fileprivate func moveTextRight(sender: UIButton) {
+    print("moveTextRight")
+    
+  }
+  
+  @objc fileprivate func moveActiveTextFieldRight(sender: UIButton) {
+    print("moveActiveTextFieldRight")
+    
+  }
+  
+  @objc fileprivate func resendVINBtn(sender: UIButton) {
+
+    var completedVIN = ""
+    let textFields = getTextFields()
+    
+    for textfield in textFields {
+      completedVIN.append(textfield.text!)
+    }
+    
+    guard let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter else { print("Couldn't get eventEmitter"); return }
+    eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : completedVIN ])
+    
+
+    
+    print("completedVIN", completedVIN)
+    validateVIN(completedVIN)
+  }
+
+  
+  
+  
+  
+  
+  
+  // MARK: - TextField Delegate Functions
+  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    // A TextField can only have 1 character.
+    guard let text = textField.text?.uppercased() else { return true }
+    let newLength = text.count + string.count - range.length
+    return newLength <= 1
+  }
+  
+  func textFieldDidEndEditing(_ textField: UITextField) {
+    // If a textfield was left blank, we make the user aware
+    modifyTextFieldIfDangerous(textField)
+  }
+  
+  
+  
+  
+  
+  
+  
+  // MARK: - Helper Functions
   
   func modifyTextFieldIfDangerous(_ textField: UITextField) -> UITextField {
     let dangerousChars = ["8", "B", "G", "6", "C", "5", "S"]
     
     guard let char = textField.text else { return textField }
     
-
+    
     if dangerousChars.contains(char) {
       textField.font = UIFont(name: "AppleSDGothicNeo-SemiBold", size: 24)
       textField.textColor = UIColor(hex: "#cc0000")
@@ -214,63 +296,37 @@ extension RNCameraViewSwift {
     return textField
   }
   
-  
-  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    // A TextField can only have 1 character.
-    guard let text = textField.text?.uppercased() else { return true }
-    let newLength = text.count + string.count - range.length
-    return newLength <= 1
-  }
-  
-  func textFieldDidEndEditing(_ textField: UITextField) {
-    // If a textfield was left blank, we make the user aware
-    modifyTextFieldIfDangerous(textField)
-//    if textField.text?.count != 1 {
-//      textField.layer.borderWidth = 2
-//      textField.layer.borderColor = UIColor.red.cgColor
-//      textField.text = textField.text!.uppercased()
-//    } else {
-//      textField.layer.borderWidth = 0.4
-//      textField.layer.borderColor = UIColor.black.withAlphaComponent(0.8).cgColor
-//      textField.text = textField.text!.uppercased()
-//    }
-  }
-  
-  
-  
-  
-  @objc fileprivate func send(sender: UIButton) {
-//    print("test1")
-    var completedVIN = ""
+  func getTextFields() -> [ComparisonTextField] {
     var textFields: [ComparisonTextField] = []
     
     for i in 1...17 {
-        let textField = contentView.viewWithTag(100 + i) as! ComparisonTextField
-        textFields.append(textField)
+      let textField = contentView.viewWithTag(100 + i) as! ComparisonTextField
+      textFields.append(textField)
     }
     
-    for textfield in textFields {
-      completedVIN.append(textfield.text!)
-    }
-    
-    if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-//      print("ShouldShow VIN box = true")
-      eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : completedVIN ])
-    }
-    
-//  self.contentView.layer.sublayers?.removeAll()
-//    DispatchQueue.main.async {
-//      self.contentView.subviews.forEach({ $0.removeFromSuperview() })
-//    }
-    
-//    startLiveVideo()
-    print("completedVIN", completedVIN)
-    validateVIN(completedVIN)
+    return textFields
   }
+  
   
   @objc fileprivate func returnToCamera(sender: UIButton) {
     self.hideVINCorrectionView()
     self.showCameraView()
   }
   
+  // indexInVert
+  // 0 = bottomLeft
+  // 1 = bottomRight
+  // 2 = topRight
+  // 3 = topLeft
+  func returnSecureCorner(indexInVertici: Int, _ verticies: [[String : AnyObject]]) -> CGPoint? {
+    var pointToReturn = CGPoint()
+    if let xCord = verticies[indexInVertici]["x"] as? CGFloat { pointToReturn.x = xCord } else { pointToReturn.x = 0 }
+    if let yCord = verticies[indexInVertici]["y"] as? CGFloat { pointToReturn.y = yCord } else { pointToReturn.y = 0 }
+    return pointToReturn
+  }
+  
+  
+  
+  
 }
+
