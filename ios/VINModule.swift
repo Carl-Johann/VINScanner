@@ -11,6 +11,15 @@ import Foundation
 @objc(VINModul)
 class VINModul : RCTEventEmitter {
   
+  @objc(RaiseMissingCoordinatesAlert)
+  func RaiseMissingCoordinatesAlert() {
+    print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
+  }
+  
+  
+  
+  
+  
   
   
   @objc(ShouldShowVinDetail)
@@ -18,10 +27,6 @@ class VINModul : RCTEventEmitter {
     print("ShouldShowVinDetail was called from swift")
   }
   
-  @objc(RaiseMissingCoordinatesAlert)
-  func RaiseMissingCoordinatesAlert() {
-    print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
-  }
   
   @objc(VINNotReturned)
   func VINNotReturned() {

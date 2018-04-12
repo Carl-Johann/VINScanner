@@ -91,6 +91,7 @@ class App extends Component {
                 this.setState({
                     shouldShowVINTitleDetail: true,
                     shouldShowVIN: false,
+                    VIN: JSONResponse["VIN"],
                 })
                 Animated.parallel([
                     Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + marginToEdge }),
@@ -118,15 +119,16 @@ class App extends Component {
                             VIN: JSONResponse["VIN"],
                         })
                     })
-                } else {
-
-                    this.setState({
-                        shouldShowVINTitleDetail: true,
-                        shouldShowVIN: true,
-                        VIN: JSONResponse["VIN"],
-                    })
-                    Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + VINComponentHeight + ( 2 * marginToEdge ) }).start()
                 }
+                // else {
+
+                //     this.setState({
+                //         shouldShowVINTitleDetail: true,
+                //         shouldShowVIN: true,
+                //         VIN: JSONResponse["VIN"],
+                //     })
+                //     Animated.timing( this.state.hideAnim, { toValue: hideAnimStartValue + titleVINComponentHeight + VINComponentHeight + ( 2 * marginToEdge ) }).start()
+                // }
 
             }
         })

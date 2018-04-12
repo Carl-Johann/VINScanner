@@ -92,89 +92,66 @@ extension RNCameraViewSwift {
 //          let value = VINDic[i - 1]
 //          let shouldShowSmallImages = VINDic.count == symbols.count ? true : false
           
-          let imgPerLayer: CGFloat = 9
-          // Converts 'key' to a float value with 'imgPerLayer' so that we don't have to do it everywhere below.
+          let fieldPerLayer: CGFloat = 9
+          // Converts 'key' to a float value with 'fieldPerLayer' so that we don't have to convert it everywhere below.
           var keyF = CGFloat(key)
           
-          // We should not make space between the textinputboxes if there aren't going to be any images.
+          // The desired default height
           let defaultHeight = self.screenHeight * 0.5
           
           // We set the individual image width based on screen,
           // as long as it is not larger than 45 px, because that will stretch the images too much
-          let smallImgWidthScreen = (self.screenWidth * 0.9)/imgPerLayer
-          let smallImgWidthMax: CGFloat = 45
-          let smallImgWidth = smallImgWidthScreen < smallImgWidthMax ? smallImgWidthScreen : smallImgWidthMax
+          let smallFieldByScreenWidth = (self.screenWidth * 0.9)/fieldPerLayer
+          let smallFieldMaxWidth: CGFloat = 45
+          let smallFieldWidth = smallFieldByScreenWidth < smallFieldMaxWidth ? smallFieldByScreenWidth : smallFieldMaxWidth
           
           // The bounding boxes returned from Google are on average 2:1 height compared to width
-          let layer = keyF < imgPerLayer ? 1 : 2
-//          let smallImgHeight = smallImgWidth * 2
-          let imgGap = (self.screenWidth - (smallImgWidth * imgPerLayer)) / (imgPerLayer + 1)
+          let layer = keyF < fieldPerLayer ? 1 : 2
+
+          let imgGap = (self.screenWidth - (smallFieldWidth * fieldPerLayer)) / (fieldPerLayer + 1)
           
           // 'Resets' the offset when it starts adding the new layer
-          if layer == 2 { keyF -= imgPerLayer }
+          if layer == 2 { keyF -= fieldPerLayer }
           
-          // How far in (x value) the individual image should be
-          var imgOffset = (imgGap * (keyF + 1))
-          imgOffset = imgOffset + (CGFloat(Double(keyF) + 0.5) * smallImgWidth)
+          // How far in (x value) the individual field should be
+          var fieldOffset = (imgGap * (keyF + 1))
+          fieldOffset = fieldOffset + (CGFloat(Double(keyF) + 0.5) * smallFieldWidth)
           
           
-          
-          // If a full VIN wasn't returned we still want to create empty fields, if the user wants to type them in manually
-//          if shouldShowSmallImages {
-//            let symbol = symbols[key]
-//
-//            guard let boundingBox = symbol["boundingBox"] as? [String : AnyObject] else { print("boundingBox error"); return }
-//            guard let vertices = boundingBox["vertices"] as? [[String : AnyObject]] else { print("vertices error"); return }
-//            // Gets the different corners
-//            guard let bottomLeft: CGPoint = self.returnSecureCorner(indexInVertici: 0, vertices) else { return }
-//            guard let topRight: CGPoint = self.returnSecureCorner(indexInVertici: 2, vertices) else { return }
-//            guard let topLeft: CGPoint = self.returnSecureCorner(indexInVertici: 3, vertices) else { return }
-//
-//
-//            // Creates a rect based on corners.
-//            // Makes the crop a little bigger so we dont have to stretch the small images as much.
-//            let width = (topRight.x - topLeft.x) * 1.1
-//            let height = (topLeft.y - bottomLeft.y) * 1.5
-//            let charRect = CGRect(x: bottomLeft.x, y: bottomLeft.y * 0.5, width: width, height: height)
-//
-//            // Cropps the image
-//            guard let scannedImageAsCG = croppedImage.cgImage else { print("scannedImageAsCG error"); return }
-//            guard let croppedCGImage = scannedImageAsCG.cropping(to: charRect) else { print("croppedCGImage error"); return }
-//            let croppedUIImage = UIImage(cgImage: croppedCGImage)
-//
-//            // Creates a small imageview.
-//            let imageIllustration = UIImageView(image: croppedUIImage)
-//            imageIllustration.contentMode = UIViewContentMode.scaleToFill
-//            imageIllustration.frame.size = CGSize(width: smallImgWidth, height: smallImgHeight)
-//            imageIllustration.center = CGPoint(x: imgOffset, y: defaultHeight + (layer == 1 ? 0 : smallImgHeight * 1.8 ))
-//            self.VINCorrectionView.addSubview(imageIllustration)
-//          }
-          
+          // We show the cropped image right above the textfields for easy comparison.
           let imageIllustration = UIImageView(image: croppedImage)
           imageIllustration.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height * 0.4)
           imageIllustration.frame.size = croppedImage.size
           imageIllustration.backgroundColor = UIColor.green
+          imageIllustration.tag = 118
           self.VINCorrectionView.addSubview(imageIllustration)
           
-          // For every character we add a TextField so we can manually change the values if the suck.
-          var textField = ComparisonTextField(size: CGSize(width: smallImgWidth, height: smallImgWidth))
-          let extraTextFieldOffset = (layer == 1 ? 0 : (smallImgWidth + imgGap))
-          if CGFloat(i) > imgPerLayer { imgOffset += ((smallImgWidth * 0.5) + (imgGap * 0.5)) }
-          textField.center = CGPoint(x: imgOffset, y: defaultHeight + extraTextFieldOffset)
-          textField.layer.cornerRadius = 1
           
-          if i <= scannedVIN.count {
-            let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: key)
-            textField.text = String(scannedVIN[text])
+          if self.VINCorrectionView.viewWithTag(100 + i) == nil {
+            // For every character we add a TextField so we can manually change the values if the suck.
+            var textField = ComparisonTextField(size: CGSize(width: smallFieldWidth, height: smallFieldWidth))
+            let extraTextFieldOffset = (layer == 1 ? 0 : (smallFieldWidth + imgGap))
+            if CGFloat(i) > fieldPerLayer { fieldOffset += ((smallFieldWidth * 0.5) + (imgGap * 0.5)) }
+            textField.center = CGPoint(x: fieldOffset, y: defaultHeight + extraTextFieldOffset)
+            textField.layer.cornerRadius = 1
+            
+            if i <= scannedVIN.count {
+              let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: key)
+              textField.text = String(scannedVIN[text])
+            }
+            textField.tag = 100 + i
+            textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+            
+            textField.inputAccessoryView = self.toolbar
+            textField.autocapitalizationType = UITextAutocapitalizationType.allCharacters
+            if i > 12 { textField.keyboardType = .numberPad }
+            textField.delegate = self
+            
+            // Some characters look alot like another, and can therefore be misidentified. We just make the user aware of them.
+            textField = self.modifyTextFieldIfDangerous(textField) as! ComparisonTextField
+            
+            self.VINCorrectionView.addSubview(textField)
           }
-          textField.tag = 100 + i
-          textField.inputAccessoryView = self.toolbar
-          textField.delegate = self
-          
-          // Some characters look alot like another, and can therefore be misidentified. We just make the user aware of them.
-          textField = self.modifyTextFieldIfDangerous(textField) as! ComparisonTextField
-          
-          self.VINCorrectionView.addSubview(textField)
           
         }
         
@@ -203,22 +180,96 @@ extension RNCameraViewSwift {
   
   // MARK: - Button Functions
   @objc fileprivate func moveActiveTextFieldLeft(sender: UIButton) {
-    print("moveActiveTextFieldLeft")
-    
+    let textFields: [ComparisonTextField] = getTextFields()
+    for textField in textFields {
+      // If this textfield is the one selected
+      if textField.isFirstResponder {
+        // tag 101 is the first textfield. 117 is the last
+        if (textField.isFirstResponder && textField.tag > 101) {
+          // tag 101 is the first textfield. 117 is the last
+          // Sets the textField to the left of the selected one as active
+          textFields.first(where: { $0.tag == textField.tag - 1 })?.becomeFirstResponder()
+          return
+        }
+      }
+    }
   }
   
   @objc fileprivate func moveTextLeft(sender: UIButton) {
-    print("moveActiveTextFieldLeft")
+    let textFields: [ComparisonTextField] = getTextFields()
+    // If the textField is the one selected
+    // If there are any fields next to the selected textfield that are empty
+    guard let textField = textFields.first(where: { (($0.isFirstResponder == true) && ($0.tag > 101)) }) else { print("ERROR. Couldn't find selected inputfield"); return }
+    
+    let anyEmptyFields = textFields.contains(where: { (($0.tag < textField.tag) && ($0.text?.count == 0)) })
+    var firstEmptyFieldDetected = false
+    
+    if anyEmptyFields == true {
+      for field in textFields.filter({ $0.tag < textField.tag }) {
+        if firstEmptyFieldDetected == true {
+          field.text = textFields.first(where: { $0.tag == field.tag + 1 })!.text
+          
+          if var fieldToModify = self.VINCorrectionView.viewWithTag(field.tag) as? UITextField {
+            fieldToModify = modifyTextFieldIfDangerous(field)
+          }
+        } else if (firstEmptyFieldDetected == false && field.text == "") {
+          firstEmptyFieldDetected = true
+          field.text = textFields.first(where: { $0.tag == field.tag + 1 })!.text
+          
+          if var fieldToModify = self.VINCorrectionView.viewWithTag(field.tag) as? UITextField {
+            fieldToModify = modifyTextFieldIfDangerous(field)
+          }
+        }
+      }
+      textField.text = ""
+    }
     
   }
   
   @objc fileprivate func moveTextRight(sender: UIButton) {
-    print("moveTextRight")
+    let textFields: [ComparisonTextField] = getTextFields()
+    // If the textField is the one selected
+    // If there are any fields next to the selected textfield that are empty
+    guard let textField = textFields.first(where: { (($0.isFirstResponder == true) ) }) else { print("ERROR. Couldn't find selected inputfield"); return }
+    
+    let anyEmptyFields = textFields.contains(where: { (($0.tag > textField.tag) && ($0.text?.count == 0)) })
+    var firstEmptyFieldDetected = false
+    
+    if anyEmptyFields == true {
+      for field in textFields.filter({ $0.tag > textField.tag }).reversed() {
+        if firstEmptyFieldDetected == true {
+          field.text = textFields.first(where: { $0.tag == field.tag - 1 })!.text
+          
+          if var fieldToModify = self.VINCorrectionView.viewWithTag(field.tag) as? UITextField {
+            fieldToModify = modifyTextFieldIfDangerous(field)
+          }
+          
+        } else if (firstEmptyFieldDetected == false && field.text == "") {
+          firstEmptyFieldDetected = true
+          field.text = textFields.first(where: { $0.tag == field.tag - 1 })!.text
+          
+          if var fieldToModify = self.VINCorrectionView.viewWithTag(field.tag) as? UITextField {
+              fieldToModify = modifyTextFieldIfDangerous(field)
+          }
+          
+        }
+      }
+      textField.text = ""
+    }
     
   }
   
   @objc fileprivate func moveActiveTextFieldRight(sender: UIButton) {
-    print("moveActiveTextFieldRight")
+    let textFields: [ComparisonTextField] = getTextFields()
+    for textField in textFields {
+      // If this textfield is the one selected
+      if (textField.isFirstResponder && textField.tag < 117) {
+        // tag 101 is the first textfield. 117 is the last
+        // Sets the textField to the right of the selected one as active
+        textFields.first(where: { $0.tag == textField.tag + 1 })?.becomeFirstResponder()
+        return
+      }
+    }
     
   }
   
@@ -251,11 +302,21 @@ extension RNCameraViewSwift {
     // A TextField can only have 1 character.
     guard let text = textField.text?.uppercased() else { return true }
     let newLength = text.count + string.count - range.length
+    print("newLength", newLength)
     return newLength <= 1
+  }
+  
+
+  
+ @objc func textFieldDidChange(_ textField: UITextField) {
+//    print("texfield did change", textField.text!)
+  
+  
   }
   
   func textFieldDidEndEditing(_ textField: UITextField) {
     // If a textfield was left blank, we make the user aware
+//    print("lort")
     modifyTextFieldIfDangerous(textField)
   }
   
@@ -270,8 +331,7 @@ extension RNCameraViewSwift {
   func modifyTextFieldIfDangerous(_ textField: UITextField) -> UITextField {
     let dangerousChars = ["8", "B", "G", "6", "C", "5", "S"]
     
-    guard let char = textField.text else { return textField }
-    
+    guard let char = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else { return textField }
     
     if dangerousChars.contains(char) {
       textField.font = UIFont(name: "AppleSDGothicNeo-SemiBold", size: 24)
@@ -292,7 +352,7 @@ extension RNCameraViewSwift {
       textField.layer.borderColor = UIColor.black.withAlphaComponent(0.8).cgColor
     }
     
-    textField.text = char.uppercased()
+//    textField.text = char.uppercased()
     return textField
   }
   

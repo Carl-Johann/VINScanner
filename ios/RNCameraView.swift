@@ -14,13 +14,11 @@ import Vision
 
 
 @objc(RNCameraViewSwift)
-class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate, UITextFieldDelegate {
+class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureMetadataOutputObjectsDelegate, UITextFieldDelegate {
+  
+  // MARK: - Global Variables And Constants
   let screenWidth = UIScreen.main.bounds.width
   let screenHeight = UIScreen.main.bounds.height
-  
-//  var contentView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-//  var cameraView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-//  var VINCorrectionView = UIView(frame: CGRect(x: 0, y: -20, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var cameraView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
@@ -34,6 +32,8 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
   
   let session = AVCaptureSession()
+  let imageLayer = AVCaptureVideoPreviewLayer()
+  
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
   var rectOfInterest = CGRect(x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
                               y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.045),
@@ -42,7 +42,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var loaded = 0
   var vinScanned: Bool = false
   //  How many times the camera will have to detect a charachter word
-  let scanThreshold: Int = 6
+  let scanThreshold: Int = 3
   
   
   var userWantsToScan: Bool? = nil
@@ -55,7 +55,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   
-  
+  // MARK: - 'ViewDidLoad'
   override func view() -> UIView! {
     if isIPhoneX {
       self.rectOfInterest.origin.y += 20
@@ -71,7 +71,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     // Manual Scan button
     let buttonWidth = self.screenWidth * 0.75
-    let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Manual Scan")
+    let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Scan Now")
     button.center = CGPoint(x: self.screenWidth/2 , y: self.screenHeight * 0.75)
     button.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
     self.cameraView.addSubview(button)
@@ -79,7 +79,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     // The scanned VIN should be inside of the rect
     self.createUIScanRects()
     
-
+    let focus: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(manualFocus(_:)))
+    cameraView.addGestureRecognizer(focus)
+    
     // Creates a gesture recognizer that hides the keyboard when the screen is clicked
     let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(VINCorrectionView.endEditing(_:)))
     VINCorrectionView.addGestureRecognizer(tap)
@@ -87,7 +89,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     //init toolbar
     //create left side empty space so that done button set on right side
-    
+    setupVINCorrectionKeyboardToolbar()
     
     
     self.contentView.backgroundColor = UIColor(hex: "#282828")
@@ -110,17 +112,32 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     let deviceOutput = AVCaptureVideoDataOutput()
     deviceOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
     deviceOutput.setSampleBufferDelegate(self, queue: DispatchQueue.global(qos: DispatchQoS.QoSClass.default))
+
+    imageLayer.session = session
+    imageLayer.frame = self.contentView.frame
+    self.cameraView.layer.addSublayer(imageLayer)
+    
+    
     session.addInput(deviceInput)
+//    session.sessionPreset = .photo'
+//    session.sessionPreset = .high
+    // Text scanning
     session.addOutput(deviceOutput)
     
+    // QR scanning
+    let captureMetadataOutput = AVCaptureMetadataOutput()
     
-//      self.contentView.subviews.forEach({ $0.removeFromSuperview() })
-    let imageLayer = AVCaptureVideoPreviewLayer(session: self.session)
-    imageLayer.frame = self.contentView.frame
+    var modifiedRectOfInterest = self.rectOfInterest
+    modifiedRectOfInterest.size.width = modifiedRectOfInterest.width * 2
+    modifiedRectOfInterest.size.height = modifiedRectOfInterest.width * 2
+    modifiedRectOfInterest = imageLayer.metadataOutputRectConverted(fromLayerRect: modifiedRectOfInterest)
+    modifiedRectOfInterest.origin.y *= -2
+//  captureMetadataOutput.rectOfInterest = modifiedRectOfInterest
+
+//    session.addOutput(captureMetadataOutput)
     
-    self.cameraView.layer.addSublayer(imageLayer)
-//    }
-    
+//    captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+//    captureMetadataOutput.metadataObjectTypes = [ AVMetadataObject.ObjectType.dataMatrix, AVMetadataObject.ObjectType.code39 ]
     
     showCameraView()
     
@@ -157,7 +174,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       
       self.contentView.bringSubview(toFront: self.cameraView)
       // The scanrects disappear for some reason
-      //if we dont' show them every time cameraview has been send to background
+      // if we don't show them every time cameraview has been send to background
       self.createUIScanRects()
       
       
@@ -187,6 +204,26 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       UIView.animate(withDuration: 0.7, animations: {
         self.VINCorrectionView.alpha = 1
       })
+      
+      if ((self.VINForScan != nil) && (self.croppedImageForScan != nil)) {
+        let scannedVIN = self.VINForScan!
+        let scannedImage = self.croppedImageForScan!
+        // Sets the text in the VINCorrection textfields to the newly scanned VIN, else ""
+        for i in 1...17 {
+          if let textField = self.VINCorrectionView.viewWithTag(100 + i) as? UITextField {
+            if i <= scannedVIN.count {
+              let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: i - 1)
+              textField.text = String(scannedVIN[text])
+            } else { textField.text = "" }
+          }
+        }
+        
+        guard let imageIllustration = self.VINCorrectionView.viewWithTag(118) as? UIImageView else {
+          print("could't get imageIllustration"); return
+        }
+        imageIllustration.image = scannedImage
+        
+      }
     }
   }
   func hideVINCorrectionView() {
@@ -237,25 +274,88 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     return text
   }
   
-  open func takeScreenshot(_ shouldSave: Bool = true) -> UIImage? {
-    UIGraphicsBeginImageContext(self.contentView.frame.size)
-    self.cameraView.layer.render(in: UIGraphicsGetCurrentContext()!)
-    let image = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-  
-    return image
+
+  @objc fileprivate func manualFocus(_ sender: UITapGestureRecognizer) {
+    // Since I couldn't figure out how to manually capture a frame,
+    // and taking a screenshot doesn't work on
+//    self.takePicture = true
+//    print(123)
+    
+//    let screenSize = cameraView.bounds.size
+//    if let touchPoint = touches.first {
+    let x = sender.location(in: cameraView).y / screenHeight
+    let y = 1.0 - sender.location(in: cameraView).x / screenWidth
+    let focusPoint = CGPoint(x: x, y: y)
+    
+    if let device = captureDevice {
+      do {
+        try device.lockForConfiguration()
+        
+        device.focusPointOfInterest = focusPoint
+        //device.focusMode = .continuousAutoFocus
+        device.focusMode = .autoFocus
+        //device.focusMode = .locked
+        device.exposurePointOfInterest = focusPoint
+        device.exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
+        device.unlockForConfiguration()
+      }
+      catch {
+        // just ignore
+      }
+    }
+//    }
   }
   
   
   @objc fileprivate func manualScan(sender: UIButton) {
     // Since I couldn't figure out how to manually capture a frame,
     // and taking a screenshot doesn't work on
+    print(12321313)
     self.takePicture = true
   }
 
   
   
   
+  
+  
+  // MARK: - CaptureOutput QR
+  
+  func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+    
+//    print("detected something")
+    // Check if the metadataObjects array is not nil and it contains at least one object.
+    if metadataObjects.count == 0 {
+//      qrCodeFrameView?.frame = CGRect.zero
+      print("No QR code is detected")
+//      messageLabel.text = "No QR code is detected"
+      return
+    }
+    
+    // Get the metadata object.
+    let metadataObj = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
+    
+//    if metadataObj.type == AVMetadataObject.ObjectType.dataMatrix {
+      // If the found metadata is equal to the QR code metadata then update the status label's text and set the bounds
+//      let barCodeObject = imageLayer.transformedMetadataObject(for: metadataObj)
+//      qrCodeFrameView?.frame = barCodeObject!.bounds
+      
+      if ((metadataObj.stringValue != nil) && (vinScanned == false)) {
+        print("metadataObj.stringValue", metadataObj.stringValue!)
+//        messageLabel.text = metadataObj.stringValue
+        
+        if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+          eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : metadataObj.stringValue! ])
+        }
+        validateVIN(metadataObj.stringValue!)
+      }
+    vinScanned = true
+//    }
+  }
+  
+  
+  
+  // MARK: - CaptureOutput Text
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     if self.vinScanned == false {
       
@@ -337,7 +437,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   // Called from CaptureOutput
   func detectTextHandler(request: VNRequest, error: Error?, image: CIImage, pixelBuffer: CVPixelBuffer) {
-    if !self.vinScanned {
+    if self.vinScanned == false {
       // Get the results
       guard let observations = request.results else { return }
       let result = observations.map({$0 as? VNTextObservation})
@@ -352,9 +452,17 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           // If the scanned VIN is inside the rect of interest.
           if self.rectOfInterest.contains(regionBox) {
             
-              if boxes.count > 12 && boxes.count < 18 {
-              
+            // The VIN in the window
+            if boxes.count > 14 && boxes.count < 18 {
               // If we have scanned a VIN as many times as we have specified
+              if self.loaded == self.scanThreshold {
+                self.cropAndPostImage(image)
+                self.hideCameraView()
+              } else {
+                self.IncrementLoadBar()
+              }
+            // Pages behind the window
+            } else if boxes.count == 6 {
               if self.loaded == self.scanThreshold {
                 self.cropAndPostImage(image)
                 self.hideCameraView()
@@ -372,7 +480,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   func IncrementLoadBar() {
     
-    if self.loaded <= self.scanThreshold + 1 {
+    if self.loaded < self.scanThreshold + 1 {
       let widthToincrement = (screenWidth * 0.9)/CGFloat(scanThreshold)
       var maskWidth = mask.bounds.width
       maskWidth += widthToincrement

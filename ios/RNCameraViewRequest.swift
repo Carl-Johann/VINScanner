@@ -109,7 +109,8 @@ extension RNCameraViewSwift {
     if cleanedVIN.count == 17 {
       // We might have a VIN that exists in the database, so we check(validate) it
       validateVIN(cleanedVIN, croppedImage, symbols)
-      resetCheckOrScanAttributes()
+//      resetCheckOrScanAttributes()
+      setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
       
       if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
         eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
@@ -127,9 +128,10 @@ extension RNCameraViewSwift {
       
     } else {
     // else we notify JS too, but theres no 'VIN'
-      resetCheckOrScanAttributes()
+//      resetCheckOrScanAttributes()
+      setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
       if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : false, "VIN" : "" ])
+        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : false, "VIN" : cleanedVIN ])
       }
       
       
@@ -141,6 +143,8 @@ extension RNCameraViewSwift {
 //    eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
 //  }
   
+  
+  
   func validateVIN(_ VIN: String, _ croppedImage: UIImage = UIImage(), _ symbols: [[String : AnyObject]] = [[String : AnyObject]]()) {
     
     // We dont bother validation the VIN if it ins't 17 characters long
@@ -148,6 +152,9 @@ extension RNCameraViewSwift {
       print("VIN is not 17 long. Skipping validation.", VIN.count)
       self.hideCameraView()
       self.hideVINCorrectionView()
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : false, "VIN" : "" ])
+      }
       return
     }
     
@@ -182,7 +189,8 @@ extension RNCameraViewSwift {
         // VIN exists. Send the data to React-Native
         
         // The fact that the VIN exists means the user won't be promted to choose weather or not to scan or check VI
-        self.resetCheckOrScanAttributes()
+//        self.resetCheckOrScanAttributes()
+        self.setCheckOrScanAttribues(croppedImage, VIN, symbols)
         
         guard let data = requestData else { print("error data"); return }
         let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
@@ -208,6 +216,7 @@ extension RNCameraViewSwift {
     }
     
     task.resume()
+    
     
     self.hideCameraView()
     self.hideVINCorrectionView()
