@@ -9,15 +9,15 @@ import Dimensions from 'Dimensions'
 
 const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
 
-const DataFromVINView = ({ DoesVINExist, checkVINOrScanAgain, VINData, dataFromVINComponentHeight }) => {
+const SecondDetailBoxView = ({ doesScannedStringExistInDB, checkScannedCharactersOrScanAgain, scannedStringDBData, secondDetailBoxHeight }) => {
     let spinKitSize = 42
 
-    var lort = dataFromVINComponentHeight.interpolate({
+    var lort = secondDetailBoxHeight.interpolate({
         inputRange: [135, 200],
         outputRange: [spinKitSize + 15, spinKitSize + 80],
     })
 
-    if (DoesVINExist == null) {
+    if (doesScannedStringExistInDB == null) {
 
 
 
@@ -36,18 +36,18 @@ const DataFromVINView = ({ DoesVINExist, checkVINOrScanAgain, VINData, dataFromV
             </Animated.View>
         )
 
-    } else if (DoesVINExist == true) {
+    } else if (doesScannedStringExistInDB == true) {
 
-        // If the VIN exists in the database { height: dataFromVINComponentHeight }
+        // If the VIN exists in the database { height: secondDetailBoxHeight }
         return (
             <Animated.View style={[ styles.subviewStyle, { height: lort } ]}>
                 {/*<LineBreaker margin={ 7 } />*/}
-                <Text style={ styles.detailText }>Site: { VINData['site'] }</Text>
-                <Text style={ styles.detailText }>Model: { VINData['model'].replace(/ .*/,'') }</Text>
+                <Text style={ styles.detailText }>Site: { scannedStringDBData['site'] }</Text>
+                <Text style={ styles.detailText }>Model: { scannedStringDBData['model'].replace(/ .*/,'') }</Text>
                 <Animated.View style={{  }}>
                     <CheckVinOrScanAgainButton
                         titleText={ 'Scan Again' }
-                        checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                        checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                         shouldScan={ true }
                     />
 
@@ -56,7 +56,7 @@ const DataFromVINView = ({ DoesVINExist, checkVINOrScanAgain, VINData, dataFromV
             </Animated.View>
         )
 
-    } else if (DoesVINExist == false) {
+    } else if (doesScannedStringExistInDB == false) {
 
         // If the VIN is 17 long, but it doesn't exist in the database. Let them manually change it (compareVINCharachtersWithRetrieved() from VINCorrection.swift)
         return (
@@ -66,7 +66,7 @@ const DataFromVINView = ({ DoesVINExist, checkVINOrScanAgain, VINData, dataFromV
                 <LineBreaker margin={ 7 } />
                 <View style={ styles.subviewStyle } >
                     <CheckVINAndScanAgainButtons
-                        checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                        checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                     />
                 </View>
             </View>
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default DataFromVINView
+export default SecondDetailBoxView

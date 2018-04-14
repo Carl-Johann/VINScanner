@@ -15,7 +15,7 @@
 RCT_EXPORT_VIEW_PROPERTY(locations, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(colors, NSArray);
 RCT_EXTERN_METHOD(missingCoordinatesErrorFromJS:(nonnull NSNumber *)name)
-RCT_EXTERN_METHOD(checkVINOrScanAgain:(nonnull BOOL *)shouldScan)
+RCT_EXTERN_METHOD(CheckDataOrScanAgain:(nonnull BOOL *)shouldScan)
 
 @end
 

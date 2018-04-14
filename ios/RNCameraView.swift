@@ -22,7 +22,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var cameraView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-  var VINCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  var DataCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   
   let urlSession = URLSession.shared
   var mask: CALayer = CALayer()
@@ -47,7 +47,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   var userWantsToScan: Bool? = nil
   var croppedImageForScan: UIImage? = nil
-  var VINForScan: String? = nil
+  var dataFromScan: String? = nil
   var symbolsForScan: [[String : AnyObject]]? = nil
   
   
@@ -60,12 +60,12 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     if isIPhoneX {
       self.rectOfInterest.origin.y += 20
       self.cameraView.frame.origin.y -= 20
-      self.VINCorrectionView.frame.origin.y -= 20
+      self.DataCorrectionView.frame.origin.y -= 20
       self.contentView.frame.origin.y -= 20
     }
     
     // Shoulc be hidden in the beginning
-    VINCorrectionView.alpha = 0
+    DataCorrectionView.alpha = 0
     startLiveVideo()
     
     
@@ -83,9 +83,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     cameraView.addGestureRecognizer(focus)
     
     // Creates a gesture recognizer that hides the keyboard when the screen is clicked
-    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(VINCorrectionView.endEditing(_:)))
-    VINCorrectionView.addGestureRecognizer(tap)
-    VINCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
+    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(DataCorrectionView.endEditing(_:)))
+    DataCorrectionView.addGestureRecognizer(tap)
+    DataCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
     //init toolbar
     //create left side empty space so that done button set on right side
@@ -94,9 +94,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     self.contentView.backgroundColor = UIColor(hex: "#282828")
     self.cameraView.backgroundColor = UIColor(hex: "#282828")
-    self.VINCorrectionView.backgroundColor = UIColor(hex: "#282828")
+    self.DataCorrectionView.backgroundColor = UIColor(hex: "#282828")
     self.contentView.addSubview(cameraView)
-    self.contentView.addSubview(VINCorrectionView)
+    self.contentView.addSubview(DataCorrectionView)
     return contentView
   }
 
@@ -197,20 +197,20 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       })
     }
   }  
-  func showVINCorrectionView() {
+  func showDataCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.bringSubview(toFront: self.VINCorrectionView)
+      self.contentView.bringSubview(toFront: self.DataCorrectionView)
       UIView.animate(withDuration: 0.7, animations: {
-        self.VINCorrectionView.alpha = 1
+        self.DataCorrectionView.alpha = 1
       })
       
-      if ((self.VINForScan != nil) && (self.croppedImageForScan != nil)) {
-        let scannedVIN = self.VINForScan!
+      if ((self.dataFromScan != nil) && (self.croppedImageForScan != nil)) {
+        let scannedVIN = self.dataFromScan!
         let scannedImage = self.croppedImageForScan!
         // Sets the text in the VINCorrection textfields to the newly scanned VIN, else ""
         for i in 1...17 {
-          if let textField = self.VINCorrectionView.viewWithTag(100 + i) as? UITextField {
+          if let textField = self.DataCorrectionView.viewWithTag(100 + i) as? UITextField {
             if i <= scannedVIN.count {
               let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: i - 1)
               textField.text = String(scannedVIN[text])
@@ -218,10 +218,10 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           }
         }
         
-        guard let imageIllustration = self.VINCorrectionView.viewWithTag(118) as? UIImageView else {
-          print("could't get imageIllustration"); return
+        guard let comparisonImage = self.DataCorrectionView.viewWithTag(118) as? UIImageView else {
+          print("could't get comparisonImage in showDataCorrectionView"); return
         }
-        imageIllustration.image = scannedImage
+        comparisonImage.image = scannedImage
         
       }
     }
@@ -229,9 +229,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func hideVINCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.sendSubview(toBack: self.VINCorrectionView)
+      self.contentView.sendSubview(toBack: self.DataCorrectionView)
       UIView.animate(withDuration: 0.7, animations: {
-        self.VINCorrectionView.alpha = 0
+        self.DataCorrectionView.alpha = 0
       })
     }
   }
@@ -345,7 +345,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
 //        messageLabel.text = metadataObj.stringValue
         
         if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-          eventEmitter.sendEvent(withName: "VINIsAVIN", body: [ "ShouldShow" : true, "VIN" : metadataObj.stringValue! ])
+          eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [ "ShouldShow" : true, "VIN" : metadataObj.stringValue! ])
         }
         validateVIN(metadataObj.stringValue!)
       }
@@ -399,37 +399,39 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   func cropAndPostImage(_ image: CIImage) {
     DispatchQueue.main.async {
-
-      self.vinScanned = true
-      var scannedImage = UIImage(ciImage: image)
-      scannedImage = scannedImage.rotate(radians: .pi / 2)!
-//      print("image width", image.cgImage!.width)
-//      print("image height", image.cgImage!.height)
-      scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
-      guard let scannedImageAsCG = scannedImage.cgImage else { return }
+//      if self.vinScanned == true {
+//        print("sending", self.vinScanned, self.loaded)
+        var scannedImage = UIImage(ciImage: image)
+        scannedImage = scannedImage.rotate(radians: .pi / 2)!
+  //      print("image width", image.cgImage!.width)
+  //      print("image height", image.cgImage!.height)
+        scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
+        guard let scannedImageAsCG = scannedImage.cgImage else { return }
+        
+        // Cropping image
+  //      let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
+        var rect = CGRect()
+        rect = self.rectOfInterest
+        if self.isIPhoneX == true {
+          print("is x")
+          rect.origin.y -= CGFloat(40)
+        }
+        
+        let croppedCGImage = scannedImageAsCG.cropping(to: rect)
+        let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+        
+        // Stops the session, and posts the image for proccesing
+        
+        self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
+        // 1.
+        if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+          print("------------------------------------------------------------")
+//          print("Returning VIN")
+          eventEmitter.sendEvent(withName: "ShouldShowFirstDetailBox", body: "true")
+        }
+//        self.vinScanned = false
       
-      // Cropping image
-//      let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
-      var rect = CGRect()
-      rect = self.rectOfInterest
-      if self.isIPhoneX == true {
-        print("is x")
-        rect.origin.y -= CGFloat(40)
-      }
-      
-      let croppedCGImage = scannedImageAsCG.cropping(to: rect)
-      let croppedUIImage = UIImage(cgImage: croppedCGImage!)
-      
-      // Stops the session, and posts the image for proccesing
-      
-      self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
-      // 1.
-      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-        print("------------------------------------------------------------")
-        print("Returning VIN")
-        eventEmitter.sendEvent(withName: "ShouldShowVinDetail", body: "true")
-      }
-      
+//      }
     }
   }
   
@@ -456,16 +458,25 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
             if boxes.count > 14 && boxes.count < 18 {
               // If we have scanned a VIN as many times as we have specified
               if self.loaded == self.scanThreshold {
+                self.vinScanned = true
                 self.cropAndPostImage(image)
                 self.hideCameraView()
               } else {
                 self.IncrementLoadBar()
               }
-            // Pages behind the window
+            // Page behind the window
             } else if boxes.count == 6 {
-              if self.loaded == self.scanThreshold {
+              if ((self.loaded == self.scanThreshold) && (self.vinScanned == false)) {
+//                print()
+//                print("boxes.count == 6. sending")
+                self.vinScanned = true
+                self.loaded = 0
                 self.cropAndPostImage(image)
                 self.hideCameraView()
+                
+//                self.perform(#selector(self.resetVINScannedAndLoaded), with: nil, afterDelay: 1.5)
+
+                
               } else {
                 self.IncrementLoadBar()
               }
@@ -474,6 +485,12 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
         }
       }
     }
+  }
+  
+  @objc(resetVINScannedAndLoaded)
+  func resetVINScannedAndLoaded() {
+    self.vinScanned = true
+    self.loaded = 0
   }
   
   

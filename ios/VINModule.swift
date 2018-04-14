@@ -11,47 +11,40 @@ import Foundation
 @objc(VINModul)
 class VINModul : RCTEventEmitter {
   
-  @objc(RaiseMissingCoordinatesAlert)
-  func RaiseMissingCoordinatesAlert() {
-    print("Asking JS to raise an alert, since that apparently not possible in iOS with react-native")
+  
+  @objc(ShouldShowFirstDetailBox)
+  func ShouldShowFirstDetailBox() {
+    print("ShouldShowFirstDetailBox was called from swift")
   }
+
   
-  
-  
-  
-  
-  
-  
-  @objc(ShouldShowVinDetail)
-  func ShouldShowVinDetail() {
-    print("ShouldShowVinDetail was called from swift")
+  @objc(ShouldShowDataInFirstDetailBox:)
+  func ShouldShowDataInFirstDetailBox(_ data: [String : AnyObject]) {
+    print("Data exists. Sending to JS")
   }
+
   
-  
-  @objc(VINNotReturned)
-  func VINNotReturned() {
-    print("VIN not return error posted to JS")
-  }
-  
-  
-  @objc(DoesVINExistInDatabase:)
-  func DoesVINExistInDatabase(_ toShow: Bool) {
+  @objc(ShouldShowDataInSecondDetailBox:)
+  func ShouldShowDataInSecondDetailBox(_ toShow: Bool) {
     print("Asking JS to either show or hide VIN detail")
   }
+  
+  
+  @objc(NoDataReturnedFromGoogle)
+  func NoDataReturnedFromGoogle() {
+    print("VIN not return error posted to JS")
+  }
+
   
   @objc(hideAndResetEverything)
   func hideAndResetEverything() {
     print("Resets everything. An error occured")
   }
   
-  @objc(VINIsAVIN:)
-  func VINIsAVIN(_ data: [String : AnyObject]) {
-    print("VIN exists. Sending data to JS")
-  }
   
   @objc
   override func supportedEvents() -> [String]! {
-    return ["ShouldShowVinDetail", "RaiseMissingCoordinatesAlert", "VINNotReturned", "DoesVINExistInDatabase", "hideAndResetEverything", "VINIsAVIN"]
+    return ["ShouldShowFirstDetailBox", "NoDataReturnedFromGoogle", "ShouldShowDataInSecondDetailBox", "hideAndResetEverything", "ShouldShowDataInFirstDetailBox"]
   }
   
   

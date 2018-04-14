@@ -46,7 +46,7 @@
 		D845F1E8206C327800AD3718 /* VINModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D845F1E6206C327800AD3718 /* VINModule.m */; };
 		D8BA4F03206ECD5A00DC8875 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F02206ECD5A00DC8875 /* Errors.swift */; };
 		D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* Subclasses.swift */; };
-		D8BA4F0720714ACA00DC8875 /* VINCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F0620714AC900DC8875 /* VINCorrection.swift */; };
+		D8BA4F0720714ACA00DC8875 /* DataCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F0620714AC900DC8875 /* DataCorrection.swift */; };
 		D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */; };
 		D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */; };
 		D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */; };
@@ -381,7 +381,7 @@
 		D845F1E6206C327800AD3718 /* VINModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VINModule.m; sourceTree = "<group>"; };
 		D8BA4F02206ECD5A00DC8875 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		D8BA4F042070110900DC8875 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
-		D8BA4F0620714AC900DC8875 /* VINCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VINCorrection.swift; sourceTree = "<group>"; };
+		D8BA4F0620714AC900DC8875 /* DataCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrection.swift; sourceTree = "<group>"; };
 		D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BackIconRight.png; path = ../../../../../Downloads/BackIconRight.png; sourceTree = "<group>"; };
 		D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BackIconLeft.png; sourceTree = "<group>"; };
 		D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconLeft.png; sourceTree = "<group>"; };
@@ -537,7 +537,7 @@
 				D8BA4F02206ECD5A00DC8875 /* Errors.swift */,
 				D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */,
 				D811A97F206BBA1000257868 /* RNCameraView.swift */,
-				D8BA4F0620714AC900DC8875 /* VINCorrection.swift */,
+				D8BA4F0620714AC900DC8875 /* DataCorrection.swift */,
 				D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */,
 				D8BA4F042070110900DC8875 /* Subclasses.swift */,
 				D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */,
@@ -1230,7 +1230,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				D81D011D206D8FD60036F7B4 /* RNCameraViewRequest.swift in Sources */,
 				D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */,
-				D8BA4F0720714ACA00DC8875 /* VINCorrection.swift in Sources */,
+				D8BA4F0720714ACA00DC8875 /* DataCorrection.swift in Sources */,
 				D845F1E8206C327800AD3718 /* VINModule.m in Sources */,
 				D811A9B7206BBA7000257868 /* RNCameraView.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

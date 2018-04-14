@@ -6,10 +6,10 @@ class RNCameraView extends Component {
 
 
   render() {
-    let { colors, locations, ...otherProps } = this.props;
+    let { style } = this.props;
 
     return (
-        <RNLinearGradient {...otherProps} colors={processColor(colors)} />
+        <RNLinearGradient style={ style }/>
     )
 
   }

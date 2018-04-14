@@ -5,11 +5,11 @@ import Dimensions from 'Dimensions'
 
 const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
 
-const CheckVinOrScanAgainButton = ({ titleText, checkVINOrScanAgain, shouldScan }) => {
+const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgain, shouldScan }) => {
     return (
             <TouchableOpacity
                 style={ styles.buttonStyle }
-                onPress={ () => { checkVINOrScanAgain(shouldScan) }}
+                onPress={ () => { checkScannedCharactersOrScanAgain(shouldScan) }}
             >
                 <Text style={ styles.detailText } >{ titleText }</Text>
             </TouchableOpacity>

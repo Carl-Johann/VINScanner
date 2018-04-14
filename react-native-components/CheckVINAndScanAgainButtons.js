@@ -5,19 +5,19 @@ import Dimensions from 'Dimensions'
 
 const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
 
-const CheckVINAndScanAgainButtons = ({ checkVINOrScanAgain }) => {
+const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 
     return (
         <View style={ styles.buttonsStyleContainerStyle }>
             <CheckVinOrScanAgainButton
                 titleText={ 'Check VIN' }
-                checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 shouldScan={ false }
             />
 
             <CheckVinOrScanAgainButton
                 titleText={ 'Scan Again' }
-                checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 shouldScan={ true }
             />
         </View>

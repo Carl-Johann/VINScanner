@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
-import VINTitleView from './VINTitleView'
-import DataFromVINView from './DataFromVINView'
+import FirstDetailBoxView from './FirstDetailBoxView'
+import SecondDetailBoxView from './SecondDetailBoxView'
 
 import amYellow from './colors'
 import Dimensions from 'Dimensions'
@@ -11,32 +11,33 @@ const screenWidth = () => { return Dimensions.get('window').width }
 
 
 
-const VINDetailView = ({ VIN, checkVINOrScanAgain, hideAnim, VINTitleComponentHeight, dataFromVINComponentHeight, shouldShowVIN, VINData, DoesVINExist }) => {
+const DetailBoxesView = ({ scannedCharacters, checkScannedCharactersOrScanAgain, hideAnim, firstDetailBoxHeight, secondDetailBoxHeight, shouldShowScannedCharacters, scannedStringDBData, doesScannedStringExistInDB }) => {
 
     return (
         <Animated.View style={{ bottom: hideAnim }}>
+
             <View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail ]}>
                 <Text style={[ styles.detailText, { fontSize: 24 } ]}>VIN</Text>
 
                 <LineBreaker margin={ 7 } />
-                <VINTitleView
-                    VIN={ VIN }
-                    shouldShowVIN={ shouldShowVIN }
-                    VINTitleComponentHeight={ VINTitleComponentHeight }
-                    checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
+                <FirstDetailBoxView
+                    scannedCharacters={ scannedCharacters }
+                    shouldShowScannedCharacters={ shouldShowScannedCharacters }
+                    firstDetailBoxHeight={ firstDetailBoxHeight }
+                    checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 />
-                {/*<LineBreaker margin={ 7 } />*/}
+                <LineBreaker margin={ 0 } />
             </View>
 
             <View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle ]} >
                 <Text style={[ styles.detailText, { fontSize: 24 } ]}>Car Details</Text>
 
                 <LineBreaker margin={ 7 } />
-                <DataFromVINView
-                    checkVINOrScanAgain={ (shouldScan) => checkVINOrScanAgain(shouldScan) }
-                    dataFromVINComponentHeight={ dataFromVINComponentHeight }
-                    DoesVINExist={ DoesVINExist }
-                    VINData={ VINData }
+                <SecondDetailBoxView
+                    checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
+                    secondDetailBoxHeight={ secondDetailBoxHeight }
+                    doesScannedStringExistInDB={ doesScannedStringExistInDB }
+                    scannedStringDBData={ scannedStringDBData }
                 />
                 <LineBreaker margin={ 7 } />
             </View>
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
 
     VINTitleBoxDetail: {
         width: Dimensions.get('window').width * 0.85,
-        alignItems: 'center',
+        // alignItems: 'center',
         // height: 120,
     },
 
@@ -85,4 +86,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default VINDetailView
+export default DetailBoxesView
