@@ -10,14 +10,13 @@ import LineBreaker from './LineBreaker'
 const screenWidth = () => { return Dimensions.get('window').width }
 
 
-
 const DetailBoxesView = ({ scannedCharacters, checkScannedCharactersOrScanAgain, hideAnim, firstDetailBoxHeight, secondDetailBoxHeight, shouldShowScannedCharacters, scannedStringDBData, doesScannedStringExistInDB }) => {
 
     return (
         <Animated.View style={{ bottom: hideAnim }}>
 
             <View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail ]}>
-                <Text style={[ styles.detailText, { fontSize: 24 } ]}>VIN</Text>
+                <Text style={[ styles.detailText, { fontSize: 24 } ]}>{ scannedCharacters.length > 7 ? 'VIN' : 'Window Label' }</Text>
 
                 <LineBreaker margin={ 7 } />
                 <FirstDetailBoxView
@@ -26,7 +25,7 @@ const DetailBoxesView = ({ scannedCharacters, checkScannedCharactersOrScanAgain,
                     firstDetailBoxHeight={ firstDetailBoxHeight }
                     checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 />
-                <LineBreaker margin={ 0 } />
+                <LineBreaker margin={ 7 } />
             </View>
 
             <View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle ]} >

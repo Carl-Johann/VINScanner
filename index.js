@@ -7,15 +7,15 @@ import DetailBoxesView from './react-native-components/DetailBoxesView'
 import amYellow from './react-native-components/colors'
 
 
-export let firstDetailBoxDefaultHeight = 120
-export let tallFirstDetailBoxDefaultHeight = 195
+export let firstDetailBoxDefaultHeight = 105
+export let tallFirstDetailBoxDefaultHeight = 170
 
 export let secondDetailBoxDefaultHeight = 135
 export let tallSecondDetailBoxDefaultHeight = 200
 
 export let detailBoxesMarginToEdge = Dimensions.get('window').width * 0.05
-export let detailBoxesDefaultHeightOffset = -firstDetailBoxDefaultHeight - secondDetailBoxDefaultHeight - detailBoxesMarginToEdge
-
+export let detailBoxesDefaultHeightOffset = -firstDetailBoxDefaultHeight - secondDetailBoxDefaultHeight - ( 2 * detailBoxesMarginToEdge )
+var isAnimating = false
 class App extends Component {
 
     state = {
@@ -27,84 +27,109 @@ class App extends Component {
         scannedStringDBData: {}, // {}
 
         secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight), // 135
-        firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight),
-        detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
-
-
-        // shouldShowFirstDetailBox: true, // false
-        // shouldShowVIN: null, //null
-        // VIN: "W0LBD6EA0HG084887", // ""
-
-
-        // doesScannedStringExistInDB: null, //null
-        // scannedStringDBData: {"primary_key":1,"site":"HQ","chassis":"W0LBD6EA0HG084887","model":"ASTRA ENJOY 5D 1.0T 105HK MTA"}, // {}
-        // // {"primary_key":1,"site":"HQ","chassis":"W0LBD6EA0HG084887","model":"ASTRA ENJOY 5D 1.0T 105HK MTA"}
-        // secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight), // 135
-        // firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight),
-        // detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
+        firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight), // 120
+        detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset), // detailBoxesDefaultHeightOffset
     }
 
-    //
-    // Things being changed: shouldShowVINTitleDetail shouldShowFirstDetailBox
-    //
 
     componentDidMount() {
         const moduleEvent = new NativeEventEmitter(NativeModules.VINModul)
         var RNCameraViewSwiftManager = NativeModules.RNCameraViewSwift;
+        // this.animateDetailBoxesHeightOffset(detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge)
+        // setTimeout(() => {
+        //     if (isAnimating == false) {
+        //         // this.animateDetailBoxesHeightOffset(detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge)
+        //     }
 
-        // Animated.parallel([
-        //             Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge }),
-        //             Animated.timing( this.state.firstDetailBoxHeight, { toValue: tallFirstDetailBoxDefaultHeight }),
-        //         ]).start()
+        //     // Animated.timing( this.state.detailBoxesHeightOffset, { toValue:  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge, duration: 850}).start( () => {
+        //         // console.log("4.1. Ending ShouldShowDataInFirstDetailBox")
+        //         this.setState({
+        //         //     // shouldShowFirstDetailBox: true,
+        //         //     shouldShowScannedCharacters: null,
+        //         //     scannedCharacters: "123456",
+        //         })
+        //     // })
+        // }, 800)
 
+        // setTimeout(() => {
+        //     let lort = detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge )
+        //     this.setState({
+        //             shouldShowFirstDetailBox: true,
+        //             shouldShowScannedCharacters: true,
+        //             scannedCharacters: "123456",
+        //         })
+        //     this.animateDetailBoxesHeightOffset(lort)
+        // }, 1000)
+        // this.setState({ shouldShowFirstDetailBox: true })
+        // this.animateDetailBoxesHeightOffset(  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge )
 
         // Life cycle of data boxes
-        // 1. This is the first box.    Show it with a loading icon.
+        // 1. This is the first box.    Shows it with a loading icon.
         moduleEvent.addListener('ShouldShowFirstDetailBox', response => {
-            this.setState({ shouldShowFirstDetailBox: true })
+
             // console.log("1. Starting ShouldShowFirstDetailBox")
-            Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge }).start()
+            // Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge }).start()
+            this.setState({ shouldShowFirstDetailBox: true })
+            this.animateDetailBoxesHeightOffset(  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge )
+
         })
 
         // 2. This is the first AND second box.    Shows the second box with loading icon if successful.
         moduleEvent.addListener('ShouldShowDataInFirstDetailBox', response => {
             var JSONResponse = JSON.stringify(response, null, 2)
             JSONResponse = JSON.parse(JSONResponse)
-            // console.log(JSONResponse)
+            console.log("ShouldShowDataInFirstDetailBox:", JSONResponse["ShouldShow"])
+
+            this.setState({
+                    shouldShowFirstDetailBox: true,
+                    shouldShowScannedCharacters: JSONResponse["ShouldShow"],
+                    scannedCharacters: JSONResponse["CleanedCharacters"],
+                })
 
             if (JSONResponse["ShouldShow"] == false) {
             // If 'shouldShowVINDetail' = false, show 'Scan again' button
 
-                // console.log("3. Starting ShouldShowDataInFirstDetailBox")
+                // console.log("3.1. Starting ShouldShowDataInFirstDetailBox")
                 Animated.parallel([
-                    Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge }),
+                    Animated.timing( this.state.detailBoxesHeightOffset, { toValue:  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge, duration: 850}),
                     Animated.timing( this.state.firstDetailBoxHeight, { toValue: tallFirstDetailBoxDefaultHeight }),
                 ]).start( () => {
-                    // console.log("4. Ending ShouldShowDataInFirstDetailBox")
-                    this.setState({
-                        shouldShowFirstDetailBox: true,
-                        shouldShowScannedCharacters: false,
-                        scannedCharacters: JSONResponse["VIN"],
-                    })
+                    // console.log("4.1. Ending ShouldShowDataInFirstDetailBox")
+                    // this.setState({
+                    //     shouldShowFirstDetailBox: true,
+                    //     shouldShowScannedCharacters: false,
+                    //     scannedCharacters: JSONResponse["CleanedCharacters"],
+                    // })
                 })
 
-            } else if (String(JSONResponse["VIN"]).length == 17) {
-            // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VI
-                Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge ) }).start( () => {
-                    this.setState({
-                        shouldShowFirstDetailBox: true,
-                        shouldShowScannedCharacters: true,
-                        scannedCharacters: JSONResponse["VIN"],
-                    })
-                })
-            }
+            } else if (
+                (String(JSONResponse["CleanedCharacters"]).length == 17)
+                || (String(JSONResponse["CleanedCharacters"]).length == 6)
+                || (String(JSONResponse["CleanedCharacters"]).length == 7)
+            ) {
+            // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VIN
+                // this.setState({
+                //     shouldShowFirstDetailBox: true,
+                //     shouldShowScannedCharacters: true,
+                //     scannedCharacters: JSONResponse["CleanedCharacters"],
+                // })
+                // Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge ) }).start()
+                    let lort = detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge )
+                    this.animateDetailBoxesHeightOffset(lort)
+                    // if (this.animateDetailBoxesHeightOffset(lort) == false) {
+                    //     setTimeout( () => {
+
+                    //     }, 50 )
+                    // }
+                }
+            // }
         })
 
         // 3. This is the second box.   This either shows an error or fills it with data.
         moduleEvent.addListener('ShouldShowDataInSecondDetailBox', response => {
             var JSONResponse = JSON.stringify(response, null, 2)
             JSONResponse = JSON.parse(JSONResponse)
-
+            console.log(123, JSONResponse)
 
             if (JSONResponse["scannedStringDBData"] != "") {
             // If the VIN exists in the database, the database returns 'scannedStringDBData'
@@ -156,20 +181,24 @@ class App extends Component {
                 }
             );
         })
-
-        // Shows an error.
-        // moduleEvent.addListener('RaiseMissingCoordinatesAlert', response => {
-        //     // console.log("Asked to raise ios native alert", JSON.stringify(response, null, 2))
-        //     Alert.alert(
-        //         "Scan Not Possible",
-        //         "Looks like the whole VIN wasn't inside the rectangle",
-        //         [{ text: "Try Again", onPress: () => { RNCameraViewSwiftManager.missingCoordinatesErrorFromJS(123) } }]
-        //     )
-        // })
-
         // End of errors
     }
 
+
+    animateDetailBoxesHeightOffset = (animation) => {
+        if (isAnimating == true) {
+            setTimeout( () => {
+                this.animateDetailBoxesHeightOffset(animation)
+            }, 1)
+
+
+            // return false
+        } else {
+            isAnimating = true
+            Animated.timing( this.state.detailBoxesHeightOffset, { toValue: animation, duration: 800 } ).start(() => { isAnimating = false })
+            // return true
+        }
+    }
 
     // Also called as an error function for resetting the whole view. (moduleEvent.addListener('hideAndResetEverything'))
     checkScannedCharactersOrScanAgain = (ShouldScan) => {
@@ -211,14 +240,14 @@ class App extends Component {
 
 
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#282828' }}>
                 <View style={ styles.container }>
                     <RNCameraView
                         style={ styles.camera }
                     />
 
                     { shouldShowFirstDetailBox && (
-                        <Animated.View style={{ bottom: detailBoxesHeightOffset }}>
+                        <Animated.View style={{ bottom: detailBoxesHeightOffset, marginBottom: detailBoxesMarginToEdge }}>
                             <DetailBoxesView
                                 checkScannedCharactersOrScanAgain={ (shouldScan) => {
                                     checkScannedCharactersOrScanAgain(shouldScan)

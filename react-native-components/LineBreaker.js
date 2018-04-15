@@ -7,7 +7,7 @@ const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
 
 const LineBreaker = ({ margin }) => {
     return (
-        <View style={{ height: 1.5, width: widthTimes075(), backgroundColor: amYellow, margin }} />
+        <View style={{ height: 1.5, width: widthTimes075(), backgroundColor: amYellow, marginTop: margin , marginBottom: margin }} />
     )
 }
 

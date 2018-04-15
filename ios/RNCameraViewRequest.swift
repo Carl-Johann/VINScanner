@@ -93,7 +93,7 @@ extension RNCameraViewSwift {
     guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else {
       print("fullTextAnnotation error"); ERROR("ShouldShowDataInSecondDetailBox")	; return }
     
-    guard let retrievedVIN = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
+    guard let retrievedCharacters = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
     guard let pages = fullTextAnnotation["pages"] as? [[String : AnyObject]] else { print("pages error"); return }
     guard let blocks = pages[0]["blocks"] as? [[String : AnyObject]] else { print("blocks error"); return }
     guard let paragraphs = blocks[0]["paragraphs"] as? [[String : AnyObject]] else { print("paragraphs error"); return }
@@ -101,50 +101,43 @@ extension RNCameraViewSwift {
     guard let symbols = words[0]["symbols"] as? [[String : AnyObject]] else { print("symbols error"); return }
 //    sleep(UInt32(2))
     
-    var cleanedVIN = cleanVIN(retrievedVIN)
-    cleanedVIN = String(cleanedVIN.filter { !" \n\t\r".contains($0) })
-    print("Cleaned VIN:", cleanedVIN, "-", cleanedVIN.count)
+    var cleanedCharacters = cleanCharacters(retrievedCharacters)
+    cleanedCharacters = String(cleanedCharacters.filter { !" \n\t\r".contains($0) })
+    print("Cleaned VIN:", cleanedCharacters, "-", cleanedCharacters.count)
+//    sleep(UInt32(1.5))
     
-    // If the VIN could actually be an actual VIN we notify JS
-                                                      // 6
-    if ((cleanedVIN.count == 17) || (cleanedVIN.count == 17 )) {
+    // A succesfull scan should be 17, 7 or 6 characters long, based on what type of data was scanned
+    if ((cleanedCharacters.count == 17) || (cleanedCharacters.count == 6 ) || (cleanedCharacters.count == 7 )) {
       // We might have a VIN that exists in the database, so we check(validate) it
-      validateVIN(cleanedVIN, croppedImage, symbols)
-      setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
-      eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [ "ShouldShow" : true, "VIN" : cleanedVIN ])
+      validateVIN(cleanedCharacters, croppedImage, symbols)
+      setCheckOrScanAttribues(croppedImage, cleanedCharacters, symbols)
+      eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
+        "ShouldShow" : true, "CleanedCharacters" : cleanedCharacters
+      ])
       
     } else {
     // else we notify JS too, but theres no 'VIN'
-      setCheckOrScanAttribues(croppedImage, cleanedVIN, symbols)
-      eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [ "ShouldShow" : false, "VIN" : cleanedVIN ])
+      setCheckOrScanAttribues(croppedImage, cleanedCharacters, symbols)
+      eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
+        "ShouldShow" : false, "CleanedCharacters" : cleanedCharacters
+      ])
     }
   }
   
 
   
   
-  func validateVIN(_ VIN: String, _ croppedImage: UIImage = UIImage(), _ symbols: [[String : AnyObject]] = [[String : AnyObject]]()) {
+  func validateVIN(_ CleanedCharacters: String, _ croppedImage: UIImage = UIImage(), _ symbols: [[String : AnyObject]] = [[String : AnyObject]]()) {
     guard let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter else { print("Couldn't get eventEmitter in validateVIN"); return }
 
-    // We dont bother validation the VIN if it ins't 17 characters long
-//    if VIN.count != 17 {
-//
-//      print("VIN is not 17 long. Skipping validation.", VIN.count)
-//      self.hideCameraView()
-//      self.hideVINCorrectionView()
-//      eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [ "ShouldShow" : false, "VIN" : "" ])
-//
-//      return
-//    }
-//
     
-    struct CodableVINStruct: Codable {
-      let VIN: String
+    struct CodableScannedCharactersStruct: Codable {
+      let ScannedCharacters: String
     }
     
-    let VINStruct = CodableVINStruct(VIN: VIN)
+    let ScannedCharactersStruct = CodableScannedCharactersStruct(ScannedCharacters: CleanedCharacters)
     
-    let encodedData = try? JSONEncoder().encode(VINStruct)
+    let encodedData = try? JSONEncoder().encode(ScannedCharactersStruct)
     let json = try? JSONSerialization.jsonObject(with: encodedData!, options: .allowFragments)
     let jsonData = try? JSONSerialization.data(withJSONObject: json!)
     var request = URLRequest(url: URL(string: "https://prod-17.northeurope.logic.azure.com:443/workflows/ccf987eef25e4d3c930573724579a2b5/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ad4tVWWLhUpPRFDxT7T-BOjwX8y-ZsUEOhaKjP6gFR8")!)
@@ -164,12 +157,12 @@ extension RNCameraViewSwift {
       
       
       if statusCode == 200 {
-        print("VIN exists in the database")
+        print("ScannedCharacters exists in the database")
         // VIN exists. Send the data to React-Native
         
         // The fact that the VIN exists means the user won't be promted to choose weather or not to scan or check VI
 //        self.resetCheckOrScanAttributes()
-        self.setCheckOrScanAttribues(croppedImage, VIN, symbols)
+        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters, symbols)
         
         guard let data = requestData else { print("error data"); return }
         let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
@@ -179,10 +172,10 @@ extension RNCameraViewSwift {
         
         
       } else if statusCode == 404 {
-        print("VIN does NOT exists in the database")
+        print("ScannedCharacters does NOT exists in the database")
         // They will be asked to 'check vin' or 'scan again'. If they decide to check,
         // 'correctDataFromGoogleManually()' needs the data from 'self'
-        self.setCheckOrScanAttribues(croppedImage, VIN, symbols)
+        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters, symbols)
         eventEmitter.sendEvent(withName: "ShouldShowDataInSecondDetailBox", body: ["scannedStringDBData" : ""])
       }
     }

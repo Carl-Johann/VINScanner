@@ -73,7 +73,7 @@ extension RNCameraViewSwift {
     
     DispatchQueue.main.async {
       // If the scanned data is 6 characters long, we assume it's a printed window code
-      let fieldPerLayer: CGFloat = safeDataFromScan.count == 6 ? 6 : 9
+      let fieldPerLayer: CGFloat = safeDataFromScan.count <= 7 ? 7 : 9
       
       // We set the individual image width based on screen,
       // as long as it is not larger than 45 px.
@@ -113,8 +113,8 @@ extension RNCameraViewSwift {
   
 
   func showRequiredTextFields(_ fieldPerLayer: CGFloat, _ imgGap: CGFloat, _ smallFieldWidth: CGFloat, _ safeDataFromScan: String) {
-    let numberOfTextFieldsToCreate: Int = safeDataFromScan.count == 6 ? 6 : 17
-    let isVIN: Bool = safeDataFromScan.count > 6 ? true : false
+//    let numberOfTextFieldsToCreate: Int = safeDataFromScan.count < 6 ? 6 : 17
+    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
     
     DispatchQueue.main.async {
       for i in 1...17 {
@@ -149,6 +149,7 @@ extension RNCameraViewSwift {
           textField.frame.size = CGSize(width: smallFieldWidth, height: smallFieldWidth)
         }
         
+        
         let extraTextFieldOffset = (layer == 1 ? 0 : (smallFieldWidth + imgGap))
         if CGFloat(i) > fieldPerLayer { fieldOffset += ((smallFieldWidth * 0.5) + (imgGap * 0.5)) }
         textField.center = CGPoint(x: fieldOffset, y: defaultHeight + extraTextFieldOffset)
@@ -170,7 +171,7 @@ extension RNCameraViewSwift {
         textField = self.modifyTextFieldIfDangerous(textField) as! ComparisonTextField
         self.DataCorrectionView.addSubview(textField)
         textField.isHidden = true
-        if i <= 6 {
+        if i <= 7 {
         // There should always atleast be 6 TextFields.
 //          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
@@ -178,7 +179,7 @@ extension RNCameraViewSwift {
         // If IsVIN == true, every TextField should be added.
 //          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
-        } else if ((isVIN == false) && (i > 6)) {
+        } else if ((isVIN == false) && (i > 7)) {
         // Else if it isn't a VIN being scanned, we should only show 6 TextFields
         // as that is the length of numbers on the paper in the window.
 //          self.DataCorrectionView.sendSubview(toBack: textField)
@@ -299,21 +300,34 @@ extension RNCameraViewSwift {
   
   
   @objc fileprivate func resendData(sender: UIButton) {
+    guard let safeDataFromScan = self.dataFromScan else {
+      print("Couldnt get dataFromScan from self in correctDataFromGoogleManually"); return
+    }
+    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
 
-    var completedVIN = ""
-    let textFields = getTextFields()
-    
-    for textfield in textFields {
-      completedVIN.append(textfield.text!)
+    var correctedCharacters = ""
+    var textFields = getTextFields()
+    if isVIN == false {
+      textFields = textFields.filter { $0.tag <= 108 }
     }
     
+    
+    for textfield in textFields {
+      correctedCharacters.append(textfield.text!)
+    }
+    
+    // If the scanned data was 6 long, we actually show them 7 TextField incase Google missed one.
+    correctedCharacters = correctedCharacters.trimmingCharacters(in: .whitespacesAndNewlines)
+    
     guard let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter else { print("Couldn't get eventEmitter"); return }
-    eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [ "ShouldShow" : true, "VIN" : completedVIN ])
+    eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
+      "ShouldShow" : true, "CleanedCharacters" : correctedCharacters
+    ])
     
 
     
-    print("completedVIN", completedVIN)
-    validateVIN(completedVIN)
+    print("completedVIN", correctedCharacters)
+    validateVIN(correctedCharacters)
   }
 
   
@@ -390,7 +404,7 @@ extension RNCameraViewSwift {
     }
     
     // If the safeDataFromScan length is 6. It's most likely a window paper scan, could be a bad VIN though
-    let BadVINOrWindowScanLength: Int = safeDataFromScan.count == 6 ? 6 : 17
+    let BadVINOrWindowScanLength: Int = safeDataFromScan.count == 7 ? 7 : 17
     
     for i in 1...BadVINOrWindowScanLength {
       let textField = contentView.viewWithTag(100 + i) as! ComparisonTextField

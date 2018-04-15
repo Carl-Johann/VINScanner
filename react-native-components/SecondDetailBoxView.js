@@ -42,8 +42,8 @@ const SecondDetailBoxView = ({ doesScannedStringExistInDB, checkScannedCharacter
         return (
             <Animated.View style={[ styles.subviewStyle, { height: lort } ]}>
                 {/*<LineBreaker margin={ 7 } />*/}
-                <Text style={ styles.detailText }>Site: { scannedStringDBData['site'] }</Text>
-                <Text style={ styles.detailText }>Model: { scannedStringDBData['model'].replace(/ .*/,'') }</Text>
+                <Text style={ styles.detailText }>Site: { scannedStringDBData['SITE'] }</Text>
+                <Text style={ styles.detailText }>Model: { scannedStringDBData['MODEL'].replace(/ .*/,'') }</Text>
                 <Animated.View style={{  }}>
                     <CheckVinOrScanAgainButton
                         titleText={ 'Scan Again' }
@@ -61,7 +61,7 @@ const SecondDetailBoxView = ({ doesScannedStringExistInDB, checkScannedCharacter
         // If the VIN is 17 long, but it doesn't exist in the database. Let them manually change it (compareVINCharachtersWithRetrieved() from VINCorrection.swift)
         return (
             <View style={ styles.subviewStyle }>
-                <Text allowFontScaling={true} style={ styles.detailText }>VIN is incorrect or doesn't exist in the database</Text>
+                <Text allowFontScaling={true} style={ styles.detailText }>Data is incorrect or doesn't exist in the database</Text>
 
                 <LineBreaker margin={ 7 } />
                 <View style={ styles.subviewStyle } >

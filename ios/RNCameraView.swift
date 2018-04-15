@@ -262,7 +262,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     return CGRect(x: xCord, y: yCord, width: width, height: height)
   }
 
-  func cleanVIN(_ VIN: String) -> String {
+  func cleanCharacters(_ VIN: String) -> String {
     var text = VIN
     
     text = text.uppercased()
@@ -464,19 +464,14 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
               } else {
                 self.IncrementLoadBar()
               }
-            // Page behind the window
-            } else if boxes.count == 6 {
+            // Page behind the window is either 6 or 7 characters long
+            } else if ((boxes.count == 6) || (boxes.count == 7)) {
               if ((self.loaded == self.scanThreshold) && (self.vinScanned == false)) {
-//                print()
-//                print("boxes.count == 6. sending")
                 self.vinScanned = true
                 self.loaded = 0
+                
                 self.cropAndPostImage(image)
                 self.hideCameraView()
-                
-//                self.perform(#selector(self.resetVINScannedAndLoaded), with: nil, afterDelay: 1.5)
-
-                
               } else {
                 self.IncrementLoadBar()
               }
