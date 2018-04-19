@@ -2,59 +2,67 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
 import FirstDetailBoxView from './FirstDetailBoxView'
 import SecondDetailBoxView from './SecondDetailBoxView'
-
-import amYellow from './colors'
 import Dimensions from 'Dimensions'
 import LineBreaker from './LineBreaker'
 
-const screenWidth = () => { return Dimensions.get('window').width }
+import {
+    largerTextFontSize, lineBreakerMarginHeight, detailTextStyle
+} from './GlobalValues'
 
 
-const DetailBoxesView = ({ scannedCharacters, checkScannedCharactersOrScanAgain, hideAnim, firstDetailBoxHeight, secondDetailBoxHeight, shouldShowScannedCharacters, scannedStringDBData, doesScannedStringExistInDB }) => {
+
+const DetailBoxesView = ({
+            scannedCharacters, checkScannedCharactersOrScanAgain, hideAnim,
+            firstDetailBoxHeight, secondDetailBoxHeight, shouldShowScannedCharacters,
+            scannedStringDBData, doesScannedStringExistInDB
+                        }) => {
+
 
     return (
         <Animated.View style={{ bottom: hideAnim }}>
 
             <View style={[ styles.VINDetailStyle, styles.VINTitleBoxDetail ]}>
-                <Text style={[ styles.detailText, { fontSize: 24 } ]}>{ scannedCharacters.length > 7 ? 'VIN' : 'Window Label' }</Text>
+                <Text style={[ detailTextStyle, { fontSize: largerTextFontSize } ]}>
+                    { scannedCharacters.length > 7 ? 'VIN' : 'UNIT' }
+                </Text>
 
-                <LineBreaker margin={ 7 } />
-                <FirstDetailBoxView
-                    scannedCharacters={ scannedCharacters }
-                    shouldShowScannedCharacters={ shouldShowScannedCharacters }
-                    firstDetailBoxHeight={ firstDetailBoxHeight }
-                    checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
-                />
-                <LineBreaker margin={ 7 } />
+                <LineBreaker margin={ lineBreakerMarginHeight } />
+                    <FirstDetailBoxView
+                        checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
+                        shouldShowScannedCharacters={ shouldShowScannedCharacters }
+                        firstDetailBoxHeight={ firstDetailBoxHeight }
+                        scannedStringDBData={ scannedStringDBData }
+                        scannedCharacters={ scannedCharacters }
+                    />
+                <LineBreaker margin={ lineBreakerMarginHeight } />
             </View>
 
-            <View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle ]} >
-                <Text style={[ styles.detailText, { fontSize: 24 } ]}>Car Details</Text>
 
-                <LineBreaker margin={ 7 } />
+
+            <View style={[ styles.VINDetailStyle, styles.DataFromVINViewStyle ]} >
+                <Text style={[ detailTextStyle, { fontSize: largerTextFontSize } ]}>
+                    Car Details
+                </Text>
+
+                <LineBreaker margin={ lineBreakerMarginHeight } />
                 <SecondDetailBoxView
                     checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
-                    secondDetailBoxHeight={ secondDetailBoxHeight }
                     doesScannedStringExistInDB={ doesScannedStringExistInDB }
+                    secondDetailBoxHeight={ secondDetailBoxHeight }
                     scannedStringDBData={ scannedStringDBData }
+                    scannedCharacters={ scannedCharacters }
                 />
-                <LineBreaker margin={ 7 } />
+                <LineBreaker margin={ lineBreakerMarginHeight } />
             </View>
 
         </Animated.View>
     )
+
 }
 
 
 
 const styles = StyleSheet.create({
-
-    detailText: {
-        fontFamily: 'AppleSDGothicNeo-SemiBold',
-        color: '#555555',
-        fontSize: 22,
-
-    },
 
     DataFromVINViewStyle: {
         width: Dimensions.get('window').width * 0.85,
@@ -63,14 +71,12 @@ const styles = StyleSheet.create({
 
     VINTitleBoxDetail: {
         width: Dimensions.get('window').width * 0.85,
-        // alignItems: 'center',
-        // height: 120,
     },
 
 
     VINDetailStyle: {
         backgroundColor: 'lightgray',
-        padding: 7,
+        padding: lineBreakerMarginHeight,
         borderRadius: 8,
         shadowColor: '#000000',
         shadowOffset: {

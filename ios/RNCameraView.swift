@@ -22,7 +22,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   var contentView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   var cameraView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-  var DataCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+  var dataCorrectionView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
   
   let urlSession = URLSession.shared
   var mask: CALayer = CALayer()
@@ -60,15 +60,21 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     if isIPhoneX {
       self.rectOfInterest.origin.y += 20
       self.cameraView.frame.origin.y -= 20
-      self.DataCorrectionView.frame.origin.y -= 20
+      self.dataCorrectionView.frame.origin.y -= 20
       self.contentView.frame.origin.y -= 20
     }
+//    print(123, screenHeight)
+//    print(456, self.cameraView.layer.bounds.height)
     
     // Shoulc be hidden in the beginning
-    DataCorrectionView.alpha = 0
+    dataCorrectionView.alpha = 0
     startLiveVideo()
     
-    
+//    let lort = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 800))
+//    lort.center = CGPoint(x: 10, y: screenHeight/2)
+//    lort.backgroundColor = UIColor.orange
+//    self.cameraView.addSubview(lort)
+  
     // Manual Scan button
     let buttonWidth = self.screenWidth * 0.75
     let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Scan Now")
@@ -83,9 +89,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     cameraView.addGestureRecognizer(focus)
     
     // Creates a gesture recognizer that hides the keyboard when the screen is clicked
-    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(DataCorrectionView.endEditing(_:)))
-    DataCorrectionView.addGestureRecognizer(tap)
-    DataCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
+    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(dataCorrectionView.endEditing(_:)))
+    dataCorrectionView.addGestureRecognizer(tap)
+    dataCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
     //init toolbar
     //create left side empty space so that done button set on right side
@@ -94,9 +100,10 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     self.contentView.backgroundColor = UIColor(hex: "#282828")
     self.cameraView.backgroundColor = UIColor(hex: "#282828")
-    self.DataCorrectionView.backgroundColor = UIColor(hex: "#282828")
+    self.dataCorrectionView.backgroundColor = UIColor(hex: "#282828")
+    
+    self.contentView.addSubview(dataCorrectionView)
     self.contentView.addSubview(cameraView)
-    self.contentView.addSubview(DataCorrectionView)
     return contentView
   }
 
@@ -107,7 +114,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     for input in self.session.inputs { self.session.removeInput(input) }
     for output in self.session.outputs { self.session.removeOutput(output) }
     
-    //    check for sim or retarded device
+    //    check for sim or old device
     let deviceInput = try! AVCaptureDeviceInput(device: captureDevice!)
     let deviceOutput = AVCaptureVideoDataOutput()
     deviceOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
@@ -116,7 +123,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     imageLayer.session = session
     imageLayer.frame = self.contentView.frame
     self.cameraView.layer.addSublayer(imageLayer)
-    
+//    print(2, imageLayer.frame.height)
     
     session.addInput(deviceInput)
 //    session.sessionPreset = .photo'
@@ -200,9 +207,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func showDataCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.bringSubview(toFront: self.DataCorrectionView)
+      self.contentView.bringSubview(toFront: self.dataCorrectionView)
       UIView.animate(withDuration: 0.7, animations: {
-        self.DataCorrectionView.alpha = 1
+        self.dataCorrectionView.alpha = 1
       })
       
       if ((self.dataFromScan != nil) && (self.croppedImageForScan != nil)) {
@@ -210,7 +217,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
         let scannedImage = self.croppedImageForScan!
         // Sets the text in the VINCorrection textfields to the newly scanned VIN, else ""
         for i in 1...17 {
-          if let textField = self.DataCorrectionView.viewWithTag(100 + i) as? UITextField {
+          if let textField = self.dataCorrectionView.viewWithTag(100 + i) as? UITextField {
             if i <= scannedVIN.count {
               let text = scannedVIN.index(scannedVIN.startIndex, offsetBy: i - 1)
               textField.text = String(scannedVIN[text])
@@ -218,7 +225,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           }
         }
         
-        guard let comparisonImage = self.DataCorrectionView.viewWithTag(118) as? UIImageView else {
+        guard let comparisonImage = self.dataCorrectionView.viewWithTag(118) as? UIImageView else {
           print("could't get comparisonImage in showDataCorrectionView"); return
         }
         comparisonImage.image = scannedImage
@@ -229,9 +236,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func hideVINCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.sendSubview(toBack: self.DataCorrectionView)
+      self.contentView.sendSubview(toBack: self.dataCorrectionView)
       UIView.animate(withDuration: 0.7, animations: {
-        self.DataCorrectionView.alpha = 0
+        self.dataCorrectionView.alpha = 0
       })
     }
   }
@@ -310,7 +317,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   @objc fileprivate func manualScan(sender: UIButton) {
     // Since I couldn't figure out how to manually capture a frame,
     // and taking a screenshot doesn't work on
-    print(12321313)
+//    print(12321313)
     self.takePicture = true
   }
 

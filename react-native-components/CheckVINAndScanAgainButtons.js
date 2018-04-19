@@ -1,9 +1,10 @@
 import { View, StyleSheet } from 'react-native'
 import React from 'react'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
-import Dimensions from 'Dimensions'
 
-const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
+import {
+    detailBoxesContentWidth
+} from './GlobalValues'
 
 const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 
@@ -28,7 +29,7 @@ const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 const styles = StyleSheet.create({
     buttonsStyleContainerStyle: {
         justifyContent: 'space-between',
-        width: Dimensions.get('window').width * 0.75,
+        width: detailBoxesContentWidth(),
         flexDirection: 'row',
     },
 })

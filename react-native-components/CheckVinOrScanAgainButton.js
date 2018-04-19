@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
-import amYellow from './colors'
-import Dimensions from 'Dimensions'
 
-const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
+import {
+    defaultButtonHeight, detailTextStyle,
+    detailBoxesContentWidth, defaultYellow,
+} from './GlobalValues'
 
 const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgain, shouldScan }) => {
     return (
@@ -11,7 +12,7 @@ const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgai
                 style={ styles.buttonStyle }
                 onPress={ () => { checkScannedCharactersOrScanAgain(shouldScan) }}
             >
-                <Text style={ styles.detailText } >{ titleText }</Text>
+                <Text style={ detailTextStyle } >{ titleText }</Text>
             </TouchableOpacity>
     )
 }
@@ -19,20 +20,14 @@ const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgai
 
 const styles = StyleSheet.create({
 
-    detailText: {
-        fontFamily: 'AppleSDGothicNeo-SemiBold',
-        color: '#555555',
-        fontSize: 22,
-    },
-
     buttonStyle: {
-        width: ((widthTimes075() / 2) - 5),
+        width: (detailBoxesContentWidth() / 2) - 5,
         justifyContent: 'center',
-        borderColor: amYellow,
+        borderColor: defaultYellow,
         alignItems: 'center',
         borderRadius: 4,
         borderWidth: 1.5,
-        height: 55,
+        height: defaultButtonHeight,
     },
 })
 

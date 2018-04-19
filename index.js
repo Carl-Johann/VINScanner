@@ -93,14 +93,6 @@ class App extends Component {
                 Animated.parallel([
                     Animated.timing( this.state.detailBoxesHeightOffset, { toValue:  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge, duration: 850}),
                     Animated.timing( this.state.firstDetailBoxHeight, { toValue: tallFirstDetailBoxDefaultHeight }),
-                ]).start( () => {
-                    // console.log("4.1. Ending ShouldShowDataInFirstDetailBox")
-                    // this.setState({
-                    //     shouldShowFirstDetailBox: true,
-                    //     shouldShowScannedCharacters: false,
-                    //     scannedCharacters: JSONResponse["CleanedCharacters"],
-                    // })
-                })
 
             } else if (
                 (String(JSONResponse["CleanedCharacters"]).length == 17)
@@ -108,28 +100,15 @@ class App extends Component {
                 || (String(JSONResponse["CleanedCharacters"]).length == 7)
             ) {
             // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VIN
-                // this.setState({
-                //     shouldShowFirstDetailBox: true,
-                //     shouldShowScannedCharacters: true,
-                //     scannedCharacters: JSONResponse["CleanedCharacters"],
-                // })
-                // Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge ) }).start()
                     let lort = detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge )
                     this.animateDetailBoxesHeightOffset(lort)
-                    // if (this.animateDetailBoxesHeightOffset(lort) == false) {
-                    //     setTimeout( () => {
-
-                    //     }, 50 )
-                    // }
                 }
-            // }
         })
 
         // 3. This is the second box.   This either shows an error or fills it with data.
         moduleEvent.addListener('ShouldShowDataInSecondDetailBox', response => {
             var JSONResponse = JSON.stringify(response, null, 2)
             JSONResponse = JSON.parse(JSONResponse)
-            console.log(123, JSONResponse)
 
             if (JSONResponse["scannedStringDBData"] != "") {
             // If the VIN exists in the database, the database returns 'scannedStringDBData'
@@ -221,6 +200,7 @@ class App extends Component {
     }
 
 
+
     screenWidth = () => { return Dimensions.get('window').width }
     screenHeight = () => { return Dimensions.get('window').height }
     widthTimes075 = () => { return this.screenWidth() * 0.75 }
@@ -277,7 +257,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         justifyContent :'flex-end',
-        // backgroundColor: '#282828'
     },
 
     camera: {
@@ -287,7 +266,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         flex: 1,
-        // backgroundColor: '#282828'
     }
 })
 

@@ -1,13 +1,14 @@
 import Dimensions from 'Dimensions'
 import React from 'react'
 import { View } from 'react-native'
-import amYellow from './colors'
 
-const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
+import {
+    detailBoxesContentWidth, defaultYellow
+} from './GlobalValues'
 
 const LineBreaker = ({ margin }) => {
     return (
-        <View style={{ height: 1.5, width: widthTimes075(), backgroundColor: amYellow, marginTop: margin , marginBottom: margin }} />
+        <View style={{ height: 1.5, width: detailBoxesContentWidth(), backgroundColor: defaultYellow, marginTop: margin, marginBottom: margin }} />
     )
 }
 

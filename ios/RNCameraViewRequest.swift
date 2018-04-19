@@ -91,7 +91,7 @@ extension RNCameraViewSwift {
     guard let parsedJSON = json as? [String : AnyObject] else { print("parsedJSON error"); return }
     guard let responses = parsedJSON["responses"] as? [[String : AnyObject]] else { print("responses error"); return }
     guard let fullTextAnnotation = responses[0]["fullTextAnnotation"] as? [String : AnyObject] else {
-      print("fullTextAnnotation error"); ERROR("ShouldShowDataInSecondDetailBox")	; return }
+      print("fullTextAnnotation error"); ERROR("NoDataReturnedFromGoogle")	; return }
     
     guard let retrievedCharacters = fullTextAnnotation["text"] as? String else { print("retrievedVIN error"); return }
     guard let pages = fullTextAnnotation["pages"] as? [[String : AnyObject]] else { print("pages error"); return }
@@ -116,7 +116,7 @@ extension RNCameraViewSwift {
       ])
       
     } else {
-    // else we notify JS too, but theres no 'VIN'
+    // else we notify JS too, but theres no 'VIN or Unit' 
       setCheckOrScanAttribues(croppedImage, cleanedCharacters, symbols)
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
         "ShouldShow" : false, "CleanedCharacters" : cleanedCharacters
@@ -176,7 +176,7 @@ extension RNCameraViewSwift {
         // They will be asked to 'check vin' or 'scan again'. If they decide to check,
         // 'correctDataFromGoogleManually()' needs the data from 'self'
         self.setCheckOrScanAttribues(croppedImage, CleanedCharacters, symbols)
-        eventEmitter.sendEvent(withName: "ShouldShowDataInSecondDetailBox", body: ["scannedStringDBData" : ""])
+        eventEmitter.sendEvent(withName: "ShouldShowDataInSecondDetailBox", body: ["scannedStringDBData" : {}])
       }
     }
     

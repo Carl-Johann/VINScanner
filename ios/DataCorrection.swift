@@ -89,7 +89,7 @@ extension RNCameraViewSwift {
       comparisonImage.frame.size = croppedImage.size
       comparisonImage.layer.cornerRadius = 1
       comparisonImage.tag = 118
-      self.DataCorrectionView.addSubview(comparisonImage)
+      self.dataCorrectionView.addSubview(comparisonImage)
       
       
       self.showRequiredTextFields(fieldPerLayer, imgGap, smallFieldWidth, safeDataFromScan)
@@ -101,12 +101,12 @@ extension RNCameraViewSwift {
       let resendButon = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Resend")
       resendButon.center = CGPoint(x: ((self.screenWidth/2) - (buttonWidth/2)) - 5 , y: self.screenHeight * 0.75)
       resendButon.addTarget(self, action: #selector(self.resendData(sender:)), for: .touchUpInside)
-      self.DataCorrectionView.addSubview(resendButon)
+      self.dataCorrectionView.addSubview(resendButon)
       
       let scanAgainButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Scan Again")
       scanAgainButton.center = CGPoint(x: ((self.screenWidth/2) + (buttonWidth/2)) + 5 , y: self.screenHeight * 0.75)
       scanAgainButton.addTarget(self, action: #selector(self.returnToCamera(sender:)), for: .touchUpInside)
-      self.DataCorrectionView.addSubview(scanAgainButton)
+      self.dataCorrectionView.addSubview(scanAgainButton)
     }
   }
   
@@ -114,7 +114,7 @@ extension RNCameraViewSwift {
 
   func showRequiredTextFields(_ fieldPerLayer: CGFloat, _ imgGap: CGFloat, _ smallFieldWidth: CGFloat, _ safeDataFromScan: String) {
 //    let numberOfTextFieldsToCreate: Int = safeDataFromScan.count < 6 ? 6 : 17
-    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
+//    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
     
     DispatchQueue.main.async {
       for i in 1...17 {
@@ -140,12 +140,12 @@ extension RNCameraViewSwift {
         var textField: ComparisonTextField
         
         
-        if self.DataCorrectionView.viewWithTag(100 + i) == nil {
+        if self.dataCorrectionView.viewWithTag(100 + i) == nil {
           // If a TextField hasn't been created there yet.
           textField = ComparisonTextField(size: CGSize(width: smallFieldWidth, height: smallFieldWidth))
         } else {
         // If there is a TextField there, we resize it to what it should be. 
-          textField = self.DataCorrectionView.viewWithTag(100 + i) as! ComparisonTextField
+          textField = self.dataCorrectionView.viewWithTag(100 + i) as! ComparisonTextField
           textField.frame.size = CGSize(width: smallFieldWidth, height: smallFieldWidth)
         }
         
@@ -169,17 +169,17 @@ extension RNCameraViewSwift {
         
         // Some characters look alot like another, and can therefore be misidentified. We just make the user aware of them.
         textField = self.modifyTextFieldIfDangerous(textField) as! ComparisonTextField
-        self.DataCorrectionView.addSubview(textField)
+        self.dataCorrectionView.addSubview(textField)
         textField.isHidden = true
         if i <= 7 {
         // There should always atleast be 6 TextFields.
 //          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
-        } else if isVIN == true {
+        } else if self.isVIN() == true {
         // If IsVIN == true, every TextField should be added.
 //          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
-        } else if ((isVIN == false) && (i > 7)) {
+        } else if ((self.isVIN() == false) && (i > 7)) {
         // Else if it isn't a VIN being scanned, we should only show 6 TextFields
         // as that is the length of numbers on the paper in the window.
 //          self.DataCorrectionView.sendSubview(toBack: textField)
@@ -226,12 +226,15 @@ extension RNCameraViewSwift {
   // This function gets called to move 'all' the text in the textFields
   func moveText(toSide: SideToMove) {
     let textFields: [ComparisonTextField] = getTextFields()
+    
     guard let textField = textFields.first(where: { ($0.isFirstResponder == true) }) else {
-      print("ERROR. Couldn't find selected inputfield"); return
-    }
+      print("ERROR. Couldn't find selected inputfield"); return }
+    
+    let fewOrManyTextFieldsTagMaxIndex = isVIN() == true ? 118 : 108
+    
     
     // We check for empty textfields. If there aren't any. We should do anything. left <
-    let anyEmptyFields = textFields.contains(where: { ((
+    let anyEmptyFields = textFields.filter({ $0.tag < fewOrManyTextFieldsTagMaxIndex }).contains(where: { ((
       toSide == .Left
         ? $0.tag < textField.tag
         : $0.tag > textField.tag )
@@ -252,6 +255,7 @@ extension RNCameraViewSwift {
         // We only want to move the left or right of the first empty field.
         // That is why we loop through them reversed when we move the text right.
         if firstEmptyFieldDetected == true {
+//          if field.tag
           modifyFieldWithTag(textFields, field, toSide)
           
         } else if (firstEmptyFieldDetected == false && field.text == "") {
@@ -268,15 +272,35 @@ extension RNCameraViewSwift {
   
   // MARK: - modifyFieldWithTag() Function
   func modifyFieldWithTag( _ textFields: [ComparisonTextField], _ field: UITextField, _ sideToMoveText: SideToMove) {
+//    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
+
+    let largestOrSmallestTagForEitherSide = sideToMoveText == .Right
+      ? isVIN() == true ? 118 : 108
+      : 101
     
-    field.text = textFields.first(where: { sideToMoveText == .Right
+    
+    guard let fieldToGetTextFrom = textFields.first(where: { sideToMoveText == .Right
       ? $0.tag == field.tag - 1
       : $0.tag == field.tag + 1
-    })!.text
+    }) else { print("error at modifyFieldWithTag. Field tag:", field.tag ); return }
+    field.text = fieldToGetTextFrom.text
     
-    if var fieldToModify = self.DataCorrectionView.viewWithTag(field.tag) as? UITextField {
-      fieldToModify = modifyTextFieldIfDangerous(field)
+    
+    guard var fieldToModify = self.dataCorrectionView.viewWithTag(field.tag) as? UITextField else {
+      print("fieldToModify couldn't be cast as UITextField"); return }
+
+    
+    
+    if sideToMoveText == .Right {
+      if fieldToGetTextFrom.tag <= largestOrSmallestTagForEitherSide {
+        fieldToModify = modifyTextFieldIfDangerous(field)
+      }
+    } else if sideToMoveText == .Left {
+      if fieldToGetTextFrom.tag >= largestOrSmallestTagForEitherSide {
+        fieldToModify = modifyTextFieldIfDangerous(field)
+      }
     }
+
   }
   
   
@@ -303,11 +327,10 @@ extension RNCameraViewSwift {
     guard let safeDataFromScan = self.dataFromScan else {
       print("Couldnt get dataFromScan from self in correctDataFromGoogleManually"); return
     }
-    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
 
     var correctedCharacters = ""
     var textFields = getTextFields()
-    if isVIN == false {
+    if isVIN() == false {
       textFields = textFields.filter { $0.tag <= 108 }
     }
     
@@ -341,7 +364,7 @@ extension RNCameraViewSwift {
     // A TextField can only have 1 character.
     guard let text = textField.text?.uppercased() else { return true }
     let newLength = text.count + string.count - range.length
-    print("newLength", newLength)
+//    print("newLength", newLength)
     return newLength <= 1
   }
   
@@ -366,6 +389,16 @@ extension RNCameraViewSwift {
   
   
   // MARK: - Helper Functions
+  
+  fileprivate func isVIN() -> Bool {
+    guard let safeDataFromScan = self.dataFromScan else {
+      print("Couldnt get dataFromScan from self in isVIN()")
+      return false
+    }
+    
+    return safeDataFromScan.count > 7 ? true : false
+
+  }
   
   func modifyTextFieldIfDangerous(_ textField: UITextField) -> UITextField {
     let dangerousChars = ["8", "B", "G", "6", "C", "5", "S"]
@@ -404,7 +437,7 @@ extension RNCameraViewSwift {
     }
     
     // If the safeDataFromScan length is 6. It's most likely a window paper scan, could be a bad VIN though
-    let BadVINOrWindowScanLength: Int = safeDataFromScan.count == 7 ? 7 : 17
+    let BadVINOrWindowScanLength: Int = safeDataFromScan.count > 7 ? 17 : 7
     
     for i in 1...BadVINOrWindowScanLength {
       let textField = contentView.viewWithTag(100 + i) as! ComparisonTextField

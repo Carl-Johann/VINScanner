@@ -3,53 +3,62 @@ import { View, Text, StyleSheet, Animated } from 'react-native'
 import SpinKit from './SpinKit'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
-import Dimensions from 'Dimensions'
 import LineBreaker from './LineBreaker'
 
-import { firstDetailBoxDefaultHeight, tallFirstDetailBoxDefaultHeight } from '../index'
+import {
+    spinKitSize, defaultButtonHeight, lineBreakerMarginHeight,
+    detailBoxesContentWidth, spinKitType, defaultGray,
+    defaultFont, defaultFontSize, isVINOrUnit, detailTextStyle
+} from './GlobalValues'
+
+import {
+    firstDetailBoxDefaultHeight, firstDetailBoxTallDefaultHeight,
+    firstDetailBoxMediumDefaultHeight,
+} from '../index'
 
 
-const spinKitSize = 42
 const smallViewSizeHeightOffset = 0
+const mediumViewSizeHeightOffset = 35
 const tallViewSizeHeightOffset = 75
-const buttonHeight = 55
-const lineBreakerMargin = 7
-const remainingHeightForFailedScanText = spinKitSize + tallViewSizeHeightOffset - buttonHeight - ( 2 * lineBreakerMargin )
+const remainingHeightForFailedScanText = spinKitSize + tallViewSizeHeightOffset - defaultButtonHeight - ( 2 * lineBreakerMarginHeight )
 
-const widthTimes075 = () => { return Dimensions.get('window').width * 0.75 }
 
 export default class FirstDetailBoxView extends Component {
 
 
     state = {
-        fadeInOutValue: new Animated.Value(1)
+        fadeInOutValue: new Animated.Value(0)
     }
 
     shouldComponentUpdate( nextProps, nextState ) {
-        console.log("next", nextProps.shouldShowScannedCharacters)
-        console.log("this", this.props.shouldShowScannedCharacters)
-        // if ((nextProps.shouldShowScannedCharacters == true) || (nextProps.shouldShowScannedCharacters == false)) {
-        //
-        // }
-        if (nextProps.scannedCharacters.length != 0) {
-            Animated.timing( this.state.fadeInOutValue, { toValue: 0, duration: 1 }).start()
-        } else if (nextProps.shouldShowScannedCharacters == null) {
-            this.setState({
-                fadeInOutValue: new Animated.Value(1)
-            })
-        } else {
-            Animated.timing( this.state.fadeInOutValue, { toValue: 0, duration: 900 }).start()
+        if ((this.isEmpty(this.props.scannedStringDBData) == true) && (this.isEmpty(nextProps.scannedStringDBData) == false)) {
+            Animated.timing( this.state.fadeInOutValue, { toValue: 1, duration: 500 }).start()
         }
 
         return true
     }
 
+    componentWillUnmount() {
+        this.setState({ fadeInOutValue: new Animated.Value(0) })
+    }
+
+    isEmpty = (obj) => {
+        if (obj === null ||
+            obj === undefined ||
+            Array.isArray(obj) ||
+            typeof obj !== 'object'
+        ) {
+            return true;
+        }
+        return Object.getOwnPropertyNames(obj).length === 0 ? true : false;
+    }
 
 
     render() {
         const {
             scannedCharacters, shouldShowScannedCharacters,
-            checkScannedCharactersOrScanAgain, firstDetailBoxHeight
+            checkScannedCharactersOrScanAgain, firstDetailBoxHeight,
+            scannedStringDBData,
         } = this.props
 
         const {
@@ -58,42 +67,70 @@ export default class FirstDetailBoxView extends Component {
 
 
 
-        const invertedFadeInOutValue = fadeInOutValue.interpolate({
-            inputRange: [0, 1],
-            outputRange: [1, 0]
-        })
 
 
         const interpolatedViewHeights = firstDetailBoxHeight.interpolate({
             inputRange: [
                 firstDetailBoxDefaultHeight,
-                tallFirstDetailBoxDefaultHeight
+                firstDetailBoxMediumDefaultHeight,
+                firstDetailBoxTallDefaultHeight
             ],
 
             outputRange: [
                 spinKitSize + smallViewSizeHeightOffset,
+                spinKitSize + mediumViewSizeHeightOffset,
                 spinKitSize + tallViewSizeHeightOffset
-            ],
+            ]
         })
+
+        const mediumHeightBasedOffOfAlpha = fadeInOutValue.interpolate({
+            inputRange: [0, 1],
+
+            outputRange: [
+                lineBreakerMarginHeight,
+                // Calculates the height of one textfield. So they are evenly spaced with "justifyContent: 'space-around'"
+                spinKitSize + mediumViewSizeHeightOffset - defaultFontSize - lineBreakerMarginHeight
+            ]
+        })
+
+
 
         if (shouldShowScannedCharacters == null) {
         // If the views has been loaded, but no data recieved, a loading spinner will wait for data to be set in state.
             return (
-                <Animated.View style={[ styles.spinKitHeightStyle, { height: interpolatedViewHeights, opacity: 1} ]}>
+                <Animated.View style={[ styles.spinKitHeightStyle, { height: interpolatedViewHeights } ]}>
                     <SpinKit
-                        type={ 'Arc' }
-                        color={ '#555555' }
+                        type={ spinKitType }
+                        color={ defaultGray }
                         size={ spinKitSize }
                     />
                 </Animated.View>
             )
 
-        } else if ( (scannedCharacters.length == 17) || (scannedCharacters.length == 6) || (scannedCharacters.length == 7) ) {
+        } else if (isVINOrUnit(scannedCharacters) == true) {
         // If the scan was succesfull
 
             return (
-                <Animated.View style={[ styles.spinKitHeightStyle, { height: interpolatedViewHeights, opacity: 1 } ]}>
-                    <Text style={ styles.detailText }>{ scannedCharacters }</Text>
+                <Animated.View style={{ justifyContent: 'space-around', height: interpolatedViewHeights }}>
+                    <Text style={ detailTextStyle }>{
+                        this.isEmpty(scannedStringDBData)
+                            ? scannedCharacters
+                            : scannedStringDBData['UNIT']
+                    }</Text>
+
+                    { this.isEmpty(scannedStringDBData) == false && (
+                        <Animated.View style={{
+                            justifyContent: 'space-around',
+                            height: mediumHeightBasedOffOfAlpha
+                        }}>
+
+                            <LineBreaker margin={ lineBreakerMarginHeight } />
+                            <Animated.Text style={[ detailTextStyle, { opacity: fadeInOutValue } ]}>
+                                { scannedStringDBData['CHASSIS'] }
+                            </Animated.Text>
+
+                        </Animated.View>
+                    )}
                 </Animated.View>
             )
 
@@ -102,23 +139,25 @@ export default class FirstDetailBoxView extends Component {
 
             return (
                 <Animated.View style={{
-                    height: interpolatedViewHeights, opacity: 1,
-                    alignItems: 'center', backgroundColor: 'transparent', width: widthTimes075(),
+                    height: interpolatedViewHeights,
+                    alignItems: 'center', width: detailBoxesContentWidth(),
                     justifyContent: 'space-between'
                 }}>
-                    <View style={{
-                        backgroundColor: 'transparent', width: widthTimes075(), justifyContent: 'center',
-                        height: remainingHeightForFailedScanText, alignItems: 'center'
-                    }}>
-                        <Text style={ styles.detailText }>Scanned { scannedCharacters.length }{ scannedCharacters.length == 1 ? ' character.' : ' characters.' }</Text>
+                    <View style={[ styles.subviewStyle, { height: remainingHeightForFailedScanText } ]}>
+                        <Text style={ detailTextStyle }>
+                            Scanned { scannedCharacters.length }
+                            { scannedCharacters.length == 1 ? ' character.' : ' characters.' }
+                        </Text>
                     </View>
 
 
-                    <View style={{ backgroundColor: 'transparent', width: widthTimes075() }}>
-                        <LineBreaker margin={ 7 } />
+                    <View style={{ backgroundColor: 'transparent', width: detailBoxesContentWidth() }}>
+                        <LineBreaker margin={ lineBreakerMarginHeight } />
                         <View style={ styles.buttonsStyleContainerStyle } >
                             <CheckVINAndScanAgainButtons
-                                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
+                                checkScannedCharactersOrScanAgain={
+                                    (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan)
+                                }
                             />
                         </View>
                     </View>
@@ -134,15 +173,14 @@ const styles = StyleSheet.create({
 
     buttonsStyleContainerStyle: {
         justifyContent: 'space-between',
-        width: widthTimes075(),
+        width: detailBoxesContentWidth(),
         flexDirection: 'row',
     },
 
     subviewStyle: {
         alignItems: 'center',
-        width: widthTimes075(),
+        width: detailBoxesContentWidth(),
         justifyContent: 'center',
-        backgroundColor: 'green'
     },
 
     spinKitHeightStyle: {
@@ -151,16 +189,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
 
-    detailText: {
-        fontFamily: 'AppleSDGothicNeo-SemiBold',
-        color: '#555555',
-        fontSize: 22,
-        textAlign: 'center',
-        // backgroundColor: 'green',
-
-    },
-
-
 })
-
-// export default FirstDetailBoxView
