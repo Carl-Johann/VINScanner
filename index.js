@@ -4,187 +4,123 @@ import RNCameraView from './ios-native-components/RNCameraView'
 import Dimensions from 'Dimensions'
 import SpinKit from './react-native-components/SpinKit'
 import DetailBoxesView from './react-native-components/DetailBoxesView'
-import amYellow from './react-native-components/colors'
+
+import {
+    HideAndResetEverything,
+    NoDataReturnedFromGoogle,
+    ShouldShowFirstDetailBox,
+    ShouldShowDataInFirstDetailBox,
+    ShouldShowDataInSecondDetailBox,
+} from './helpers/ModuleEventListeners'
 
 
-export let firstDetailBoxDefaultHeight = 105
-export let tallFirstDetailBoxDefaultHeight = 170
+import {
+    isVINOrUnit, AMDarkGray, detailBoxesDurationTime,
+    detailBoxesContentWidth, detailBoxesMarginToEdge,
+    lineBreakerMarginHeight, largerTextFontTextHeight,
+    lineBreakerHeight,
+} from './helpers/GlobalValues'
 
-export let secondDetailBoxDefaultHeight = 135
-export let tallSecondDetailBoxDefaultHeight = 200
 
-export let detailBoxesMarginToEdge = Dimensions.get('window').width * 0.05
-export let detailBoxesDefaultHeightOffset = -firstDetailBoxDefaultHeight - secondDetailBoxDefaultHeight - ( 2 * detailBoxesMarginToEdge )
-var isAnimating = false
+
+export const firstDetailBoxDefaultHeight = 45           // 45
+export const firstDetailBoxMediumDefaultHeight = 90     // 90
+export const firstDetailBoxTallDefaultHeight = 120      // 120
+
+export const secondDetailBoxDefaultHeight = 60          // 60
+export const mediumSecondDetailBoxDefaultHeight = 120   // 120
+export const tallSecondDetailBoxDefaultHeight = 180     // 180
+
+// These two constants calculate the total height of the detail boxes.
+const wholeFirstDetailBoxHeight = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + firstDetailBoxDefaultHeight + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
+const wholeSecondDetailBoxHeight = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + secondDetailBoxDefaultHeight + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
+
+export const detailBoxesDefaultHeightOffset = -wholeFirstDetailBoxHeight - wholeSecondDetailBoxHeight - detailBoxesMarginToEdge
+
+
+
+
 class App extends Component {
 
     state = {
-        shouldShowFirstDetailBox: false , // false
-        shouldShowScannedCharacters: null, //null
-        scannedCharacters: "", // ""
+        scannedCharacters: "",              // ""
+        shouldShowFirstDetailBox: false ,   // false
+        shouldShowScannedCharacters: null,  // null
 
-        doesScannedStringExistInDB: null, //null
-        scannedStringDBData: {}, // {}
+        scannedStringDBData: {},            // {}
+        doesScannedStringExistInDB: null,   // null
 
-        secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight), // 135
-        firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight), // 120
-        detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset), // detailBoxesDefaultHeightOffset
+
+        firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight),
+        secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight),
+        detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
     }
+
 
 
     componentDidMount() {
         const moduleEvent = new NativeEventEmitter(NativeModules.VINModul)
-        var RNCameraViewSwiftManager = NativeModules.RNCameraViewSwift;
-        // this.animateDetailBoxesHeightOffset(detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge)
-        // setTimeout(() => {
-        //     if (isAnimating == false) {
-        //         // this.animateDetailBoxesHeightOffset(detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge)
-        //     }
+        let RNCameraViewSwiftManager = NativeModules.RNCameraViewSwift;
 
-        //     // Animated.timing( this.state.detailBoxesHeightOffset, { toValue:  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge, duration: 850}).start( () => {
-        //         // console.log("4.1. Ending ShouldShowDataInFirstDetailBox")
-        //         this.setState({
-        //         //     // shouldShowFirstDetailBox: true,
-        //         //     shouldShowScannedCharacters: null,
-        //         //     scannedCharacters: "123456",
-        //         })
-        //     // })
-        // }, 800)
+        // Working UNIT(7) and VIN
+        // W0LZS8GB3J101924
+        // 5911537
+        // this.debugDetailBoxes(true, true, '5911537', true)
 
-        // setTimeout(() => {
-        //     let lort = detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge )
-        //     this.setState({
-        //             shouldShowFirstDetailBox: true,
-        //             shouldShowScannedCharacters: true,
-        //             scannedCharacters: "123456",
-        //         })
-        //     this.animateDetailBoxesHeightOffset(lort)
-        // }, 1000)
-        // this.setState({ shouldShowFirstDetailBox: true })
-        // this.animateDetailBoxesHeightOffset(  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge )
 
-        // Life cycle of data boxes
-        // 1. This is the first box.    Shows it with a loading icon.
+    // Life cycle of data boxes //
+        // 1. This is the first box. Shows it with a loading icon.
         moduleEvent.addListener('ShouldShowFirstDetailBox', response => {
-
-            // console.log("1. Starting ShouldShowFirstDetailBox")
-            // Animated.timing( this.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge }).start()
-            this.setState({ shouldShowFirstDetailBox: true })
-            this.animateDetailBoxesHeightOffset(  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge )
-
+            ShouldShowFirstDetailBox(this, response, animations)
         })
 
-        // 2. This is the first AND second box.    Shows the second box with loading icon if successful.
+
+        // 2. This is the first AND second box. Shows the second box with loading icon if successful.
         moduleEvent.addListener('ShouldShowDataInFirstDetailBox', response => {
-            var JSONResponse = JSON.stringify(response, null, 2)
-            JSONResponse = JSON.parse(JSONResponse)
-            console.log("ShouldShowDataInFirstDetailBox:", JSONResponse["ShouldShow"])
-
-            this.setState({
-                    shouldShowFirstDetailBox: true,
-                    shouldShowScannedCharacters: JSONResponse["ShouldShow"],
-                    scannedCharacters: JSONResponse["CleanedCharacters"],
-                })
-
-            if (JSONResponse["ShouldShow"] == false) {
-            // If 'shouldShowVINDetail' = false, show 'Scan again' button
-
-                // console.log("3.1. Starting ShouldShowDataInFirstDetailBox")
-                Animated.parallel([
-                    Animated.timing( this.state.detailBoxesHeightOffset, { toValue:  detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + detailBoxesMarginToEdge, duration: 850}),
-                    Animated.timing( this.state.firstDetailBoxHeight, { toValue: tallFirstDetailBoxDefaultHeight }),
-
-            } else if (
-                (String(JSONResponse["CleanedCharacters"]).length == 17)
-                || (String(JSONResponse["CleanedCharacters"]).length == 6)
-                || (String(JSONResponse["CleanedCharacters"]).length == 7)
-            ) {
-            // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VIN
-                    let lort = detailBoxesDefaultHeightOffset + firstDetailBoxDefaultHeight + secondDetailBoxDefaultHeight + ( 2 * detailBoxesMarginToEdge )
-                    this.animateDetailBoxesHeightOffset(lort)
-                }
+            ShouldShowDataInFirstDetailBox(this, response, animations)
         })
 
-        // 3. This is the second box.   This either shows an error or fills it with data.
+
+        // 3. This is the second box.This either shows an error or fills it with data.
         moduleEvent.addListener('ShouldShowDataInSecondDetailBox', response => {
-            var JSONResponse = JSON.stringify(response, null, 2)
-            JSONResponse = JSON.parse(JSONResponse)
-
-            if (JSONResponse["scannedStringDBData"] != "") {
-            // If the VIN exists in the database, the database returns 'scannedStringDBData'
-                Animated.timing( this.state.secondDetailBoxHeight, { toValue: tallSecondDetailBoxDefaultHeight }).start(() => {
-                    this.setState({
-                        scannedStringDBData: JSONResponse["scannedStringDBData"],
-                        doesScannedStringExistInDB: true
-                    })
-                })
-            } else {
-            // else if the VIN wasnt in the database 'scannedStringDBData' is empty
-                Animated.timing( this.state.secondDetailBoxHeight, { toValue: tallSecondDetailBoxDefaultHeight }).start(() => {
-                    this.setState({
-                        scannedStringDBData: JSONResponse["scannedStringDBData"],
-                        doesScannedStringExistInDB: false,
-                    })
-                })
-            }
-
+            ShouldShowDataInSecondDetailBox(this, response)
         })
-        // End of succesful life cycle of data boxes
+    // End of succesful life cycle of data boxes //
 
 
 
 
-        // These are error
+
+
+    // These are errors //
         moduleEvent.addListener('hideAndResetEverything', response => {
             // 'checkScannedCharactersOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
             // Also what we need here, so we reuse it
-            Alert.alert(
-                "An Error occured",
-                "Something that shouldn't happen, happend",
-                [{ text: "OK", onPress: () => { this.checkScannedCharactersOrScanAgain(true) } }]
-            )
+            HideAndResetEverything(this)
         })
 
         moduleEvent.addListener('NoDataReturnedFromGoogle', response => {
             // 'checkScannedCharactersOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
             // Also what we need here, so we reuse it
-
-            ActionSheetIOS.showActionSheetWithOptions({
-                options: ['Scan Again'],
-                title: "VIN Not Returned From Your Scan",
-                message: "Try to reposition the camera, and if necessary block any sun reflections from hitting the windshield.",
-                scanAgainButtonIndex: 0,
-            },
-                (buttonIndex) => {
-                    if (buttonIndex === 0) { this.checkScannedCharactersOrScanAgain(true) }
-                }
-            );
+            NoDataReturnedFromGoogle(this)
         })
-        // End of errors
+    // End of errors //
+
     }
 
 
     animateDetailBoxesHeightOffset = (animation) => {
-        if (isAnimating == true) {
-            setTimeout( () => {
-                this.animateDetailBoxesHeightOffset(animation)
-            }, 1)
-
-
-            // return false
-        } else {
-            isAnimating = true
-            Animated.timing( this.state.detailBoxesHeightOffset, { toValue: animation, duration: 800 } ).start(() => { isAnimating = false })
-            // return true
-        }
+        Animated.timing( this.state.detailBoxesHeightOffset, animation ).start()
     }
 
     // Also called as an error function for resetting the whole view. (moduleEvent.addListener('hideAndResetEverything'))
     checkScannedCharactersOrScanAgain = (ShouldScan) => {
-        var distance = detailBoxesDefaultHeightOffset - 70
+        let distance = detailBoxesDefaultHeightOffset - 70
+
+
+        NativeModules.RNCameraViewSwift.CheckDataOrScanAgain(ShouldScan)
 
         Animated.timing( this.state.detailBoxesHeightOffset, { toValue: distance }).start( () => {
-            NativeModules.RNCameraViewSwift.CheckDataOrScanAgain(ShouldScan)
             this.setState({
                 detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
                 secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight),
@@ -200,10 +136,77 @@ class App extends Component {
     }
 
 
+    debugDetailBoxes = (shouldShowFirstDetailBox, shouldShowScannedCharacters, scannedCharacters, doesScannedStringExistInDB) => {
+        setTimeout(() => {
+            this.setState({ shouldShowFirstDetailBox: shouldShowFirstDetailBox })
+            this.animateDetailBoxesHeightOffset( animations.showFirstDetailBox )
 
-    screenWidth = () => { return Dimensions.get('window').width }
-    screenHeight = () => { return Dimensions.get('window').height }
-    widthTimes075 = () => { return this.screenWidth() * 0.75 }
+            setTimeout(() => {
+                this.setState({
+                    shouldShowFirstDetailBox: true,
+                    shouldShowScannedCharacters,
+                    scannedCharacters,
+                })
+
+                if (isVINOrUnit(scannedCharacters) == true) {
+                // else if 'shouldShowVINDetail' = true, show the VIN from this.state.VIN
+                    this.animateDetailBoxesHeightOffset( animations.showBothDetailBoxes )
+
+                } else {
+                    Animated.parallel([
+                        Animated.timing( this.state.detailBoxesHeightOffset, animations.showFirstDetailBox ),
+                        Animated.timing( this.state.firstDetailBoxHeight, { toValue: firstDetailBoxTallDefaultHeight, duration: detailBoxesDurationTime }),
+                    ]).start()
+                }
+
+                setTimeout(() => {
+                    // this.animateDetailBoxesHeightOffset( animations.showBothDetailBoxes )
+
+
+                    if (doesScannedStringExistInDB == true) {
+                        setTimeout(() => {
+
+                            Animated.parallel([
+                                Animated.timing( this.state.secondDetailBoxHeight, { toValue: tallSecondDetailBoxDefaultHeight, duration: detailBoxesDurationTime }),
+                                Animated.timing( this.state.firstDetailBoxHeight, { toValue: firstDetailBoxMediumDefaultHeight, duration: detailBoxesDurationTime }),
+                                Animated.timing( this.state.detailBoxesHeightOffset, animations.showBothDetailBoxes ),
+                            ]).start(() => {
+                                this.setState({
+                                    scannedStringDBData:
+                                        {
+                                            UNIT: '5911537',
+                                            ECC: '41',
+                                            MODEL: 'INSIGNIA ST DYN 1.5 65HK/M6',
+                                            MAKE: 'Opel',
+                                            SITE: 'Greve',
+                                            CHASSIS: 'W0LZS8GB3J1019224',
+                                            ECC_TXT: 'På lager (41)',
+                                            primary_key: 241
+                                        },
+                                    doesScannedStringExistInDB,
+                                })
+                            })
+                        }, 450)
+                    } else {
+                        setTimeout(() => {
+                            // else if the scannedStringDBData wasn't in the database 'scannedStringDBData' is empty
+                            Animated.parallel([
+                                Animated.timing( this.state.secondDetailBoxHeight, { toValue: mediumSecondDetailBoxDefaultHeight, duration: detailBoxesDurationTime }),
+                                Animated.timing( this.state.detailBoxesHeightOffset, animations.showBothDetailBoxes ),
+                            ]).start(() => {
+                                this.setState({
+                                    scannedStringDBData: {},
+                                    doesScannedStringExistInDB,
+                                })
+                            })
+                        }, 450)
+                    }
+                }, 250)
+            }, 350)
+        }, 400)
+    }
+
+
 
     render() {
         const {
@@ -212,61 +215,71 @@ class App extends Component {
             detailBoxesHeightOffset, firstDetailBoxHeight,
         } = this.state
 
-        const {
-            screenWidth, screenHeight, widthTimes075,
-            checkScannedCharactersOrScanAgain,
-        } = this
-
-
-
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#282828' }}>
-                <View style={ styles.container }>
-                    <RNCameraView
-                        style={ styles.camera }
-                    />
+            <View style={ styles.container }>
+                <RNCameraView
+                    style={ styles.camera }
+                />
 
-                    { shouldShowFirstDetailBox && (
-                        <Animated.View style={{ bottom: detailBoxesHeightOffset, marginBottom: detailBoxesMarginToEdge }}>
-                            <DetailBoxesView
-                                checkScannedCharactersOrScanAgain={ (shouldScan) => {
-                                    checkScannedCharactersOrScanAgain(shouldScan)
-                                }}
-                                scannedCharacters={ scannedCharacters }
-                                scannedStringDBData={ scannedStringDBData }
 
-                                shouldShowScannedCharacters={ shouldShowScannedCharacters }
-                                doesScannedStringExistInDB={ doesScannedStringExistInDB }
+                { shouldShowFirstDetailBox && (
+                    <Animated.View style={{ bottom: detailBoxesHeightOffset, backgroundColor: 'transparent',  }}>
+                        <DetailBoxesView
+                            checkScannedCharactersOrScanAgain={ (shouldScan) => {
+                                this.checkScannedCharactersOrScanAgain(shouldScan)
+                            }}
 
-                                detailBoxesHeightOffset={ detailBoxesHeightOffset }
-                                secondDetailBoxHeight={ secondDetailBoxHeight }
-                                firstDetailBoxHeight={ firstDetailBoxHeight }
-                            />
-                        </Animated.View>
-                    ) }
-                </View>
-            </SafeAreaView>
+                            scannedCharacters={ scannedCharacters }
+                            scannedStringDBData={ scannedStringDBData }
+
+
+                            shouldShowScannedCharacters={ shouldShowScannedCharacters }
+                            doesScannedStringExistInDB={ doesScannedStringExistInDB }
+
+
+                            detailBoxesHeightOffset={ detailBoxesHeightOffset }
+                            secondDetailBoxHeight={ secondDetailBoxHeight }
+                            firstDetailBoxHeight={ firstDetailBoxHeight }
+                        />
+                    </Animated.View>
+                ) }
+            </View>
         )
-  }
+    }
 }
 
 
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
         flex: 1,
-        justifyContent :'flex-end',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        backgroundColor: '#282828',
     },
 
     camera: {
-        position: 'absolute',
         top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
         flex: 1,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        position: 'absolute',
+        backgroundColor: '#282828',
     }
 })
+
+const animations = {
+
+    showBothDetailBoxes: {
+        toValue: detailBoxesMarginToEdge,
+        duration: detailBoxesDurationTime
+    },
+
+    showFirstDetailBox: {
+        toValue: -wholeSecondDetailBoxHeight,
+        duration: detailBoxesDurationTime
+    },
+}
 
 AppRegistry.registerComponent('VINScanner', () => App);
