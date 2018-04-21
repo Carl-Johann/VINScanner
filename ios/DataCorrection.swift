@@ -164,7 +164,14 @@ extension RNCameraViewSwift {
         
         textField.inputAccessoryView = self.toolbar
         textField.autocapitalizationType = UITextAutocapitalizationType.allCharacters
-        if i > 12 { textField.keyboardType = .numberPad }
+        
+        if self.isVIN() == true {
+          textField.keyboardType = .default
+          if i > 12 { textField.keyboardType = .numberPad }
+        } else if self.isVIN() == false {
+          textField.keyboardType = .numberPad
+        }
+        
         textField.delegate = self
         
         // Some characters look alot like another, and can therefore be misidentified. We just make the user aware of them.
@@ -173,16 +180,13 @@ extension RNCameraViewSwift {
         textField.isHidden = true
         if i <= 7 {
         // There should always atleast be 6 TextFields.
-//          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
         } else if self.isVIN() == true {
         // If IsVIN == true, every TextField should be added.
-//          self.DataCorrectionView.addSubview(textField)
           textField.isHidden = false
         } else if ((self.isVIN() == false) && (i > 7)) {
         // Else if it isn't a VIN being scanned, we should only show 6 TextFields
         // as that is the length of numbers on the paper in the window.
-//          self.DataCorrectionView.sendSubview(toBack: textField)
           textField.isHidden = true
         }
         
@@ -233,7 +237,7 @@ extension RNCameraViewSwift {
     let fewOrManyTextFieldsTagMaxIndex = isVIN() == true ? 118 : 108
     
     
-    // We check for empty textfields. If there aren't any. We should do anything. left <
+    // We check for empty textfields. If there aren't any. We should do anything.
     let anyEmptyFields = textFields.filter({ $0.tag < fewOrManyTextFieldsTagMaxIndex }).contains(where: { ((
       toSide == .Left
         ? $0.tag < textField.tag
@@ -242,26 +246,28 @@ extension RNCameraViewSwift {
     })
     
     if anyEmptyFields == true {
-      var firstEmptyFieldDetected = false
-      
       // We loop trough the textfield reversed if they have to be moved
       // right, because we want to find the first empty field from that direction
       let filteredTextFields = toSide == .Right
         ? textFields.filter({ $0.tag > textField.tag }).reversed()
         : textFields.filter({ $0.tag < textField.tag })
       
+      // We re-reverse the already reversed string to get 'last where' the textfield is empty.
+      guard let tagOfLastEmptyTextField = filteredTextFields.reversed().first(where: { $0.text == "" }) else {
+        print("Couldn't get first(where: { $0.text == '' }) in moveText()"); return
+      }
       
       for field in filteredTextFields {
         // We only want to move the left or right of the first empty field.
         // That is why we loop through them reversed when we move the text right.
-        if firstEmptyFieldDetected == true {
-//          if field.tag
-          modifyFieldWithTag(textFields, field, toSide)
-          
-        } else if (firstEmptyFieldDetected == false && field.text == "") {
-          firstEmptyFieldDetected = true
-          modifyFieldWithTag(textFields, field, toSide)
-          
+        if toSide == .Right {
+          if field.tag <= tagOfLastEmptyTextField.tag {
+            modifyFieldWithTag(textFields, field, toSide)
+          }
+        } else {
+          if field.tag >= tagOfLastEmptyTextField.tag {
+            modifyFieldWithTag(textFields, field, toSide)
+          }
         }
       }
       
@@ -272,8 +278,6 @@ extension RNCameraViewSwift {
   
   // MARK: - modifyFieldWithTag() Function
   func modifyFieldWithTag( _ textFields: [ComparisonTextField], _ field: UITextField, _ sideToMoveText: SideToMove) {
-//    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
-
     let largestOrSmallestTagForEitherSide = sideToMoveText == .Right
       ? isVIN() == true ? 118 : 108
       : 101
@@ -365,13 +369,18 @@ extension RNCameraViewSwift {
     guard let text = textField.text?.uppercased() else { return true }
     let newLength = text.count + string.count - range.length
 //    print("newLength", newLength)
+    
+    
     return newLength <= 1
   }
   
 
   
  @objc func textFieldDidChange(_ textField: UITextField) {
-//    print("texfield did change", textField.text!)
+  // We shouldnt move the active field if the user only deleted the charactersa
+  if textField.text != "" {
+      moveActiveTextField(toSide: .Right)
+  }
   
   
   }
@@ -441,6 +450,14 @@ extension RNCameraViewSwift {
     
     for i in 1...BadVINOrWindowScanLength {
       let textField = contentView.viewWithTag(100 + i) as! ComparisonTextField
+      
+      if isVIN() == true {
+        textField.keyboardType = .default
+        if i > 12 { textField.keyboardType = .numberPad }
+      } else if isVIN() == false {
+        textField.keyboardType = .numberPad
+      }
+      
       textFields.append(textField)
     }
     

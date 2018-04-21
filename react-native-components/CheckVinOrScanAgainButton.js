@@ -4,7 +4,7 @@ import React from 'react'
 import {
     defaultButtonHeight, detailTextStyle,
     detailBoxesContentWidth, defaultYellow,
-} from './GlobalValues'
+} from '../helpers/GlobalValues'
 
 const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgain, shouldScan }) => {
     return (
@@ -21,11 +21,11 @@ const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgai
 const styles = StyleSheet.create({
 
     buttonStyle: {
-        width: (detailBoxesContentWidth() / 2) - 5,
+        width: (detailBoxesContentWidth / 2) - 5,
         justifyContent: 'center',
         borderColor: defaultYellow,
         alignItems: 'center',
-        borderRadius: 4,
+        borderRadius: 2,
         borderWidth: 1.5,
         height: defaultButtonHeight,
     },

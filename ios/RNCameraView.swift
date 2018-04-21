@@ -57,29 +57,23 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   // MARK: - 'ViewDidLoad'
   override func view() -> UIView! {
-    if isIPhoneX {
-      self.rectOfInterest.origin.y += 20
-      self.cameraView.frame.origin.y -= 20
-      self.dataCorrectionView.frame.origin.y -= 20
-      self.contentView.frame.origin.y -= 20
-    }
-//    print(123, screenHeight)
-//    print(456, self.cameraView.layer.bounds.height)
-    
-    // Shoulc be hidden in the beginning
+    // dataCorrectionView should be hidden in the beginning
     dataCorrectionView.alpha = 0
     startLiveVideo()
     
-//    let lort = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 800))
-//    lort.center = CGPoint(x: 10, y: screenHeight/2)
-//    lort.backgroundColor = UIColor.orange
-//    self.cameraView.addSubview(lort)
-  
+
     // Manual Scan button
     let buttonWidth = self.screenWidth * 0.75
     let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Scan Now")
     button.center = CGPoint(x: self.screenWidth/2 , y: self.screenHeight * 0.75)
     button.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
+    
+    if isIPhoneX {
+      button.frame.origin.y -= 40
+      self.rectOfInterest.origin.y -= 40
+    }
+    
+    
     self.cameraView.addSubview(button)
     
     // The scanned VIN should be inside of the rect
@@ -120,34 +114,24 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     deviceOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
     deviceOutput.setSampleBufferDelegate(self, queue: DispatchQueue.global(qos: DispatchQoS.QoSClass.default))
 
+  
+  
+    // To get the video to fill most of the screen.
+    if isIPhoneX {
+        imageLayer.videoGravity = .resizeAspectFill
+    }
     imageLayer.session = session
     imageLayer.frame = self.contentView.frame
     self.cameraView.layer.addSublayer(imageLayer)
-//    print(2, imageLayer.frame.height)
+  
+    
     
     session.addInput(deviceInput)
-//    session.sessionPreset = .photo'
-//    session.sessionPreset = .high
-    // Text scanning
+    session.sessionPreset = .hd4K3840x2160
     session.addOutput(deviceOutput)
-    
-    // QR scanning
-    let captureMetadataOutput = AVCaptureMetadataOutput()
-    
-    var modifiedRectOfInterest = self.rectOfInterest
-    modifiedRectOfInterest.size.width = modifiedRectOfInterest.width * 2
-    modifiedRectOfInterest.size.height = modifiedRectOfInterest.width * 2
-    modifiedRectOfInterest = imageLayer.metadataOutputRectConverted(fromLayerRect: modifiedRectOfInterest)
-    modifiedRectOfInterest.origin.y *= -2
-//  captureMetadataOutput.rectOfInterest = modifiedRectOfInterest
 
-//    session.addOutput(captureMetadataOutput)
-    
-//    captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-//    captureMetadataOutput.metadataObjectTypes = [ AVMetadataObject.ObjectType.dataMatrix, AVMetadataObject.ObjectType.code39 ]
     
     showCameraView()
-    
   }
   
   func createUIScanRects() {
@@ -193,7 +177,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   }
   func hideCameraView() {
     DispatchQueue.main.async {
-      self.contentView.backgroundColor = UIColor(hex: "#E5E5E5")
       self.contentView.sendSubview(toBack: self.cameraView)
       
       UIView.animate(withDuration: 0.7, animations: {
@@ -406,39 +389,37 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   func cropAndPostImage(_ image: CIImage) {
     DispatchQueue.main.async {
-//      if self.vinScanned == true {
-//        print("sending", self.vinScanned, self.loaded)
-        var scannedImage = UIImage(ciImage: image)
-        scannedImage = scannedImage.rotate(radians: .pi / 2)!
-  //      print("image width", image.cgImage!.width)
-  //      print("image height", image.cgImage!.height)
-        scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
-        guard let scannedImageAsCG = scannedImage.cgImage else { return }
-        
-        // Cropping image
-  //      let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
-        var rect = CGRect()
-        rect = self.rectOfInterest
-        if self.isIPhoneX == true {
-          print("is x")
-          rect.origin.y -= CGFloat(40)
-        }
-        
-        let croppedCGImage = scannedImageAsCG.cropping(to: rect)
-        let croppedUIImage = UIImage(cgImage: croppedCGImage!)
-        
-        // Stops the session, and posts the image for proccesing
-        
-        self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
-        // 1.
-        if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
-          print("------------------------------------------------------------")
-//          print("Returning VIN")
-          eventEmitter.sendEvent(withName: "ShouldShowFirstDetailBox", body: "true")
-        }
-//        self.vinScanned = false
       
-//      }
+      var scannedImage = UIImage(ciImage: image)
+      scannedImage = scannedImage.rotate(radians: .pi / 2)!
+      scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
+      guard let scannedImageAsCG = scannedImage.cgImage else { return }
+      
+          
+      // Cropping image
+      var rect = CGRect()
+      rect = self.rectOfInterest
+    
+      
+      // We need to move where we capture the image up quite abit. About 60 px
+      if self.isIPhoneX == true {
+        rect.origin.y -= CGFloat(60)
+      }
+      
+      
+      let croppedCGImage = scannedImageAsCG.cropping(to: rect)
+      let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+      
+      // Stops the session, and posts the image for proccesing
+      self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
+      
+      
+      // Notifies JS
+      if let eventEmitter = self.bridge.module(for: VINModul.self) as? RCTEventEmitter {
+        print("------------------------------------------------------------")
+        eventEmitter.sendEvent(withName: "ShouldShowFirstDetailBox", body: "true")
+      }
+      
     }
   }
   

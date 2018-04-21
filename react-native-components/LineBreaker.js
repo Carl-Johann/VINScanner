@@ -3,12 +3,12 @@ import React from 'react'
 import { View } from 'react-native'
 
 import {
-    detailBoxesContentWidth, defaultYellow
-} from './GlobalValues'
+    detailBoxesContentWidth, defaultYellow, lineBreakerHeight
+} from '../helpers/GlobalValues'
 
 const LineBreaker = ({ margin }) => {
     return (
-        <View style={{ height: 1.5, width: detailBoxesContentWidth(), backgroundColor: defaultYellow, marginTop: margin, marginBottom: margin }} />
+        <View style={{ height: lineBreakerHeight, width: detailBoxesContentWidth, backgroundColor: defaultYellow, marginTop: margin / 2, marginBottom: margin / 2 }} />
     )
 }
 

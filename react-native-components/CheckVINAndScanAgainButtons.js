@@ -4,7 +4,7 @@ import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 
 import {
     detailBoxesContentWidth
-} from './GlobalValues'
+} from '../helpers/GlobalValues'
 
 const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 
@@ -29,7 +29,7 @@ const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 const styles = StyleSheet.create({
     buttonsStyleContainerStyle: {
         justifyContent: 'space-between',
-        width: detailBoxesContentWidth(),
+        width: detailBoxesContentWidth,
         flexDirection: 'row',
     },
 })
