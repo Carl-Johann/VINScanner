@@ -19,7 +19,7 @@ class YellowRoundedButton : UIButton {
     button.setTitle(title, for: .normal)
     button.setTitleColor(UIColor(hex: "#555555"), for: .normal)
     button.backgroundColor = UIColor(hex: "#ffb307")
-    button.layer.cornerRadius = 4
+    button.layer.cornerRadius = 2
     button.layer.borderWidth = 2
     button.layer.borderColor = UIColor(hex: "#ffb307").cgColor
     button.titleLabel?.textAlignment = NSTextAlignment.center

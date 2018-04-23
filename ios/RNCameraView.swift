@@ -28,7 +28,10 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var mask: CALayer = CALayer()
   var successRect: UIView = UIView()
   var toolbar: UIToolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: UIScreen.main.bounds.width, height: 45))
+  
   var takePicture = false
+  var enterDataManually = false
+  
   let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
   
   let session = AVCaptureSession()
@@ -48,7 +51,13 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   var userWantsToScan: Bool? = nil
   var croppedImageForScan: UIImage? = nil
   var dataFromScan: String? = nil
-  var symbolsForScan: [[String : AnyObject]]? = nil
+  
+  
+
+  
+  
+  
+  
   
   
   
@@ -57,26 +66,40 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   // MARK: - 'ViewDidLoad'
   override func view() -> UIView! {
+    
     // dataCorrectionView should be hidden in the beginning
     dataCorrectionView.alpha = 0
     startLiveVideo()
     
+    
+    
 
-    // Manual Scan button
+//    let buttonWidth = ((self.screenWidth * 0.75) / 2) - 5
     let buttonWidth = self.screenWidth * 0.75
-    let button = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: 55), title: "Scan Now")
-    button.center = CGPoint(x: self.screenWidth/2 , y: self.screenHeight * 0.75)
-    button.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
+    let buttonHeight: CGFloat = 55
+    
+    // 'Scan Now' button
+    let scanNowButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Scan Now")
+    scanNowButton.center = CGPoint(x: self.screenWidth/2, y: self.screenHeight * 0.75)
+    scanNowButton.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
+    
+    // 'Enter Now' button
+//    let typeNowButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Enter Now")
+//    typeNowButton.center = CGPoint(x: ((self.screenWidth/2) - (buttonWidth/2)) - 5 , y: self.screenHeight * 0.75)
+//    typeNowButton.addTarget(self, action: #selector(self.enterVINOrUnitmanually(sender:)), for: .touchUpInside)
     
     if isIPhoneX {
-      button.frame.origin.y -= 40
+      scanNowButton.frame.origin.y -= 40
+//      typeNowButton.frame.origin.y -= 40
       self.rectOfInterest.origin.y -= 40
     }
     
+    self.cameraView.addSubview(scanNowButton)
+//    self.cameraView.addSubview(
     
-    self.cameraView.addSubview(button)
     
-    // The scanned VIN should be inside of the rect
+    
+    // The scanned data should be inside of the rect
     self.createUIScanRects()
     
     let focus: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(manualFocus(_:)))
@@ -88,7 +111,6 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     dataCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
     
     //init toolbar
-    //create left side empty space so that done button set on right side
     setupVINCorrectionKeyboardToolbar()
     
     
@@ -96,12 +118,15 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     self.cameraView.backgroundColor = UIColor(hex: "#282828")
     self.dataCorrectionView.backgroundColor = UIColor(hex: "#282828")
     
+    
     self.contentView.addSubview(dataCorrectionView)
     self.contentView.addSubview(cameraView)
     return contentView
   }
 
-
+  func setColors(colors: NSArray) {
+    self.colors = colors.map({return RCTConvert.UIColor($0)})
+  }
   
   func startLiveVideo() {        
     
@@ -136,7 +161,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   func createUIScanRects() {
     let viewOfInterest = UIView(frame: self.rectOfInterest)
-    viewOfInterest.layer.cornerRadius = 8
+    viewOfInterest.layer.cornerRadius = 2
     viewOfInterest.layer.borderWidth = 4
     viewOfInterest.tag = 99
     viewOfInterest.layer.borderColor = UIColor.lightGray.cgColor
@@ -144,7 +169,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     
     
     self.successRect.frame = self.rectOfInterest
-    self.successRect.layer.cornerRadius = 8
+    self.successRect.layer.cornerRadius = 2
     self.successRect.layer.borderWidth = 4
     self.successRect.layer.borderColor = UIColor.green.cgColor
     self.cameraView.addSubview(self.successRect)
@@ -160,28 +185,55 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func showCameraView() {
     DispatchQueue.main.async {
       self.loaded = 0
-      self.vinScanned = false
       self.session.startRunning()
       
-      self.contentView.bringSubview(toFront: self.cameraView)
+      
       // The scanrects disappear for some reason
       // if we don't show them every time cameraview has been send to background
       self.createUIScanRects()
       
       
+      
+      UIView.animate(withDuration: 0.7, animations: { self.cameraView.alpha = 1 })
+      self.contentView.bringSubview(toFront: self.cameraView)
       self.contentView.bringSubview(toFront: self.successRect)
-      UIView.animate(withDuration: 0.7, animations: {
-        self.cameraView.alpha = 1
-      })
+      
+//      for view in self.dataCorrectionView.subviews {
+//        if let button = view as? YellowRoundedButton {
+//          // Do Something
+//          print("yellow button")
+//          button.isUserInteractionEnabled = false
+//        }
+//      }
+
+      
+      // If the scanner has scanned before, we wait 1 second before activating it again,
+      // because it can scan really quick, and that's not always wanted
+      if self.vinScanned == true {
+        let bg:DispatchQueue = { return DispatchQueue.global(qos: DispatchQoS.QoSClass.background) }() //keep this in the global scope
+        bg.async {
+          sleep(1)
+          self.vinScanned = false
+        }
+      }
+      
     }
   }
   func hideCameraView() {
     DispatchQueue.main.async {
-      self.contentView.sendSubview(toBack: self.cameraView)
-      
+//
+//      for view in self.dataCorrectionView.subviews {
+//        if let button = view as? YellowRoundedButton {
+//          // Do Something
+//          print("yellow button")
+//          button.isUserInteractionEnabled = true
+//        }
+//      }
+//
       UIView.animate(withDuration: 0.7, animations: {
         self.cameraView.alpha = 0
       }, completion: { success in
+        self.contentView.sendSubview(toBack: self.cameraView)
         self.session.stopRunning()
         self.mask.bounds = CGRect(x: 0, y: 0, width: 0, height: self.screenHeight * 0.1)
       })
@@ -190,10 +242,19 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func showDataCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.bringSubview(toFront: self.dataCorrectionView)
+//      for view in self.cameraView.subviews {
+//        if let button = view as? YellowRoundedButton {
+//          // Do Something
+//          print("yellow button")
+//          button.isUserInteractionEnabled = false
+//        }
+//      }
+//
+      
       UIView.animate(withDuration: 0.7, animations: {
         self.dataCorrectionView.alpha = 1
       })
+      self.contentView.bringSubview(toFront: self.dataCorrectionView)
       
       if ((self.dataFromScan != nil) && (self.croppedImageForScan != nil)) {
         let scannedVIN = self.dataFromScan!
@@ -219,12 +280,32 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   func hideVINCorrectionView() {
     DispatchQueue.main.async {
       
-      self.contentView.sendSubview(toBack: self.dataCorrectionView)
+//      for view in self.cameraView.subviews {
+//        if let button = view as? YellowRoundedButton {
+//          // Do Something
+//          print("yellow button")
+//          button.isUserInteractionEnabled = true
+//        }
+//      }
+      
       UIView.animate(withDuration: 0.7, animations: {
         self.dataCorrectionView.alpha = 0
       })
+      self.contentView.sendSubview(toBack: self.dataCorrectionView)
     }
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -268,11 +349,7 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   @objc fileprivate func manualFocus(_ sender: UITapGestureRecognizer) {
     // Since I couldn't figure out how to manually capture a frame,
     // and taking a screenshot doesn't work on
-//    self.takePicture = true
-//    print(123)
-    
-//    let screenSize = cameraView.bounds.size
-//    if let touchPoint = touches.first {
+
     let x = sender.location(in: cameraView).y / screenHeight
     let y = 1.0 - sender.location(in: cameraView).x / screenWidth
     let focusPoint = CGPoint(x: x, y: y)
@@ -282,26 +359,29 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
         try device.lockForConfiguration()
         
         device.focusPointOfInterest = focusPoint
-        //device.focusMode = .continuousAutoFocus
         device.focusMode = .autoFocus
-        //device.focusMode = .locked
         device.exposurePointOfInterest = focusPoint
         device.exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
         device.unlockForConfiguration()
       }
-      catch {
-        // just ignore
-      }
+      catch { }
     }
-//    }
   }
   
   
   @objc fileprivate func manualScan(sender: UIButton) {
     // Since I couldn't figure out how to manually capture a frame,
-    // and taking a screenshot doesn't work on
-//    print(12321313)
+    // and taking a screenshot doesn't work on.
     self.takePicture = true
+  }
+  
+  @objc fileprivate func enterVINOrUnitmanually(sender: UIButton) {
+    // Some VIN's are pretty impossible to s
+//    print(123)
+    self.enterDataManually = true
+//    self.setCheckOrScanAttribues(UIImage(), "                 ")
+//    self.showDataCorrectionView()
+    
   }
 
   
@@ -366,13 +446,13 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
       let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: CGImagePropertyOrientation.right, options: requestOptions)
       
 
-      if self.takePicture == false {
+      if self.takePicture == false && self.enterDataManually == false {
         do {
           try imageRequestHandler.perform([textRequest])
         } catch {
           print(error)
         }
-      } else {
+      } else if self.takePicture == true {
         
         DispatchQueue.main.async {
           self.takePicture = false
@@ -382,33 +462,55 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           self.cropAndPostImage(image)
           self.hideCameraView()
         }
+        
+      } else if self.enterDataManually == true {
+        DispatchQueue.main.async {
+          self.enterDataManually = false
+          guard let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else {
+            print("Couldn't get image from getImageFromSampleBuffer()"); return
+          }
+          
+          
+          self.setCheckOrScanAttribues(self.cropImage(image), "                 ")
+          self.showDataCorrectionView()
+          self.correctDataFromGoogleManually()
+//          self.showDataCorrectionView()
+//          self.hideCameraView()
+//          self.correctDataFromGoogleManually()
+          
+        }
       }
     }
   }
   
+  func cropImage(_ image: CIImage) -> UIImage {
+    var scannedImage = UIImage(ciImage: image)
+    scannedImage = scannedImage.rotate(radians: .pi / 2)!
+    scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
+    guard let scannedImageAsCG = scannedImage.cgImage else { return scannedImage }
+    
+    
+    // Cropping image
+    var rect = CGRect()
+    rect = self.rectOfInterest
+    
+    
+    // We need to move where we capture the image up quite abit. About 60 px
+    if self.isIPhoneX == true {
+      rect.origin.y -= CGFloat(60)
+    }
+    
+    
+    let croppedCGImage = scannedImageAsCG.cropping(to: rect)
+    let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+    
+    return croppedUIImage
+  }
   
   func cropAndPostImage(_ image: CIImage) {
     DispatchQueue.main.async {
       
-      var scannedImage = UIImage(ciImage: image)
-      scannedImage = scannedImage.rotate(radians: .pi / 2)!
-      scannedImage = scannedImage.resizeImage(targetSize: CGSize(width: self.screenWidth, height: self.screenHeight))
-      guard let scannedImageAsCG = scannedImage.cgImage else { return }
-      
-          
-      // Cropping image
-      var rect = CGRect()
-      rect = self.rectOfInterest
-    
-      
-      // We need to move where we capture the image up quite abit. About 60 px
-      if self.isIPhoneX == true {
-        rect.origin.y -= CGFloat(60)
-      }
-      
-      
-      let croppedCGImage = scannedImageAsCG.cropping(to: rect)
-      let croppedUIImage = UIImage(cgImage: croppedCGImage!)
+      let croppedUIImage = self.cropImage(image)
       
       // Stops the session, and posts the image for proccesing
       self.postImage(croppedImage: croppedUIImage, originalImage: UIImage(ciImage: image).rotate(radians: .pi / 2)!)
@@ -443,25 +545,31 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
           if self.rectOfInterest.contains(regionBox) {
             
             // The VIN in the window
-            if boxes.count > 14 && boxes.count < 18 {
+            if boxes.count > 14 && boxes.count <= 17 {
+              self.IncrementLoadBar()
               // If we have scanned a VIN as many times as we have specified
               if self.loaded == self.scanThreshold {
-                self.vinScanned = true
-                self.cropAndPostImage(image)
-                self.hideCameraView()
-              } else {
-                self.IncrementLoadBar()
-              }
-            // Page behind the window is either 6 or 7 characters long
-            } else if ((boxes.count == 6) || (boxes.count == 7)) {
-              if ((self.loaded == self.scanThreshold) && (self.vinScanned == false)) {
-                self.vinScanned = true
-                self.loaded = 0
+                self.resetVINScannedAndLoaded()
                 
                 self.cropAndPostImage(image)
                 self.hideCameraView()
+//                self.IncrementLoadBar()
               } else {
-                self.IncrementLoadBar()
+//                self.IncrementLoadBar()
+              }
+              
+            // UNIT is either 6 or 7 characters long
+            } else if ((boxes.count == 6) || (boxes.count == 7)) {
+              self.IncrementLoadBar()
+//              sleep(UInt32(0.4))
+              if ((self.loaded == self.scanThreshold) && (self.vinScanned == false)) {
+                self.resetVINScannedAndLoaded()
+                
+                self.cropAndPostImage(image)
+                self.hideCameraView()
+//                self.IncrementLoadBar()
+              } else {
+//                self.IncrementLoadBar()
               }
             }
           }
@@ -479,16 +587,37 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
   
   
   func IncrementLoadBar() {
-    
-    if self.loaded < self.scanThreshold + 1 {
-      let widthToincrement = (screenWidth * 0.9)/CGFloat(scanThreshold)
-      var maskWidth = mask.bounds.width
-      maskWidth += widthToincrement
-      UIView.animate(withDuration: 0.4, animations: {
-        self.mask.bounds = CGRect(x: 0, y: 0, width: maskWidth, height: self.screenHeight * 0.1)
-      })
-    }
     self.loaded += 1
+    
+    
+    let widthToincrement = (screenWidth * 0.9)/CGFloat(scanThreshold)
+    var maskWidth = mask.bounds.width
+    maskWidth += widthToincrement
+
+    UIView.animate(withDuration: 0.4, animations: {
+      self.mask.bounds = CGRect(x: 0, y: 0, width: maskWidth, height: self.screenHeight * 0.1)
+    })
+    
+    
+    
+    
+    let bg:DispatchQueue = { return DispatchQueue.global(qos: DispatchQoS.QoSClass.background) }() //keep this in the global scope
+    bg.async {
+      sleep(7)
+      
+      if self.loaded > 0 {
+        DispatchQueue.main.async {
+          let widthToincrement = (self.screenWidth * 0.9)/CGFloat(self.scanThreshold)
+          var maskWidth = self.mask.bounds.width
+          maskWidth -= widthToincrement
+          
+          UIView.animate(withDuration: 0.4, animations: {
+            self.mask.bounds = CGRect(x: 0, y: 0, width: maskWidth, height: self.screenHeight * 0.1)
+          })
+        }
+      }
+    }
+    
   }
   
   

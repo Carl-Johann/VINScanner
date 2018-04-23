@@ -1,4 +1,7 @@
-import { isVINOrUnit, detailBoxesDurationTime } from './GlobalValues'
+import {
+    isVINOrUnit, detailBoxesDurationTime, isIphoneX,
+    detailBoxesMarginToEdge, isEmpty,
+} from './GlobalValues'
 import { Animated, Alert } from 'react-native';
 
 import {
@@ -63,12 +66,12 @@ export const ShouldShowDataInFirstDetailBox = (component, response, animations) 
 
 
 
-export const ShouldShowDataInSecondDetailBox = (component, response) => {
+export const ShouldShowDataInSecondDetailBox = (component, response, animations) => {
     var JSONResponse = JSON.stringify(response, null, 2)
     JSONResponse = JSON.parse(JSONResponse)
     let scannedStringDBData = JSONResponse["scannedStringDBData"]
 
-    if (scannedStringDBData != null) {
+    if (isEmpty(scannedStringDBData) == false) {
     // Row exists in DB with corresponding data to what was scanned
         component.setState({
                 scannedStringDBData,
@@ -83,12 +86,21 @@ export const ShouldShowDataInSecondDetailBox = (component, response) => {
 
     } else {
     // else if the scannedStringDBData wasn't in the database 'scannedStringDBData' is empty
-        Animated.timing( component.state.secondDetailBoxHeight, { toValue: mediumSecondDetailBoxDefaultHeight }).start( () => {
+        Animated.parallel([
+            Animated.timing( component.state.secondDetailBoxHeight, { toValue: mediumSecondDetailBoxDefaultHeight, duration: detailBoxesDurationTime }),
+            Animated.timing( component.state.detailBoxesHeightOffset, animations.showBothDetailBoxes),
+        ]).start( () => {
             component.setState({
                 scannedStringDBData: {},
                 doesScannedStringExistInDB: false,
             })
         })
+        // Animated.timing( component.state.secondDetailBoxHeight, { toValue: mediumSecondDetailBoxDefaultHeight }).start( () => {
+        //     component.setState({
+        //         scannedStringDBData: {},
+        //         doesScannedStringExistInDB: false,
+        //     })
+        // })
 
     }
 }
@@ -115,11 +127,11 @@ export const NoDataReturnedFromGoogle = (component) => {
     // 'checkScannedCharactersOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
     // Also what we need here, so we reuse it
 
-    Animated.timing( component.state.detailBoxesHeightOffset, { toValue: detailBoxesDefaultHeightOffset }).start()
+    Animated.timing( component.state.detailBoxesHeightOffset, { toValue: -500 }).start()
 
     Alert.alert(
-        'VIN Not Returned From Your Scan',
-        'Try to reposition the camera. If possible block any reflections from hitting the windshield.',
+        'VIN or Unit Not Returned From Your Scan',
+        'Try to reposition the camera. If possible block any reflections that might be hitting the windshield.',
         [{ text: 'OK, Scan Again', onPress: () => component.checkScannedCharactersOrScanAgain(true) }],
         { cancelable: false }
     )

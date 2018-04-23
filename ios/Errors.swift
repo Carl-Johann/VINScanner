@@ -52,7 +52,7 @@ extension RNCameraViewSwift {
     
     } else {
       // Something isn't right if it gets here
-      print("ERROR compareVINWaitGroup.leave() ERROR")
+      print("ERROR CheckDataOrScanAgain swift")
       self.showCameraView()
     }
   }

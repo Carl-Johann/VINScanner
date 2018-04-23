@@ -1,4 +1,4 @@
-import Dimensions from 'Dimensions'
+import { Dimensions, Platform } from 'react-native'
 
 
 export const spinKitSize = 42
@@ -11,8 +11,9 @@ export const spinKitType = 'Arc'
 export const defaultGray = '#555555'
 export const AMDarkGray = '#282828'
 export const defaultFont = 'AppleSDGothicNeo-SemiBold'
-export const detailBoxesDurationTime = 300
+export const detailBoxesDurationTime = 400
 export const defaultFontSize = 22
+export const defaultBorderRadius = 2
 
 // This was retrieved with 'onLayout={(event) => { console.log(event.nativeEvent.layout.height) }}'
 export const largerTextFontSize = 25 // WARNING. largerTextFontTextHeight won't be accurate
@@ -34,13 +35,25 @@ export const isVINOrUnit = (characters) => {
 }
 
 
-
 export const detailTextStyle = {
     fontFamily: defaultFont,
     color: defaultGray,
     fontSize: defaultFontSize,
     textAlign: 'center',
     justifyContent: 'center'
+}
+
+export const isIphoneX = () => {
+  let dimensions = Dimensions.get('window')
+  const { height, width } = dimensions
+
+  return (
+    // This has to be iOS duh
+    Platform.OS === 'ios' &&
+
+    // Accounting for the height in either orientation
+    height === 812
+  )
 }
 
 

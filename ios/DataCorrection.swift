@@ -98,14 +98,21 @@ extension RNCameraViewSwift {
       
       let buttonWidth = ((self.screenWidth * 0.75) / 2) - 5
       let buttonHeight: CGFloat = 55
+      
+      
       let resendButon = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Resend")
       resendButon.center = CGPoint(x: ((self.screenWidth/2) - (buttonWidth/2)) - 5 , y: self.screenHeight * 0.75)
       resendButon.addTarget(self, action: #selector(self.resendData(sender:)), for: .touchUpInside)
-      self.dataCorrectionView.addSubview(resendButon)
-      
       let scanAgainButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Scan Again")
       scanAgainButton.center = CGPoint(x: ((self.screenWidth/2) + (buttonWidth/2)) + 5 , y: self.screenHeight * 0.75)
       scanAgainButton.addTarget(self, action: #selector(self.returnToCamera(sender:)), for: .touchUpInside)
+      
+      if self.isIPhoneX {
+        resendButon.frame.origin.y -= 40
+        scanAgainButton.frame.origin.y -= 40
+      }
+      
+      self.dataCorrectionView.addSubview(resendButon)
       self.dataCorrectionView.addSubview(scanAgainButton)
     }
   }
@@ -115,7 +122,7 @@ extension RNCameraViewSwift {
   func showRequiredTextFields(_ fieldPerLayer: CGFloat, _ imgGap: CGFloat, _ smallFieldWidth: CGFloat, _ safeDataFromScan: String) {
 //    let numberOfTextFieldsToCreate: Int = safeDataFromScan.count < 6 ? 6 : 17
 //    let isVIN: Bool = safeDataFromScan.count > 7 ? true : false
-    
+//    print(555)
     DispatchQueue.main.async {
       for i in 1...17 {
         
@@ -157,7 +164,7 @@ extension RNCameraViewSwift {
         
         if i <= safeDataFromScan.count {
           let text = safeDataFromScan.index(safeDataFromScan.startIndex, offsetBy: key)
-          textField.text = String(safeDataFromScan[text])
+          textField.text = String(safeDataFromScan[text]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
         textField.tag = 100 + i
         textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
@@ -328,6 +335,7 @@ extension RNCameraViewSwift {
   
   
   @objc fileprivate func resendData(sender: UIButton) {
+    print("resendData clicked")
     guard let safeDataFromScan = self.dataFromScan else {
       print("Couldnt get dataFromScan from self in correctDataFromGoogleManually"); return
     }
@@ -378,9 +386,9 @@ extension RNCameraViewSwift {
   
  @objc func textFieldDidChange(_ textField: UITextField) {
   // We shouldnt move the active field if the user only deleted the charactersa
-  if textField.text != "" {
-      moveActiveTextField(toSide: .Right)
-  }
+    if textField.text != "" {
+        moveActiveTextField(toSide: .Right)
+    }
   
   
   }
@@ -466,6 +474,7 @@ extension RNCameraViewSwift {
   
   
   @objc fileprivate func returnToCamera(sender: UIButton) {
+    print("returnToCamera clicked")
     self.hideVINCorrectionView()
     self.showCameraView()
   }

@@ -18,7 +18,7 @@ import {
     isVINOrUnit, AMDarkGray, detailBoxesDurationTime,
     detailBoxesContentWidth, detailBoxesMarginToEdge,
     lineBreakerMarginHeight, largerTextFontTextHeight,
-    lineBreakerHeight,
+    lineBreakerHeight, isIphoneX,
 } from './helpers/GlobalValues'
 
 
@@ -68,6 +68,7 @@ class App extends Component {
         // this.debugDetailBoxes(true, true, '5911537', true)
 
 
+
     // Life cycle of data boxes //
         // 1. This is the first box. Shows it with a loading icon.
         moduleEvent.addListener('ShouldShowFirstDetailBox', response => {
@@ -83,7 +84,7 @@ class App extends Component {
 
         // 3. This is the second box.This either shows an error or fills it with data.
         moduleEvent.addListener('ShouldShowDataInSecondDetailBox', response => {
-            ShouldShowDataInSecondDetailBox(this, response)
+            ShouldShowDataInSecondDetailBox(this, response, animations)
         })
     // End of succesful life cycle of data boxes //
 
@@ -199,10 +200,10 @@ class App extends Component {
                                     doesScannedStringExistInDB,
                                 })
                             })
-                        }, 450)
+                        }, 4500)
                     }
-                }, 250)
-            }, 350)
+                }, 2500)
+            }, 1000)
         }, 400)
     }
 
@@ -223,7 +224,7 @@ class App extends Component {
 
 
                 { shouldShowFirstDetailBox && (
-                    <Animated.View style={{ bottom: detailBoxesHeightOffset, backgroundColor: 'transparent',  }}>
+                    <Animated.View style={{ bottom: detailBoxesHeightOffset }}>
                         <DetailBoxesView
                             checkScannedCharactersOrScanAgain={ (shouldScan) => {
                                 this.checkScannedCharactersOrScanAgain(shouldScan)
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
 const animations = {
 
     showBothDetailBoxes: {
-        toValue: detailBoxesMarginToEdge,
+        toValue: detailBoxesMarginToEdge + (isIphoneX() ? 2.5*detailBoxesMarginToEdge : 0),
         duration: detailBoxesDurationTime
     },
 

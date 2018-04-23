@@ -71,7 +71,8 @@ export default class FirstDetailBoxView extends Component {
 
 
         if (shouldShowScannedCharacters == null) {
-        // If the views has been loaded, but no data recieved, a loading spinner will wait for data to be set in state.
+        // If the view has been loaded, but no data recieved, a loading spinner will wait for data to be set in state.
+
             return (
                 <Animated.View style={[ styles.spinKitHeightStyle, { height: firstDetailBoxHeight } ]}>
                     <SpinKit
@@ -113,11 +114,11 @@ export default class FirstDetailBoxView extends Component {
             )
 
         } else {
-        // We accept slightly messed up VINs as Google sometimes misses one or two characters.
+        // We accept slightly wrong VINS and UNITs as Google sometimes misses one or two characters.
 
             return (
                 <Animated.View style={{
-                    height: firstDetailBoxHeight, opacity: fadeInOutValue,
+                    height: firstDetailBoxHeight, opacity: 1,
                     alignItems: 'center', width: detailBoxesContentWidth,
                     justifyContent: 'center'
                 }}>
@@ -129,7 +130,7 @@ export default class FirstDetailBoxView extends Component {
                     </View>
 
 
-                    <View style={{ backgroundColor: 'transparent', width: detailBoxesContentWidth }}>
+                    <View>
                         <LineBreaker margin={ lineBreakerMarginHeight } />
                         <View style={ styles.buttonsStyleContainerStyle } >
                             <CheckVINAndScanAgainButtons

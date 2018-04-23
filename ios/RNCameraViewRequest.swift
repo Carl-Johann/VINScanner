@@ -70,13 +70,11 @@ extension RNCameraViewSwift {
   func resetCheckOrScanAttributes() {
     self.croppedImageForScan = nil
     self.dataFromScan = nil
-    self.symbolsForScan = nil
   }
   
-  func setCheckOrScanAttribues(_ croppedImageForScan: UIImage, _ VINForScan: String, _ symbolsForScan: [[String : AnyObject]]) {
+  func setCheckOrScanAttribues(_ croppedImageForScan: UIImage, _ VINForScan: String) {
     self.croppedImageForScan = croppedImageForScan
     self.dataFromScan = VINForScan
-    self.symbolsForScan = symbolsForScan
   }
 
 
@@ -99,25 +97,23 @@ extension RNCameraViewSwift {
     guard let paragraphs = blocks[0]["paragraphs"] as? [[String : AnyObject]] else { print("paragraphs error"); return }
     guard let words = paragraphs[0]["words"] as? [[String : AnyObject]] else { print("words error"); return }
     guard let symbols = words[0]["symbols"] as? [[String : AnyObject]] else { print("symbols error"); return }
-//    sleep(UInt32(2))
     
     var cleanedCharacters = cleanCharacters(retrievedCharacters)
     cleanedCharacters = String(cleanedCharacters.filter { !" \n\t\r".contains($0) })
     print("Cleaned VIN:", cleanedCharacters, "-", cleanedCharacters.count)
-//    sleep(UInt32(1.5))
     
     // A succesfull scan should be 17, 7 or 6 characters long, based on what type of data was scanned
     if ((cleanedCharacters.count == 17) || (cleanedCharacters.count == 6 ) || (cleanedCharacters.count == 7 )) {
       // We might have a VIN that exists in the database, so we check(validate) it
       validateVIN(cleanedCharacters, croppedImage, symbols)
-      setCheckOrScanAttribues(croppedImage, cleanedCharacters, symbols)
+      setCheckOrScanAttribues(croppedImage, cleanedCharacters)
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
         "ShouldShow" : true, "CleanedCharacters" : cleanedCharacters
       ])
       
     } else {
     // else we notify JS too, but theres no 'VIN or Unit' 
-      setCheckOrScanAttribues(croppedImage, cleanedCharacters, symbols)
+      setCheckOrScanAttribues(croppedImage, cleanedCharacters)
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
         "ShouldShow" : false, "CleanedCharacters" : cleanedCharacters
       ])
@@ -162,7 +158,7 @@ extension RNCameraViewSwift {
         
         // The fact that the VIN exists means the user won't be promted to choose weather or not to scan or check VI
 //        self.resetCheckOrScanAttributes()
-        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters, symbols)
+        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters)
         
         guard let data = requestData else { print("error data"); return }
         let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
@@ -175,7 +171,7 @@ extension RNCameraViewSwift {
         print("ScannedCharacters does NOT exists in the database")
         // They will be asked to 'check vin' or 'scan again'. If they decide to check,
         // 'correctDataFromGoogleManually()' needs the data from 'self'
-        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters, symbols)
+        self.setCheckOrScanAttribues(croppedImage, CleanedCharacters)
         eventEmitter.sendEvent(withName: "ShouldShowDataInSecondDetailBox", body: ["scannedStringDBData" : {}])
       }
     }
