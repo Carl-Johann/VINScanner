@@ -1,14 +1,25 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, SafeAreaView, View, AppRegistry, requireNativeComponent, NativeEventEmitter, NativeModules, Animated, Alert, ActionSheetIOS, TouchableOpacity } from 'react-native';
+// import { Icon } from 'react-native-elements'
+import {
+    StyleSheet, Text, SafeAreaView,
+    View, AppRegistry, requireNativeComponent,
+    NativeEventEmitter, NativeModules, Animated,
+    Alert, ActionSheetIOS, TouchableOpacity, Switch, Image,
+} from 'react-native';
 import RNCameraView from './ios-native-components/RNCameraView'
+import RNDataCorrectionView from './ios-native-components/RNDataCorrectionView'
 import Dimensions from 'Dimensions'
 import SpinKit from './react-native-components/SpinKit'
 import DetailBoxesView from './react-native-components/DetailBoxesView'
+import StockCountInfoButton from './react-native-components/StockCountInfoButton'
+import EnterAndScanNowButtons from './react-native-components/EnterAndScanNowButtons'
 
 import {
+    ShouldShowCameraView,
     HideAndResetEverything,
     NoDataReturnedFromGoogle,
     ShouldShowFirstDetailBox,
+    ShouldShowDataCorrectionView,
     ShouldShowDataInFirstDetailBox,
     ShouldShowDataInSecondDetailBox,
 } from './helpers/ModuleEventListeners'
@@ -18,7 +29,8 @@ import {
     isVINOrUnit, AMDarkGray, detailBoxesDurationTime,
     detailBoxesContentWidth, detailBoxesMarginToEdge,
     lineBreakerMarginHeight, largerTextFontTextHeight,
-    lineBreakerHeight, isIphoneX,
+    lineBreakerHeight, isIphoneX, defaultYellow, detailBoxesWidth,
+    screenHeight, screenWidth,
 } from './helpers/GlobalValues'
 
 
@@ -32,7 +44,7 @@ export const mediumSecondDetailBoxDefaultHeight = 120   // 120
 export const tallSecondDetailBoxDefaultHeight = 180     // 180
 
 // These two constants calculate the total height of the detail boxes.
-const wholeFirstDetailBoxHeight = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + firstDetailBoxDefaultHeight + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
+const wholeFirstDetailBoxHeight  = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + firstDetailBoxDefaultHeight  + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
 const wholeSecondDetailBoxHeight = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + secondDetailBoxDefaultHeight + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
 
 export const detailBoxesDefaultHeightOffset = -wholeFirstDetailBoxHeight - wholeSecondDetailBoxHeight - detailBoxesMarginToEdge
@@ -43,6 +55,13 @@ export const detailBoxesDefaultHeightOffset = -wholeFirstDetailBoxHeight - whole
 class App extends Component {
 
     state = {
+        shouldTakePicture: false,
+        enterDataManually: false,
+
+        shouldShowCameraView: true,
+        shouldShowDataCorrectionView: false,
+
+
         scannedCharacters: "",              // ""
         shouldShowFirstDetailBox: false ,   // false
         shouldShowScannedCharacters: null,  // null
@@ -54,6 +73,14 @@ class App extends Component {
         firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight),
         secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight),
         detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
+
+
+
+        imageAs64: "",
+        takingStock: false,
+
+        cameraViewOpacity: new Animated.Value(1),
+        dataCorrectionOpacity: new Animated.Value(0),
     }
 
 
@@ -69,7 +96,8 @@ class App extends Component {
 
 
 
-    // Life cycle of data boxes //
+
+        // Life cycle of data boxes //
         // 1. This is the first box. Shows it with a loading icon.
         moduleEvent.addListener('ShouldShowFirstDetailBox', response => {
             ShouldShowFirstDetailBox(this, response, animations)
@@ -86,14 +114,30 @@ class App extends Component {
         moduleEvent.addListener('ShouldShowDataInSecondDetailBox', response => {
             ShouldShowDataInSecondDetailBox(this, response, animations)
         })
-    // End of succesful life cycle of data boxes //
+        // End of succesful life cycle of data boxes //
 
 
 
 
+        // Hide and Show different views
+        moduleEvent.addListener('ShouldShowCameraView', response => {
+            var JSONResponse = JSON.stringify(response, null, 2)
+            JSONResponse = JSON.parse(JSONResponse)
+            ShouldShowCameraView(this, JSONResponse['shouldShow'])
+        })
+
+        moduleEvent.addListener('shouldShowDataCorrectionView', response => {
+            var JSONResponse = JSON.stringify(response, null, 2)
+            JSONResponse = JSON.parse(JSONResponse)
+            ShouldShowDataCorrectionView(this, JSONResponse['shouldShow'], JSONResponse['imageAs64'])
+        })
+
+        //
 
 
-    // These are errors //
+
+
+        // These are errors //
         moduleEvent.addListener('hideAndResetEverything', response => {
             // 'checkScannedCharactersOrScanAgain' also works by hiding everything, showing the cameraView in swift and then resets state.
             // Also what we need here, so we reuse it
@@ -105,7 +149,7 @@ class App extends Component {
             // Also what we need here, so we reuse it
             NoDataReturnedFromGoogle(this)
         })
-    // End of errors //
+        // End of errors //
 
     }
 
@@ -117,20 +161,42 @@ class App extends Component {
     // Also called as an error function for resetting the whole view. (moduleEvent.addListener('hideAndResetEverything'))
     checkScannedCharactersOrScanAgain = (ShouldScan) => {
         let distance = detailBoxesDefaultHeightOffset - 70
+        // NativeModules.RNCameraViewSwift2.shouldShowCameraView(ShouldScan)
+        console.log('Resetting...', ShouldScan)
+        console.log('shouldShowCameraView', this.state.shouldShowCameraView)
+        // We should show the CameraView again if the user wants to scan.
+        Animated.parallel([
+            Animated.timing( this.state.cameraViewOpacity, { toValue: ShouldScan ? 1 : 0, duration: detailBoxesDurationTime }),
+            Animated.timing( this.state.dataCorrectionOpacity, { toValue: ShouldScan ? 0 : 1, duration: detailBoxesDurationTime }),
+            Animated.timing( this.state.detailBoxesHeightOffset, { toValue: -700, duration: detailBoxesDurationTime })
+        ]).start(() => {
 
-
-        NativeModules.RNCameraViewSwift.CheckDataOrScanAgain(ShouldScan)
-
-        Animated.timing( this.state.detailBoxesHeightOffset, { toValue: distance }).start( () => {
             this.setState({
-                detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
-                secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight),
+                shouldTakePicture: false,
+                enterDataManually: false,
+
+                shouldShowCameraView: ShouldScan,
+                shouldShowDataCorrectionView: !ShouldScan,
+
+
+                scannedCharacters: ShouldScan ? "" : this.state.scannedCharacters,              // ""
+                imageAs64: ShouldScan ? "" : this.state.imageAs64,
+
+
+                shouldShowFirstDetailBox: false ,   // false
+                shouldShowScannedCharacters: null,  // null
+
+                scannedStringDBData: {},            // {}
+                doesScannedStringExistInDB: null,   // null
+
+                takingStock: false,
+
                 firstDetailBoxHeight: new Animated.Value(firstDetailBoxDefaultHeight),
-                shouldShowScannedCharacters: null,
-                doesScannedStringExistInDB: null,
-                shouldShowFirstDetailBox: false,
-                scannedStringDBData: {},
-                scannedCharacters: "",
+                secondDetailBoxHeight: new Animated.Value(secondDetailBoxDefaultHeight),
+                detailBoxesHeightOffset: new Animated.Value(detailBoxesDefaultHeightOffset),
+
+                cameraViewOpacity: new Animated.Value(ShouldScan ? 1 : 0),
+                dataCorrectionOpacity: new Animated.Value(ShouldScan ? 0 : 1),
             })
         })
 
@@ -214,29 +280,100 @@ class App extends Component {
             shouldShowFirstDetailBox, shouldShowScannedCharacters, scannedCharacters,
             scannedStringDBData, doesScannedStringExistInDB, secondDetailBoxHeight,
             detailBoxesHeightOffset, firstDetailBoxHeight,
+
+            shouldShowCameraView, shouldShowDataCorrectionView,
+            cameraViewOpacity, dataCorrectionOpacity,
+            shouldScan, imageAs64, dataFromScan, takingStock,
+            shouldTakePicture, enterDataManually
         } = this.state
 
         return (
             <View style={ styles.container }>
-                <RNCameraView
-                    style={ styles.camera }
-                />
+
+
+
+            {/*
+                We have to keep RNCameraView loaded all the time,
+                because the transition back, when a re-render is needed is not smooth
+            */}
+                <Animated.View
+                    style={[ { flex: 1, opacity: cameraViewOpacity} ]}
+                    /*pointerEvents={ shouldShowCameraView ? 'auto' : 'none' }*/
+                >
+                    <View stye={{ flex: 1, backgroundColor: 'green' }}>
+                        <RNCameraView
+                            style={{ flex: 1 }}
+                            shouldScan={ shouldShowCameraView }
+                            takingStock={ takingStock }
+                            shouldTakePicture={ shouldTakePicture }
+                            enterDataManually={ enterDataManually }
+                        />
+                    </View>
+
+                    <View
+                        style={{
+                            //backgroundColor: 'green',
+                            width: '100%',
+                            //height: 100,
+                            alignItems: 'flex-end'
+                        }}
+                    >
+                        <StockCountInfoButton
+                            style={{  }}
+                            changeStockStatus={ () => { this.setState({ takingStock: !this.state.takingStock }) }}
+                        />
+
+
+                    </View>
+
+                     <View style={{
+                         flex: 1, top: screenHeight * 0.65 - (isIphoneX ? 0 : 40),
+                         left: ((screenWidth / 2) - ((screenWidth * 0.75) /2 )),
+                         height: 55, justifyContent: 'center', alignItems: 'center',
+                         position: 'absolute',
+                        }}>
+                        <EnterAndScanNowButtons
+                            scanNowMethod={() => { this.setState({ shouldTakePicture: true }) }}
+                            enterNowMethod={() => { this.setState({ enterDataManually: true }) }}
+                        />
+                    </View>
+                </Animated.View>
+
+
+
+
+
+
+                {/*{ shouldShowDataCorrectionView && (*/}
+                    <Animated.View
+                        style={[ styles.camera, { opacity: dataCorrectionOpacity } ]}
+                        pointerEvents={ shouldShowCameraView ? 'none' : 'auto' }
+                    >
+                        <RNDataCorrectionView
+                            imageAs64AndDataFromScan={{
+                                imageAs64: imageAs64,
+                                dataFromScan: scannedCharacters
+                            }}
+                            style={ styles.camera }
+                        />
+                    </Animated.View>
+                {/*) }*/}
 
 
                 { shouldShowFirstDetailBox && (
-                    <Animated.View style={{ bottom: detailBoxesHeightOffset }}>
+                    <Animated.View style={{ bottom: detailBoxesHeightOffset, left: detailBoxesMarginToEdge }} >
                         <DetailBoxesView
                             checkScannedCharactersOrScanAgain={ (shouldScan) => {
                                 this.checkScannedCharactersOrScanAgain(shouldScan)
                             }}
 
-                            scannedCharacters={ scannedCharacters }
                             scannedStringDBData={ scannedStringDBData }
-
+                            scannedCharacters={ scannedCharacters }
 
                             shouldShowScannedCharacters={ shouldShowScannedCharacters }
                             doesScannedStringExistInDB={ doesScannedStringExistInDB }
 
+                            indexComponent={ this }
 
                             detailBoxesHeightOffset={ detailBoxesHeightOffset }
                             secondDetailBoxHeight={ secondDetailBoxHeight }
@@ -244,6 +381,7 @@ class App extends Component {
                         />
                     </Animated.View>
                 ) }
+
             </View>
         )
     }
@@ -254,9 +392,9 @@ class App extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        backgroundColor: '#282828',
+        // alignItems: 'flex-end',
+        // justifyContent: 'flex-end',
+        // backgroundColor: '#282828',
     },
 
     camera: {
@@ -266,6 +404,8 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         position: 'absolute',
+        // alignItems: 'flex-end',
+        // justifyContent: 'flex-end',
         backgroundColor: '#282828',
     }
 })
@@ -273,7 +413,7 @@ const styles = StyleSheet.create({
 const animations = {
 
     showBothDetailBoxes: {
-        toValue: detailBoxesMarginToEdge + (isIphoneX() ? 2.5*detailBoxesMarginToEdge : 0),
+        toValue: detailBoxesMarginToEdge + (isIphoneX() ? 2.5 * detailBoxesMarginToEdge : 0),
         duration: detailBoxesDurationTime
     },
 

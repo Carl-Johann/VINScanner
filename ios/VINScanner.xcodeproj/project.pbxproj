@@ -38,19 +38,25 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
-		D811A980206BBA1000257868 /* RNCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D811A97F206BBA1000257868 /* RNCameraView.swift */; };
 		D811A9B7206BBA7000257868 /* RNCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = D811A9B6206BBA7000257868 /* RNCameraView.m */; };
 		D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D00E7206CFE610036F7B4 /* VINModule.swift */; };
 		D81D011B206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */; };
-		D81D011D206D8FD60036F7B4 /* RNCameraViewRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */; };
 		D845F1E8206C327800AD3718 /* VINModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D845F1E6206C327800AD3718 /* VINModule.m */; };
-		D8BA4F03206ECD5A00DC8875 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F02206ECD5A00DC8875 /* Errors.swift */; };
 		D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* Subclasses.swift */; };
-		D8BA4F0720714ACA00DC8875 /* DataCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F0620714AC900DC8875 /* DataCorrection.swift */; };
+		D8C513D6208F907400F98590 /* TextDetectionAndImageProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */; };
+		D8C513FF208F918500F98590 /* ApiRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C513FE208F918500F98590 /* ApiRequests.swift */; };
+		D8C5140320910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */; };
+		D8C5140520910E2400F98590 /* ToolbarFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140420910E2400F98590 /* ToolbarFunctions.swift */; };
+		D8C5140720910E7500F98590 /* DataCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140620910E7500F98590 /* DataCorrectionView.swift */; };
+		D8C51409209116DA00F98590 /* TextFieldDelegateFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */; };
 		D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */; };
 		D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */; };
 		D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */; };
 		D8F55AE22078DE7600B093C4 /* MoveBackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */; };
+		D8F55B6B208E75C200B093C4 /* RNDataCorrectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */; };
+		D8F55B95208E7C9300B093C4 /* RNDataCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */; };
+		D8F55B99208F81C200B093C4 /* RNCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B98208F81C200B093C4 /* RNCameraView.swift */; };
+		D8F55B9B208F86C700B093C4 /* SetupFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -372,20 +378,27 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VINScanner-Bridging-Header.h"; sourceTree = "<group>"; };
-		D811A97F206BBA1000257868 /* RNCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraView.swift; sourceTree = "<group>"; };
 		D811A9B6206BBA7000257868 /* RNCameraView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCameraView.m; sourceTree = "<group>"; };
 		D811A9B8206BBA8E00257868 /* RNCameraView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCameraView.h; sourceTree = "<group>"; };
 		D81D00E7206CFE610036F7B4 /* VINModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VINModule.swift; sourceTree = "<group>"; };
 		D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraViewUIImageExtension.swift; sourceTree = "<group>"; };
-		D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraViewRequest.swift; sourceTree = "<group>"; };
 		D845F1E6206C327800AD3718 /* VINModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VINModule.m; sourceTree = "<group>"; };
-		D8BA4F02206ECD5A00DC8875 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		D8BA4F042070110900DC8875 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
-		D8BA4F0620714AC900DC8875 /* DataCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrection.swift; sourceTree = "<group>"; };
+		D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDetectionAndImageProcessing.swift; sourceTree = "<group>"; };
+		D8C513FE208F918500F98590 /* ApiRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiRequests.swift; sourceTree = "<group>"; };
+		D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrectionViewSetupFunctions.swift; sourceTree = "<group>"; };
+		D8C5140420910E2400F98590 /* ToolbarFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFunctions.swift; sourceTree = "<group>"; };
+		D8C5140620910E7500F98590 /* DataCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrectionView.swift; sourceTree = "<group>"; };
+		D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldDelegateFunctions.swift; sourceTree = "<group>"; };
 		D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BackIconRight.png; path = ../../../../../Downloads/BackIconRight.png; sourceTree = "<group>"; };
 		D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BackIconLeft.png; sourceTree = "<group>"; };
 		D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconLeft.png; sourceTree = "<group>"; };
 		D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconRight.png; sourceTree = "<group>"; };
+		D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNDataCorrectionView.m; sourceTree = "<group>"; };
+		D8F55B93208E75E100B093C4 /* RNDataCorrectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNDataCorrectionView.h; sourceTree = "<group>"; };
+		D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNDataCorrectionView.swift; sourceTree = "<group>"; };
+		D8F55B98208F81C200B093C4 /* RNCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraView.swift; sourceTree = "<group>"; };
+		D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupFunctions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -534,15 +547,16 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				D8BA4F02206ECD5A00DC8875 /* Errors.swift */,
-				D81D011C206D8FD60036F7B4 /* RNCameraViewRequest.swift */,
-				D811A97F206BBA1000257868 /* RNCameraView.swift */,
-				D8BA4F0620714AC900DC8875 /* DataCorrection.swift */,
+				D8C513FE208F918500F98590 /* ApiRequests.swift */,
+				D8F55B97208F819800B093C4 /* CameraView */,
+				D8F55B96208F7DC600B093C4 /* DataCorrection */,
 				D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */,
 				D8BA4F042070110900DC8875 /* Subclasses.swift */,
 				D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */,
 				D811A9B8206BBA8E00257868 /* RNCameraView.h */,
 				D811A9B6206BBA7000257868 /* RNCameraView.m */,
+				D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */,
+				D8F55B93208E75E100B093C4 /* RNDataCorrectionView.h */,
 			);
 			name = VINScanner;
 			sourceTree = "<group>";
@@ -686,6 +700,28 @@
 				D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */,
 			);
 			name = Icons;
+			sourceTree = "<group>";
+		};
+		D8F55B96208F7DC600B093C4 /* DataCorrection */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */,
+				D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */,
+				D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */,
+				D8C5140620910E7500F98590 /* DataCorrectionView.swift */,
+				D8C5140420910E2400F98590 /* ToolbarFunctions.swift */,
+			);
+			name = DataCorrection;
+			sourceTree = "<group>";
+		};
+		D8F55B97208F819800B093C4 /* CameraView */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55B98208F81C200B093C4 /* RNCameraView.swift */,
+				D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */,
+				D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */,
+			);
+			name = CameraView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1228,15 +1264,21 @@
 			files = (
 				D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
-				D81D011D206D8FD60036F7B4 /* RNCameraViewRequest.swift in Sources */,
+				D8C5140520910E2400F98590 /* ToolbarFunctions.swift in Sources */,
+				D8C513FF208F918500F98590 /* ApiRequests.swift in Sources */,
+				D8C5140320910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift in Sources */,
 				D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */,
-				D8BA4F0720714ACA00DC8875 /* DataCorrection.swift in Sources */,
+				D8F55B9B208F86C700B093C4 /* SetupFunctions.swift in Sources */,
+				D8C5140720910E7500F98590 /* DataCorrectionView.swift in Sources */,
 				D845F1E8206C327800AD3718 /* VINModule.m in Sources */,
+				D8C513D6208F907400F98590 /* TextDetectionAndImageProcessing.swift in Sources */,
+				D8F55B6B208E75C200B093C4 /* RNDataCorrectionView.m in Sources */,
 				D811A9B7206BBA7000257868 /* RNCameraView.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				D81D011B206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift in Sources */,
-				D8BA4F03206ECD5A00DC8875 /* Errors.swift in Sources */,
-				D811A980206BBA1000257868 /* RNCameraView.swift in Sources */,
+				D8F55B99208F81C200B093C4 /* RNCameraView.swift in Sources */,
+				D8C51409209116DA00F98590 /* TextFieldDelegateFunctions.swift in Sources */,
+				D8F55B95208E7C9300B093C4 /* RNDataCorrectionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

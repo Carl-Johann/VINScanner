@@ -50,7 +50,7 @@ export default class FirstDetailBoxView extends Component {
         const {
             scannedCharacters, shouldShowScannedCharacters,
             checkScannedCharactersOrScanAgain, firstDetailBoxHeight,
-            scannedStringDBData,
+            scannedStringDBData, indexComponent
         } = this.props
 
         const {
@@ -137,6 +137,7 @@ export default class FirstDetailBoxView extends Component {
                                 checkScannedCharactersOrScanAgain={
                                     (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan)
                                 }
+                                component={ indexComponent }
                             />
                         </View>
                     </View>

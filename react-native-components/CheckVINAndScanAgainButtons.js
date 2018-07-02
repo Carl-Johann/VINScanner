@@ -1,25 +1,31 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Animated } from 'react-native'
 import React from 'react'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 
+import { ShouldShowDataCorrectionView } from '../helpers/ModuleEventListeners'
+
 import {
-    detailBoxesContentWidth
+    detailBoxesContentWidth, detailBoxesDurationTime
 } from '../helpers/GlobalValues'
 
-const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
+const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain, component }) => {
 
     return (
         <View style={ styles.buttonsStyleContainerStyle }>
             <CheckVinOrScanAgainButton
-                titleText={ 'Check VIN' }
-                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 shouldScan={ false }
+                titleText={ 'Check VIN' }
+                checkScannedCharactersOrScanAgain={ (shouldScan) => {
+                    checkScannedCharactersOrScanAgain(shouldScan)
+                } }
             />
 
             <CheckVinOrScanAgainButton
-                titleText={ 'Scan Again' }
-                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                 shouldScan={ true }
+                titleText={ 'Scan Again' }
+                checkScannedCharactersOrScanAgain={ (shouldScan) => {
+                    checkScannedCharactersOrScanAgain(shouldScan)
+                } }
             />
         </View>
     )
@@ -28,9 +34,9 @@ const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 
 const styles = StyleSheet.create({
     buttonsStyleContainerStyle: {
-        justifyContent: 'space-between',
-        width: detailBoxesContentWidth,
         flexDirection: 'row',
+        width: detailBoxesContentWidth,
+        justifyContent: 'space-between',
     },
 })
 
