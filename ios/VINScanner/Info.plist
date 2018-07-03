@@ -30,7 +30,7 @@
 		<dict/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera Access Is Needed To Scan VINs</string>
+	<string>Camera Access Is Needed To Scan</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UILaunchStoryboardName</key>

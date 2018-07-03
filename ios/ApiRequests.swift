@@ -126,7 +126,7 @@ struct ApiRequests {
       
       
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
-        "ShouldShow" : true,
+//        "ShouldShow" : true,
         "CleanedCharacters" : cleanedCharacters,
         "imageAs64" : encodeImage(croppedImage)!
       ])
@@ -134,7 +134,7 @@ struct ApiRequests {
     } else {
       // else we notify JS too, but theres no 'VIN or Unit'
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
-        "ShouldShow" : false,
+//        "ShouldShow" : false,
         "CleanedCharacters" : cleanedCharacters,
         "imageAs64" : encodeImage(croppedImage)!
       ])

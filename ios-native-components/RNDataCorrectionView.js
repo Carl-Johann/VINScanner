@@ -17,7 +17,7 @@ class RNDataCorrectionView extends Component {
             location={[ 11, 22, 33, 44 ]}*/
             /*imageAs64={ imageAs64 }
             dataFromScan={ dataFromScan }*/
-            style={ style }
+            style={{ flex: 1 }}
             imageAs64AndDataFromScan={ imageAs64AndDataFromScan }
         />
     )

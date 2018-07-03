@@ -7,9 +7,9 @@ import React, { Component } from 'react'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 
 import { ShouldShowDataCorrectionView } from '../helpers/ModuleEventListeners'
-import { defaultYellow } from '../helpers/GlobalValues'
 import {
-    detailBoxesContentWidth, detailBoxesDurationTime, defaultFont, defaultGray
+    detailBoxesContentWidth, detailBoxesDurationTime,
+    defaultFont, defaultGray, defaultYellow,
 } from '../helpers/GlobalValues'
 
 export default class StockCountInfoButton extends Component {

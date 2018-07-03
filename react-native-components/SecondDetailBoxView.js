@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Animated } from 'react-native'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
 
-import { secondDetailBoxDefaultHeight, tallSecondDetailBoxDefaultHeight } from '../index'
+import { secondDetailBoxDefaultHeight, tallSecondDetailBoxDefaultHeight } from './CameraView'
 
 import LineBreaker from './LineBreaker'
 import SpinKit from './SpinKit'
