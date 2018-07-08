@@ -124,9 +124,9 @@ class RNCameraViewSwift : RCTViewManager, AVCaptureVideoDataOutputSampleBufferDe
     return contentView
   }
 
-  func setColors(colors: NSArray) {
-    self.colors = colors.map({return RCTConvert.UIColor($0)})
-  }
+//  func setColors(colors: NSArray) {
+//    self.colors = colors.map({return RCTConvert.UIColor($0)})
+//  }
   
   func startLiveVideo() {        
     
