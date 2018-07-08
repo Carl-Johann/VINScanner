@@ -1,25 +1,60 @@
+import { connect } from 'react-redux'
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Animated } from 'react-native'
+import Dimensions from 'Dimensions'
+
+import {
+    View, Text, StyleSheet, Animated,
+    NativeEventEmitter, NativeModules
+} from 'react-native'
+
+import LineBreaker from '../ViewAccessories/LineBreaker'
 import FirstDetailBoxView from './FirstDetailBoxView'
 import SecondDetailBoxView from './SecondDetailBoxView'
-import Dimensions from 'Dimensions'
-import LineBreaker from './LineBreaker'
+
+import {
+    firstDetailBoxDefaultHeight,
+    secondDetailBoxDefaultHeight,
+} from '../Views/CameraView'
+
+
+// These two constants calculate the total height of the detail boxes.
+const wholeFirstDetailBoxHeight  = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + firstDetailBoxDefaultHeight  + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
+const wholeSecondDetailBoxHeight = ( (2 * lineBreakerMarginHeight) + ( 2 * lineBreakerHeight) + secondDetailBoxDefaultHeight + largerTextFontTextHeight + lineBreakerMarginHeight / 2 )
+
+const animations = {
+    showBothDetailBoxes: {
+        toValue: detailBoxesMarginToEdge + (isIphoneX() ? 2.5 * detailBoxesMarginToEdge : 0),
+        duration: detailBoxesDurationTime
+    },
+
+    showFirstDetailBox: {
+        toValue: -wholeSecondDetailBoxHeight,
+        duration: detailBoxesDurationTime
+    },
+}
+
+
+import {
+    ShouldShowDataInFirstDetailBox,
+    ShouldShowDataInSecondDetailBox,
+} from '../../helpers/ModuleEventListeners.js'
 
 import {
     largerTextFontSize, lineBreakerMarginHeight, detailTextStyle,
     isEmpty, detailBoxesContentWidth, detailBoxesMarginToEdge,
     detailBoxesWidth, defaultBorderRadius, isIphoneX,
-    detailBoxesDurationTime, isVINOrUnit
-} from '../helpers/GlobalValues'
+    detailBoxesDurationTime, isVINOrUnit, lineBreakerHeight,
+    largerTextFontTextHeight,
+} from '../../helpers/GlobalValues'
 
 
-
-export default class DetailBoxesView extends Component {
+class DetailBoxesView extends Component {
 
     state = {
         fadeInOutValue: new Animated.Value(0),
-        iPhoneXMargin:  new Animated.Value(25)
+        iPhoneXMargin:  new Animated.Value(25),
     }
+
 
     shouldComponentUpdate( nextProps, nextState ) {
 
@@ -37,9 +72,9 @@ export default class DetailBoxesView extends Component {
             Animated.timing( this.state.iPhoneXMargin, { toValue: detailBoxesMarginToEdge, duration: detailBoxesDurationTime }).start()
         }
 
-
         return true
     }
+
 
     componentWillUnmount() {
         this.setState({
@@ -48,21 +83,24 @@ export default class DetailBoxesView extends Component {
         })
     }
 
+
+
+
     render () {
+
         const {
-            scannedCharacters, checkScannedCharactersOrScanAgain,
-            detailBoxesHeightOffset, firstDetailBoxHeight,
-            secondDetailBoxHeight, shouldShowScannedCharacters,
-            scannedStringDBData, doesScannedStringExistInDB,
-            indexComponent
+            checkScannedCharactersOrScanAgain,
+            firstDetailBoxHeight, secondDetailBoxHeight,
+            scannedStringDBData,
         } = this.props
+
 
         return (
             <Animated.View>
 
-                <Animated.View style={[ styles.detailBoxesStyle, {
-                    marginBottom: isIphoneX() ? this.state.iPhoneXMargin : detailBoxesMarginToEdge
-                } ]}>
+                <Animated.View style={[ styles.detailBoxesStyle,
+                    { marginBottom: isIphoneX() ? this.state.iPhoneXMargin : detailBoxesMarginToEdge } ]}
+                >
                     <View>
                         { isEmpty(scannedStringDBData)
                         ?
@@ -76,14 +114,11 @@ export default class DetailBoxesView extends Component {
                         }
                     </View>
 
+
                     <LineBreaker margin={ lineBreakerMarginHeight } />
                         <FirstDetailBoxView
                             checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
-                            shouldShowScannedCharacters={ shouldShowScannedCharacters }
                             firstDetailBoxHeight={ firstDetailBoxHeight }
-                            scannedStringDBData={ scannedStringDBData }
-                            scannedCharacters={ scannedCharacters }
-                            indexComponent={ indexComponent }
                         />
                     <LineBreaker margin={ lineBreakerMarginHeight }/>
                 </Animated.View>
@@ -96,14 +131,11 @@ export default class DetailBoxesView extends Component {
                         Car Details
                     </Text>
 
+
                     <LineBreaker margin={ lineBreakerMarginHeight } />
                     <SecondDetailBoxView
                         checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
-                        doesScannedStringExistInDB={ doesScannedStringExistInDB }
                         secondDetailBoxHeight={ secondDetailBoxHeight }
-                        scannedStringDBData={ scannedStringDBData }
-                        scannedCharacters={ scannedCharacters }
-                        indexComponent={ indexComponent }
                     />
                     <LineBreaker margin={ lineBreakerMarginHeight } />
                 </View>
@@ -128,16 +160,16 @@ const styles = StyleSheet.create({
 
     detailBoxesStyle: {
         alignItems: 'center',
-        backgroundColor: 'lightgray',
-        paddingTop: lineBreakerMarginHeight / 2,
-        // paddingBottom: lineBreakerMarginHeight / 2,
         width: detailBoxesWidth,
+        backgroundColor: 'lightgray',
+        borderRadius: defaultBorderRadius,
+        paddingTop: lineBreakerMarginHeight / 2,
 
 
         shadowOffset: {
             width: 0,
-            height: 3 },
-        borderRadius: defaultBorderRadius,
+            height: 3,
+        },
         shadowRadius: 5,
         shadowOpacity: 1.0,
         shadowColor: '#000000',
@@ -146,3 +178,19 @@ const styles = StyleSheet.create({
 
 })
 
+const mapStateToProps = (state) => {
+    return {
+        scannedCharacters: state.ScannedDataReducer.scannedCharacters,
+        scannedStringDBData: state.ScannedDataReducer.scannedStringDBData,
+        doesScannedStringExistInDB: state.ScannedDataReducer.doesScannedStringExistInDB,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return { }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(DetailBoxesView)

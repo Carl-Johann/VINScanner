@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
+
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 import {
     defaultButtonHeight, detailTextStyle,
     detailBoxesContentWidth, defaultYellow,
     defaultBorderRadius,
-} from '../helpers/GlobalValues'
+} from '../../helpers/GlobalValues'
 
 const CheckVinOrScanAgainButton = ({ titleText, checkScannedCharactersOrScanAgain, shouldScan }) => {
     return (

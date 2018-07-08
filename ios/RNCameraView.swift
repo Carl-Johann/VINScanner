@@ -16,7 +16,7 @@ class RNCameraViewSwift : RCTViewManager {
   let screenHeight = UIScreen.main.bounds.height
   
   override func view() -> UIView! {
-    print("RNCameraViewSwift2")
+//    print("RNCameraViewSwift2")
     
     return SwiftCameraView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight), bridge: self.bridge)
   }
@@ -77,6 +77,9 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
     //    guard let eventEmitter = bridge.module(for: VINModul.self ) as? RCTEventEmitter else { print("Couldn't get eventEmitter in SwiftCameraView"); return }
     //    eventEmitter.sendEvent(withName: "ShouldShowFirstDetailBox", body: "true")
     
+//    DispatchQueue.main.async {
+//      ApiRequests.sharedInstance.lort()
+//    }
     
     viewSetup()
   }
@@ -122,7 +125,7 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   @objc func manualScan(sender: UIButton) {
     // Since I couldn't figure out how to manually capture a frame,
     // and taking a screenshot doesn't work on.
-    print("fucking shit")
+//    print("fucking shit")
     self.takePicture = true
     
     
@@ -162,22 +165,23 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   }
   
   @objc func setShouldScan(_ shouldScan: Bool) {
-    print("Setting shouldScan to:", shouldScan)
+//    print("Setting shouldScan to:", shouldScan)
     self.shouldScan = shouldScan
   }
   
   @objc func setShouldEnterDataManually(_ shouldEnterDataManually: Bool) {
-    print("Setting setShouldEnterDataManually to:", shouldEnterDataManually)
+//    print("Setting shouldEnterDataManually to:", shouldEnterDataManually)
+//    print("ShouldScan:", self.shouldScan)
     self.enterDataManually = shouldEnterDataManually
   }
   
   @objc func setShouldTakePicture(_ shouldTakePicture: Bool) {
-    print("Setting setShouldTakePicture to:", shouldTakePicture)
+//    print("Setting setShouldTakePicture to:", shouldTakePicture)
     self.takePicture = shouldTakePicture
   }
   
   @objc func setTakingStock(_ shouldTakeStock: Bool) {
-    print("Setting taking stock to:", shouldScan)
+//    print("Setting taking stock to:", shouldScan)
 //    self.takePicture = shouldScan
 //    self.shouldScan = shouldScan
   }

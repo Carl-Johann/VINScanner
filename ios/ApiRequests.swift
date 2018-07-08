@@ -127,7 +127,7 @@ struct ApiRequests {
       
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
 //        "ShouldShow" : true,
-        "CleanedCharacters" : cleanedCharacters,
+        "cleanedCharacters" : cleanedCharacters,
         "imageAs64" : encodeImage(croppedImage)!
       ])
       
@@ -135,7 +135,7 @@ struct ApiRequests {
       // else we notify JS too, but theres no 'VIN or Unit'
       eventEmitter.sendEvent(withName: "ShouldShowDataInFirstDetailBox", body: [
 //        "ShouldShow" : false,
-        "CleanedCharacters" : cleanedCharacters,
+        "cleanedCharacters" : cleanedCharacters,
         "imageAs64" : encodeImage(croppedImage)!
       ])
     }
@@ -209,6 +209,34 @@ struct ApiRequests {
     task.resume()
   }
   
+  func lort() {
+    let url = URL(string: "https://api7913.azure-api.net/stockcount/sites/batches/status?batchid=12")!
+    var request = URLRequest(url: url)
+    
+    request.addValue("295c1e4991f04732aba3e64b01c69d5b", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+    request.addValue("application/json", forHTTPHeaderField: "content-type")
+    request.addValue("true", forHTTPHeaderField: "Ocp-Apim-Trace")
+    request.addValue("no-cache", forHTTPHeaderField: "Cache-Control")
+    request.httpMethod = "GET"
+    
+    let task = session.dataTask(with: request as URLRequest) { requestData, requestResponse, error in
+      
+      guard let statusCode = (requestResponse as? HTTPURLResponse)?.statusCode else { return }
+      
+      if let err = error {
+        print("ERROR", err)
+        // Show the user an error
+      }
+      let json = try? JSONSerialization.jsonObject(with: requestData!, options: .allowFragments) as AnyObject
+      print(requestResponse!)
+      print(statusCode, json!)
+    }
+    
+    task.resume()
+  }
+  
+
+
   static let sharedInstance = ApiRequests()
 
 }

@@ -15,6 +15,8 @@ extension SwiftCameraView {
   
   // MARK: - CaptureOutput Text
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    
+    
     if self.shouldScan == true {
       
       guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { self.takePicture = false; return }
@@ -44,9 +46,9 @@ extension SwiftCameraView {
         
         
       } else if self.takePicture == true {
+        self.takePicture = false
         
         DispatchQueue.main.async {
-          self.takePicture = false
           guard let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else {
             print("Couldn't get image from getImageFromSampleBuffer()"); return
           }
@@ -54,9 +56,8 @@ extension SwiftCameraView {
         }
         
       } else if self.enterDataManually == true {
-//        print(1)
         self.enterDataManually = false
-        self.shouldScan = false
+        
         
         guard let image = self.getImageFromSampleBuffer(sampleBuffer: sampleBuffer) else {
           print("Couldn't get image from getImageFromSampleBuffer()"); return
@@ -232,11 +233,11 @@ extension SwiftCameraView {
   func successfulScan(_ image: CIImage) {
     
     // Notifies JS
-    guard let RCTBridge = self.bridge else { print("Couldn't get RCTBridge in cropImage()"); return }
-    if let eventEmitter = RCTBridge.module(for: VINModul.self) as? RCTEventEmitter {
-//      eventEmitter.sendEvent(withName: "ShouldShowCameraView", body: [ "shouldShow" : false ])
-//      eventEmitter.sendEvent(withName: "shouldShowDataCorrectionView", body: [ "shouldShow" : false ])
-    }
+//    guard let RCTBridge = self.bridge else { print("Couldn't get RCTBridge in cropImage()"); return }
+//    if let eventEmitter = RCTBridge.module(for: VINModul.self) as? RCTEventEmitter {
+////      eventEmitter.sendEvent(withName: "ShouldShowCameraView", body: [ "shouldShow" : false ])
+////      eventEmitter.sendEvent(withName: "shouldShowDataCorrectionView", body: [ "shouldShow" : false ])
+//    }
     
     self.shouldScan = false
     self.cropAndPostImage(image)

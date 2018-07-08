@@ -1,17 +1,18 @@
+import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
-import { connect } from 'react-redux'
-import SpinKit from './SpinKit'
-import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
-import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
-import LineBreaker from './LineBreaker'
+
+import SpinKit from '../ViewAccessories/SpinKit'
+import LineBreaker from '../ViewAccessories/LineBreaker'
+import CheckVinOrScanAgainButton from '../Buttons/CheckVinOrScanAgainButton'
+import CheckVINAndScanAgainButtons from '../Buttons/CheckVINAndScanAgainButtons'
 
 import {
     spinKitSize, defaultButtonHeight, lineBreakerMarginHeight,
     detailBoxesContentWidth, spinKitType, defaultGray,
     defaultFont, defaultFontSize, isVINOrUnit, detailTextStyle,
     VINLength, isEmpty,
-} from '../helpers/GlobalValues'
+} from '../../helpers/GlobalValues'
 
 import {
     firstDetailBoxDefaultHeight, firstDetailBoxTallDefaultHeight,
@@ -36,32 +37,24 @@ class FirstDetailBoxView extends Component {
         } else if (nextProps.shouldShowScannedCharacters == false ) {
             Animated.timing( this.state.fadeInOutValue, { toValue: 1, duration: 500 }).start()
         }
-
         return true
     }
-
-    componentWillUnmount() {
-        this.setState({ fadeInOutValue: new Animated.Value(0) })
-    }
-
-
 
 
     render() {
         const {
             scannedCharacters, shouldShowScannedCharacters,
             checkScannedCharactersOrScanAgain, firstDetailBoxHeight,
-            scannedStringDBData, indexComponent
+            scannedStringDBData,
         } = this.props
 
-        const {
-            fadeInOutValue
-        } = this.state
+        const { fadeInOutValue } = this.state
 
 
 
         const doubleDeckerHeight = (firstDetailBoxMediumDefaultHeight - lineBreakerMarginHeight) / 2
         const errorTextHeight = firstDetailBoxTallDefaultHeight - defaultButtonHeight - lineBreakerMarginHeight
+
         // This makes the scanned characters 'stick' to top op the detail box
         // to make space for the other data from scannedStringDBData
         const textHeight = firstDetailBoxHeight.interpolate({
@@ -91,11 +84,13 @@ class FirstDetailBoxView extends Component {
                 <Animated.View style={{ width: detailBoxesContentWidth, height: firstDetailBoxHeight }}>
 
                     <Animated.View style={{ height: textHeight, justifyContent: 'center' }}>
+
                         <Text style={ detailTextStyle }>
                             { isEmpty(scannedStringDBData)
                                 ? scannedCharacters
                                 : scannedCharacters.length == VINLength ? scannedStringDBData['CHASSIS'] : scannedStringDBData['UNIT'] }
                         </Text>
+
                     </Animated.View>
 
 
@@ -119,9 +114,8 @@ class FirstDetailBoxView extends Component {
 
             return (
                 <Animated.View style={{
-                    height: firstDetailBoxHeight, opacity: 1,
+                    height: firstDetailBoxHeight, justifyContent: 'center',
                     alignItems: 'center', width: detailBoxesContentWidth,
-                    justifyContent: 'center'
                 }}>
                     <View style={[ styles.subviewStyle, { height: errorTextHeight } ]}>
                         <Text style={ detailTextStyle }>
@@ -135,13 +129,11 @@ class FirstDetailBoxView extends Component {
                         <LineBreaker margin={ lineBreakerMarginHeight } />
                         <View style={ styles.buttonsStyleContainerStyle } >
                             <CheckVINAndScanAgainButtons
-                                checkScannedCharactersOrScanAgain={
-                                    (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan)
-                                }
-                                component={ indexComponent }
+                                checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                             />
                         </View>
                     </View>
+
                 </Animated.View>
             )
         }
@@ -172,17 +164,16 @@ const styles = StyleSheet.create({
 
 })
 
-const mapStateToProps = ({ scannedCharacters }) => {
-  return {
-        scannedCharacters
+const mapStateToProps = (state) => {
+    return {
+        scannedCharacters: state.ScannedDataReducer.scannedCharacters,
+        scannedStringDBData: state.ScannedDataReducer.scannedStringDBData,
     }
 }
 
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setScannedCharacters: (characters) => dispatch(setScannedCharacters(characters)),
-  }
+  return { }
 }
 
 
