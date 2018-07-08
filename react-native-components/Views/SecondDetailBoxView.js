@@ -1,34 +1,34 @@
+import { connect } from 'react-redux'
 import React, { Component } from 'react'
+
 import { View, Text, StyleSheet, Animated } from 'react-native'
-
-import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
-import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
-
 import { secondDetailBoxDefaultHeight, tallSecondDetailBoxDefaultHeight } from './CameraView'
 
-import LineBreaker from './LineBreaker'
-import SpinKit from './SpinKit'
+import CheckVinOrScanAgainButton from '../Buttons/CheckVinOrScanAgainButton'
+import CheckVINAndScanAgainButtons from '../Buttons/CheckVINAndScanAgainButtons'
+
+import SpinKit from '../ViewAccessories/SpinKit'
 import Dimensions from 'Dimensions'
+import LineBreaker from '../ViewAccessories/LineBreaker'
 
 import {
     spinKitSize, defaultButtonHeight, lineBreakerMarginHeight,
     detailBoxesContentWidth, spinKitType, defaultGray,
     defaultFont, defaultFontSize, isVINOrUnit, detailTextStyle,
     isEmpty,
-} from '../helpers/GlobalValues'
+} from '../../helpers/GlobalValues'
 
 
 
 
 
-export default class SecondDetailBoxView extends Component {
+class SecondDetailBoxView extends Component {
 
     state = {
         fadeInOutValue: new Animated.Value(0),
     }
 
     shouldComponentUpdate( nextProps, nextState ) {
-
         // If the current scannedStringDBData is empty and the incomming scannedStringDBData is not.
         if ((isEmpty(this.props.scannedStringDBData) == true) && (isEmpty(nextProps.scannedStringDBData) == false)) {
             Animated.timing( this.state.fadeInOutValue, { toValue: 1, duration: 500 }).start()
@@ -36,6 +36,7 @@ export default class SecondDetailBoxView extends Component {
 
         return true
     }
+
 
     componentWillUnmount() {
         this.setState({ fadeInOutValue: new Animated.Value(0) })
@@ -48,8 +49,7 @@ export default class SecondDetailBoxView extends Component {
 
         const {
             doesScannedStringExistInDB, checkScannedCharactersOrScanAgain,
-            scannedStringDBData, secondDetailBoxHeight, scannedCharacters,
-            indexComponent
+            scannedStringDBData, secondDetailBoxHeight,
         } = this.props
 
 
@@ -59,8 +59,8 @@ export default class SecondDetailBoxView extends Component {
                 <Animated.View style={[ styles.subviewStyle, { height: secondDetailBoxHeight } ]}>
                     <SpinKit
                         type={ spinKitType }
-                        color={ defaultGray }
                         size={ spinKitSize }
+                        color={ defaultGray }
                     />
                 </Animated.View>
             )
@@ -88,7 +88,7 @@ export default class SecondDetailBoxView extends Component {
 
                     <CheckVinOrScanAgainButton
                         titleText={ 'Scan Again' }
-                        checkScannedCharactersOrScanAgain={ (shouldScan) => {console.log("taber"), checkScannedCharactersOrScanAgain(shouldScan) }}
+                        checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                         shouldScan={ true }
                     />
                 </Animated.View>
@@ -111,7 +111,6 @@ export default class SecondDetailBoxView extends Component {
                     >
                         <LineBreaker margin={ lineBreakerMarginHeight } />
                         <CheckVINAndScanAgainButtons
-                            component={ indexComponent }
                             checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                         />
                     </View>
@@ -134,4 +133,18 @@ const styles = StyleSheet.create({
 
 })
 
-// export default SecondDetailBoxView
+const mapStateToProps = (state) => {
+    return {
+        scannedStringDBData: state.ScannedDataReducer.scannedStringDBData,
+        doesScannedStringExistInDB: state.ScannedDataReducer.doesScannedStringExistInDB,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return { }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(SecondDetailBoxView)

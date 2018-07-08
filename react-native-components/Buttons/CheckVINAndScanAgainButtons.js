@@ -1,14 +1,15 @@
-import { View, StyleSheet, Animated } from 'react-native'
 import React from 'react'
-import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
+import { View, StyleSheet, Animated } from 'react-native'
 
-import { ShouldShowDataCorrectionView } from '../helpers/ModuleEventListeners'
+import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
+import { ShouldShowDataCorrectionView } from '../../helpers/ModuleEventListeners'
 
 import {
-    detailBoxesContentWidth, detailBoxesDurationTime
-} from '../helpers/GlobalValues'
+    detailBoxesContentWidth,
+    detailBoxesDurationTime,
+} from '../../helpers/GlobalValues'
 
-const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain, component }) => {
+const CheckVINAndScanAgainButtons = ({ checkScannedCharactersOrScanAgain }) => {
 
     return (
         <View style={ styles.buttonsStyleContainerStyle }>
