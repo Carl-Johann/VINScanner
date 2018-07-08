@@ -10,9 +10,13 @@
 #import <React/RCTViewManager.h>
 
 
-@interface RNCameraView : RCTView
+@interface RNCameraViewSwift : RCTViewManager
 
 @property (nonatomic, assign) NSArray *locations;
 @property (nonatomic, assign) NSArray *colors;
-@end
+@property (nonatomic, assign) BOOL *ShouldScan;
+@property (nonatomic, assign) BOOL *takingStock;
+@property (nonatomic, assign) BOOL *ShouldEnterDataManually;
+@property (nonatomic, assign) BOOL *ShouldTakePicture;
 
+@end

@@ -13,6 +13,7 @@
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* VINScannerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* VINScannerTests.m */; };
+		1251353AF4C14130862473EC /* libRNSpinkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B6D7E684A63439AA8C676D7 /* libRNSpinkit.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -37,10 +38,25 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
-		D811A980206BBA1000257868 /* RNCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D811A97F206BBA1000257868 /* RNCameraView.swift */; };
 		D811A9B7206BBA7000257868 /* RNCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = D811A9B6206BBA7000257868 /* RNCameraView.m */; };
 		D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D00E7206CFE610036F7B4 /* VINModule.swift */; };
+		D81D011B206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */; };
 		D845F1E8206C327800AD3718 /* VINModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D845F1E6206C327800AD3718 /* VINModule.m */; };
+		D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA4F042070110900DC8875 /* Subclasses.swift */; };
+		D8C513D6208F907400F98590 /* TextDetectionAndImageProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */; };
+		D8C513FF208F918500F98590 /* ApiRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C513FE208F918500F98590 /* ApiRequests.swift */; };
+		D8C5140320910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */; };
+		D8C5140520910E2400F98590 /* ToolbarFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140420910E2400F98590 /* ToolbarFunctions.swift */; };
+		D8C5140720910E7500F98590 /* DataCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5140620910E7500F98590 /* DataCorrectionView.swift */; };
+		D8C51409209116DA00F98590 /* TextFieldDelegateFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */; };
+		D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */; };
+		D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */; };
+		D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */; };
+		D8F55AE22078DE7600B093C4 /* MoveBackIconRight.png in Resources */ = {isa = PBXBuildFile; fileRef = D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */; };
+		D8F55B6B208E75C200B093C4 /* RNDataCorrectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */; };
+		D8F55B95208E7C9300B093C4 /* RNDataCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */; };
+		D8F55B99208F81C200B093C4 /* RNCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B98208F81C200B093C4 /* RNCameraView.swift */; };
+		D8F55B9B208F86C700B093C4 /* SetupFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -317,6 +333,20 @@
 			remoteGlobalIDString = 9936F32F1F5F2E5B0010BF04;
 			remoteInfo = "privatedata-tvOS";
 		};
+		D8BA4F3E2071649B00DC8875 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 320FAA3F98384967B377275C /* RNSpinkit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D42CB3511B2538DE00FD0AE2;
+			remoteInfo = RNSpinkit;
+		};
+		D8BA4F402071649B00DC8875 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 320FAA3F98384967B377275C /* RNSpinkit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 641194871EC9FD4A00D4FC03;
+			remoteInfo = "RNSpinkit-tvOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -341,16 +371,34 @@
 		2D02E47B1E0B4A5D006451C7 /* VINScanner-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VINScanner-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* VINScanner-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "VINScanner-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		320FAA3F98384967B377275C /* RNSpinkit.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNSpinkit.xcodeproj; path = "../node_modules/react-native-spinkit/ios/RNSpinkit.xcodeproj"; sourceTree = "<group>"; };
+		4B6D7E684A63439AA8C676D7 /* libRNSpinkit.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSpinkit.a; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VINScanner-Bridging-Header.h"; sourceTree = "<group>"; };
-		D811A97F206BBA1000257868 /* RNCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraView.swift; sourceTree = "<group>"; };
 		D811A9B6206BBA7000257868 /* RNCameraView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCameraView.m; sourceTree = "<group>"; };
 		D811A9B8206BBA8E00257868 /* RNCameraView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCameraView.h; sourceTree = "<group>"; };
 		D81D00E7206CFE610036F7B4 /* VINModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VINModule.swift; sourceTree = "<group>"; };
+		D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraViewUIImageExtension.swift; sourceTree = "<group>"; };
 		D845F1E6206C327800AD3718 /* VINModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VINModule.m; sourceTree = "<group>"; };
+		D8BA4F042070110900DC8875 /* Subclasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
+		D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDetectionAndImageProcessing.swift; sourceTree = "<group>"; };
+		D8C513FE208F918500F98590 /* ApiRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiRequests.swift; sourceTree = "<group>"; };
+		D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrectionViewSetupFunctions.swift; sourceTree = "<group>"; };
+		D8C5140420910E2400F98590 /* ToolbarFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFunctions.swift; sourceTree = "<group>"; };
+		D8C5140620910E7500F98590 /* DataCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCorrectionView.swift; sourceTree = "<group>"; };
+		D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldDelegateFunctions.swift; sourceTree = "<group>"; };
+		D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BackIconRight.png; path = ../../../../../Downloads/BackIconRight.png; sourceTree = "<group>"; };
+		D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BackIconLeft.png; sourceTree = "<group>"; };
+		D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconLeft.png; sourceTree = "<group>"; };
+		D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MoveBackIconRight.png; sourceTree = "<group>"; };
+		D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNDataCorrectionView.m; sourceTree = "<group>"; };
+		D8F55B93208E75E100B093C4 /* RNDataCorrectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNDataCorrectionView.h; sourceTree = "<group>"; };
+		D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNDataCorrectionView.swift; sourceTree = "<group>"; };
+		D8F55B98208F81C200B093C4 /* RNCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNCameraView.swift; sourceTree = "<group>"; };
+		D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupFunctions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -379,6 +427,7 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
+				1251353AF4C14130862473EC /* libRNSpinkit.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,6 +538,7 @@
 		13B07FAE1A68108700A75B9A /* VINScanner */ = {
 			isa = PBXGroup;
 			children = (
+				D8F55AD82078BE0E00B093C4 /* Icons */,
 				D845F1E6206C327800AD3718 /* VINModule.m */,
 				D81D00E7206CFE610036F7B4 /* VINModule.swift */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -497,10 +547,16 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				D811A97F206BBA1000257868 /* RNCameraView.swift */,
+				D8C513FE208F918500F98590 /* ApiRequests.swift */,
+				D8F55B97208F819800B093C4 /* CameraView */,
+				D8F55B96208F7DC600B093C4 /* DataCorrection */,
+				D81D011A206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift */,
+				D8BA4F042070110900DC8875 /* Subclasses.swift */,
 				D811A97E206BBA0F00257868 /* VINScanner-Bridging-Header.h */,
 				D811A9B8206BBA8E00257868 /* RNCameraView.h */,
 				D811A9B6206BBA7000257868 /* RNCameraView.m */,
+				D8F55B6A208E75C100B093C4 /* RNDataCorrectionView.m */,
+				D8F55B93208E75E100B093C4 /* RNDataCorrectionView.h */,
 			);
 			name = VINScanner;
 			sourceTree = "<group>";
@@ -569,6 +625,7 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
+				320FAA3F98384967B377275C /* RNSpinkit.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -590,6 +647,7 @@
 				00E356EF1AD99517003FC87E /* VINScannerTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				D8BA4F142071649600DC8875 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -614,6 +672,56 @@
 				2D16E6721FA4F8DC00B85C8A /* libRCTBlob-tvOS.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D8BA4F142071649600DC8875 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				4B6D7E684A63439AA8C676D7 /* libRNSpinkit.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		D8BA4F3A2071649B00DC8875 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D8BA4F3F2071649B00DC8875 /* libRNSpinkit.a */,
+				D8BA4F412071649B00DC8875 /* libRNSpinkit.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D8F55AD82078BE0E00B093C4 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55ADD2078DE6F00B093C4 /* BackIconLeft.png */,
+				D8F55AE12078DE7600B093C4 /* MoveBackIconRight.png */,
+				D8F55ADF2078DE7300B093C4 /* MoveBackIconLeft.png */,
+				D8F55ADB2078DE6A00B093C4 /* BackIconRight.png */,
+			);
+			name = Icons;
+			sourceTree = "<group>";
+		};
+		D8F55B96208F7DC600B093C4 /* DataCorrection */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55B94208E7C9300B093C4 /* RNDataCorrectionView.swift */,
+				D8C5140220910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift */,
+				D8C51408209116DA00F98590 /* TextFieldDelegateFunctions.swift */,
+				D8C5140620910E7500F98590 /* DataCorrectionView.swift */,
+				D8C5140420910E2400F98590 /* ToolbarFunctions.swift */,
+			);
+			name = DataCorrection;
+			sourceTree = "<group>";
+		};
+		D8F55B97208F819800B093C4 /* CameraView */ = {
+			isa = PBXGroup;
+			children = (
+				D8F55B98208F81C200B093C4 /* RNCameraView.swift */,
+				D8F55B9A208F86C700B093C4 /* SetupFunctions.swift */,
+				D8C513D5208F907400F98590 /* TextDetectionAndImageProcessing.swift */,
+			);
+			name = CameraView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -697,7 +805,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 610;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -707,7 +815,7 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 65MG9295K9;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 920;
 						ProvisioningStyle = Automatic;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
@@ -780,6 +888,10 @@
 				{
 					ProductGroup = 146834001AC3E56700842450 /* Products */;
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
+				},
+				{
+					ProductGroup = D8BA4F3A2071649B00DC8875 /* Products */;
+					ProjectRef = 320FAA3F98384967B377275C /* RNSpinkit.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1052,6 +1164,20 @@
 			remoteRef = D811A9B4206BBA1000257868 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		D8BA4F3F2071649B00DC8875 /* libRNSpinkit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNSpinkit.a;
+			remoteRef = D8BA4F3E2071649B00DC8875 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D8BA4F412071649B00DC8875 /* libRNSpinkit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNSpinkit.a;
+			remoteRef = D8BA4F402071649B00DC8875 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1066,6 +1192,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F55AE02078DE7300B093C4 /* MoveBackIconLeft.png in Resources */,
+				D8F55AE22078DE7600B093C4 /* MoveBackIconRight.png in Resources */,
+				D8F55ADE2078DE6F00B093C4 /* BackIconLeft.png in Resources */,
+				D8F55ADC2078DE6A00B093C4 /* BackIconRight.png in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
@@ -1101,7 +1231,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n\nif [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n    export SKIP_BUNDLING=true\nfi\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1132,12 +1262,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BA4F052070110900DC8875 /* Subclasses.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				D8C5140520910E2400F98590 /* ToolbarFunctions.swift in Sources */,
+				D8C513FF208F918500F98590 /* ApiRequests.swift in Sources */,
+				D8C5140320910D8F00F98590 /* DataCorrectionViewSetupFunctions.swift in Sources */,
 				D81D00E8206CFE610036F7B4 /* VINModule.swift in Sources */,
+				D8F55B9B208F86C700B093C4 /* SetupFunctions.swift in Sources */,
+				D8C5140720910E7500F98590 /* DataCorrectionView.swift in Sources */,
 				D845F1E8206C327800AD3718 /* VINModule.m in Sources */,
+				D8C513D6208F907400F98590 /* TextDetectionAndImageProcessing.swift in Sources */,
+				D8F55B6B208E75C200B093C4 /* RNDataCorrectionView.m in Sources */,
 				D811A9B7206BBA7000257868 /* RNCameraView.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				D811A980206BBA1000257868 /* RNCameraView.swift in Sources */,
+				D81D011B206D8ED20036F7B4 /* RNCameraViewUIImageExtension.swift in Sources */,
+				D8F55B99208F81C200B093C4 /* RNCameraView.swift in Sources */,
+				D8C51409209116DA00F98590 /* TextFieldDelegateFunctions.swift in Sources */,
+				D8F55B95208E7C9300B093C4 /* RNDataCorrectionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1189,16 +1330,21 @@
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 65MG9295K9;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = VINScannerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1211,13 +1357,18 @@
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 65MG9295K9;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = VINScannerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1230,6 +1381,7 @@
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1237,8 +1389,12 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 65MG9295K9;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = VINScanner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1258,14 +1414,19 @@
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 65MG9295K9;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = VINScanner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1293,8 +1454,13 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = "VINScanner-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1319,8 +1485,13 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-spinkit/ios/**",
+				);
 				INFOPLIST_FILE = "VINScanner-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1346,6 +1517,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = "VINScanner-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.VINScanner-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -1367,6 +1539,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = "VINScanner-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.VINScanner-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -1394,6 +1567,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1409,7 +1583,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1436,6 +1610,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1445,7 +1620,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 4.0;
