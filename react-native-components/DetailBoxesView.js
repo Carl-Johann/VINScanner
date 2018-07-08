@@ -24,24 +24,19 @@ export default class DetailBoxesView extends Component {
     shouldComponentUpdate( nextProps, nextState ) {
 
         // If the current scannedStringDBData is empty and the incomming scannedStringDBData is not.
-        if ((isEmpty(nextProps.scannedStringDBData) == false)
-            // && (isEmpty(nextProps.scannedStringDBData) == false)
-            )
-        {
+        if ((isEmpty(nextProps.scannedStringDBData) == false)) {
             Animated.timing( this.state.fadeInOutValue, { toValue: 1 }).start()
         }
-        console.log("length", nextProps.scannedCharacters.length)
-        console.log("is x", isIphoneX())
+
         // On iPhoneX extra margin is needed to make sure the edges aren't clipped by the views bottom right and left corner radius.
         // This creates the extra margin, and removes is when not needed
         if (
             (isIphoneX()) &&
             (nextProps.doesScannedStringExistInDB != null)
-            //(isEmpty(nextProps.scannedStringDBData))
         ) {
-            console.log("should animate")
             Animated.timing( this.state.iPhoneXMargin, { toValue: detailBoxesMarginToEdge, duration: detailBoxesDurationTime }).start()
         }
+
 
         return true
     }
@@ -59,7 +54,7 @@ export default class DetailBoxesView extends Component {
             detailBoxesHeightOffset, firstDetailBoxHeight,
             secondDetailBoxHeight, shouldShowScannedCharacters,
             scannedStringDBData, doesScannedStringExistInDB,
-
+            indexComponent
         } = this.props
 
         return (
@@ -88,6 +83,7 @@ export default class DetailBoxesView extends Component {
                             firstDetailBoxHeight={ firstDetailBoxHeight }
                             scannedStringDBData={ scannedStringDBData }
                             scannedCharacters={ scannedCharacters }
+                            indexComponent={ indexComponent }
                         />
                     <LineBreaker margin={ lineBreakerMarginHeight }/>
                 </Animated.View>
@@ -107,6 +103,7 @@ export default class DetailBoxesView extends Component {
                         secondDetailBoxHeight={ secondDetailBoxHeight }
                         scannedStringDBData={ scannedStringDBData }
                         scannedCharacters={ scannedCharacters }
+                        indexComponent={ indexComponent }
                     />
                     <LineBreaker margin={ lineBreakerMarginHeight } />
                 </View>

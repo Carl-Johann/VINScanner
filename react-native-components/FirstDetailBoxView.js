@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
+import { connect } from 'react-redux'
 import SpinKit from './SpinKit'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
@@ -15,12 +16,12 @@ import {
 import {
     firstDetailBoxDefaultHeight, firstDetailBoxTallDefaultHeight,
     firstDetailBoxMediumDefaultHeight,
-} from '../index'
+} from './CameraView.js'
 
 
 
 
-export default class FirstDetailBoxView extends Component {
+class FirstDetailBoxView extends Component {
 
 
     state = {
@@ -50,7 +51,7 @@ export default class FirstDetailBoxView extends Component {
         const {
             scannedCharacters, shouldShowScannedCharacters,
             checkScannedCharactersOrScanAgain, firstDetailBoxHeight,
-            scannedStringDBData,
+            scannedStringDBData, indexComponent
         } = this.props
 
         const {
@@ -70,7 +71,7 @@ export default class FirstDetailBoxView extends Component {
 
 
 
-        if (shouldShowScannedCharacters == null) {
+        if (scannedCharacters == null) {
         // If the view has been loaded, but no data recieved, a loading spinner will wait for data to be set in state.
 
             return (
@@ -137,6 +138,7 @@ export default class FirstDetailBoxView extends Component {
                                 checkScannedCharactersOrScanAgain={
                                     (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan)
                                 }
+                                component={ indexComponent }
                             />
                         </View>
                     </View>
@@ -169,3 +171,22 @@ const styles = StyleSheet.create({
     },
 
 })
+
+const mapStateToProps = ({ scannedCharacters }) => {
+  return {
+        scannedCharacters
+    }
+}
+
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setScannedCharacters: (characters) => dispatch(setScannedCharacters(characters)),
+  }
+}
+
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(FirstDetailBoxView)

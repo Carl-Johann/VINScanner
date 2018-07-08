@@ -1,15 +1,25 @@
 import React, { Component } from 'react';
-import { requireNativeComponent, processColor, View, Text } from 'react-native';
-let RNLinearGradient = requireNativeComponent('RNCameraViewSwift', RNCameraView);
+import { requireNativeComponent, processColor, View, Text, Animated } from 'react-native';
+let RNCameraViewSwift = requireNativeComponent('RNCameraViewSwift', RNCameraView);
 
 class RNCameraView extends Component {
 
-
   render() {
-    let { style } = this.props;
+    const {
+      style, shouldScan,
+      takingStock, shouldTakePicture, enterDataManually
+    } = this.props
 
     return (
-        <RNLinearGradient style={ style } colors={processColor([ '123', '456' ])} />
+      <RNCameraViewSwift
+        style={ style }
+        colors={[ 5, 6, 7, 8 ]}
+        ShouldScan={ shouldScan }
+        ShouldTakePicture={ shouldTakePicture }
+        takingStock={ takingStock }
+        ShouldEnterDataManually={ enterDataManually }
+        locations={[ 1, 2, 3, 4 ]}
+      />
     )
 
   }

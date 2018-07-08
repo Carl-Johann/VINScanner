@@ -16,13 +16,14 @@ export const defaultFontSize = 22
 export const defaultBorderRadius = 2
 
 // This was retrieved with 'onLayout={(event) => { console.log(event.nativeEvent.layout.height) }}'
-export const largerTextFontSize = 25 // WARNING. largerTextFontTextHeight won't be accurate
+export const largerTextFontSize = 25 // WARNING. largerTextFontTextHeight won't be accurate if changed
 export const largerTextFontTextHeight = 30.3333740234375
 
 
 export const defaultYellow = "#ffb307"
 
-
+export const screenWidth = Dimensions.get('window').width
+export const screenHeight = Dimensions.get('window').height
 export const detailBoxesWidth = Dimensions.get('window').width * 0.95
 export const detailBoxesContentWidth = Dimensions.get('window').width * 0.9 - lineBreakerMarginHeight / 2
 export const detailBoxesMarginToEdge = (Dimensions.get('window').width - detailBoxesWidth) / 2

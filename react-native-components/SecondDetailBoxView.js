@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Animated } from 'react-native'
 import CheckVinOrScanAgainButton from './CheckVinOrScanAgainButton'
 import CheckVINAndScanAgainButtons from './CheckVINAndScanAgainButtons'
 
-import { secondDetailBoxDefaultHeight, tallSecondDetailBoxDefaultHeight } from '../index'
+import { secondDetailBoxDefaultHeight, tallSecondDetailBoxDefaultHeight } from './CameraView'
 
 import LineBreaker from './LineBreaker'
 import SpinKit from './SpinKit'
@@ -48,7 +48,8 @@ export default class SecondDetailBoxView extends Component {
 
         const {
             doesScannedStringExistInDB, checkScannedCharactersOrScanAgain,
-            scannedStringDBData, secondDetailBoxHeight, scannedCharacters
+            scannedStringDBData, secondDetailBoxHeight, scannedCharacters,
+            indexComponent
         } = this.props
 
 
@@ -87,7 +88,7 @@ export default class SecondDetailBoxView extends Component {
 
                     <CheckVinOrScanAgainButton
                         titleText={ 'Scan Again' }
-                        checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
+                        checkScannedCharactersOrScanAgain={ (shouldScan) => {console.log("taber"), checkScannedCharactersOrScanAgain(shouldScan) }}
                         shouldScan={ true }
                     />
                 </Animated.View>
@@ -110,6 +111,7 @@ export default class SecondDetailBoxView extends Component {
                     >
                         <LineBreaker margin={ lineBreakerMarginHeight } />
                         <CheckVINAndScanAgainButtons
+                            component={ indexComponent }
                             checkScannedCharactersOrScanAgain={ (shouldScan) => checkScannedCharactersOrScanAgain(shouldScan) }
                         />
                     </View>

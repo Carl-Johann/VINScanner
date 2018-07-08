@@ -42,9 +42,24 @@ class VINModul : RCTEventEmitter {
   }
   
   
+  @objc(showCameraView)
+  func showCameraView() {
+    print("Should show CameraView")
+  }
+  
+  @objc(shouldShowDataCorrectionView)
+  func showDataCorrectionView() {
+    print("Should show DataCorrectionView")
+  }
+  
+  
+  
   @objc
   override func supportedEvents() -> [String]! {
-    return ["ShouldShowFirstDetailBox", "NoDataReturnedFromGoogle", "ShouldShowDataInSecondDetailBox", "hideAndResetEverything", "ShouldShowDataInFirstDetailBox"]
+    return ["ShouldShowFirstDetailBox", "NoDataReturnedFromGoogle", "ShouldShowDataInSecondDetailBox", "hideAndResetEverything", "ShouldShowDataInFirstDetailBox",
+            
+        "ShouldShowCameraView", "shouldShowDataCorrectionView"
+    ]
   }
   
   
