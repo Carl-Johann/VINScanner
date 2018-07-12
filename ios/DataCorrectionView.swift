@@ -155,7 +155,7 @@ extension SwiftDataCorrectionView {
     guard let RCTBridge = self.bridge else { print("Couldn't get self.bridge in enterVINOrUnitmanually()"); return }
     guard let eventEmitter = RCTBridge.module(for: VINModul.self) as? RCTEventEmitter else { print("Couldn't get eventEmitter"); return }
     eventEmitter.sendEvent(withName: "ShouldShowCameraView", body: [ "shouldShow" : true ])
-    eventEmitter.sendEvent(withName: "shouldShowDataCorrectionView", body: [ "shouldShow" : false ])
+//    eventEmitter.sendEvent(withName: "shouldShowDataCorrectionView", body: [ "shouldShow" : false ])
   }
   
   func modifyTextFieldIfDangerous(_ textField: UITextField) -> UITextField {
@@ -215,7 +215,7 @@ extension SwiftDataCorrectionView {
   
   func isVIN() -> Bool {
     guard let safeDataFromScan = self.dataFromScan else {
-      print("Couldnt get dataFromScan from self in isVIN()")
+      // print("Couldnt get dataFromScan from self in isVIN()")
       return false
     }
     

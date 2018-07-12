@@ -16,7 +16,7 @@ class RNCameraViewSwift : RCTViewManager {
   let screenHeight = UIScreen.main.bounds.height
   
   override func view() -> UIView! {
-    print("RNCameraViewSwift2")
+//    print("RNCameraViewSwift2")
     
     return SwiftCameraView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight), bridge: self.bridge)
   }
@@ -38,31 +38,32 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   let isIPhoneX = UIScreen.main.nativeBounds.height == 2436 ? true : false
   var bridge: RCTBridge? = nil
   
-  var succesMask: CALayer = CALayer()
-  var successRect: UIView = UIView()
+//  var succesMask: CALayer = CALayer()
+//  var successRect: UIView = UIView()
 
   
   let captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
   let session = AVCaptureSession()
   let imageLayer = AVCaptureVideoPreviewLayer()
-
+//  let metaDataOutPut = AVCaptureMetadataOutput()
 
   let urlSession = URLSession.shared
   
   
-  var takePicture: Bool = false
-  var enterDataManually: Bool = false
+//  var takePicture: Bool = false
+//  var enterDataManually: Bool = false
   
-  var shouldScan: Bool = true  
-  var loaded: Int = 0
+  var takingStock: Bool = false
+  var shouldScan: Bool = true
+//  var loaded: Int = 0
   //  How many times the camera will have to detect a charachter word
-  let scanThreshold: Int = 3
+//  let scanThreshold: Int = 3
   
   var rectOfInterest = CGRect(
-                              x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.375),
-                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.045),
-                              width: UIScreen.main.bounds.width * 0.75,
-                              height: UIScreen.main.bounds.height * 0.09 )
+                              x: (UIScreen.main.bounds.width / 2) - (UIScreen.main.bounds.width * 0.4),
+                              y: UIScreen.main.bounds.height / 2 - (UIScreen.main.bounds.height * 0.1),
+                              width: UIScreen.main.bounds.width * 0.8,
+                              height: UIScreen.main.bounds.height * 0.2 )
   
   
   
@@ -133,32 +134,35 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
     //    guard let eventEmitter = bridge.module(for: VINModul.self ) as? RCTEventEmitter else { print("Couldn't get eventEmitter in SwiftCameraView"); return }
     //    eventEmitter.sendEvent(withName: "ShouldShowFirstDetailBox", body: "true")
     
+//    DispatchQueue.main.async {
+//      ApiRequests.sharedInstance.lort()
+//    }
     
     viewSetup()
   }
   
   
-  
-  func hideCameraView() {
-    guard let RCTBridge = self.bridge else { print("Couldn't get self.bridge in enterVINOrUnitmanually()"); return }
-    guard let eventEmitter = RCTBridge.module(for: VINModul.self ) as? RCTEventEmitter else { print("Couldn't get eventEmitter in lorteView"); return }
-    eventEmitter.sendEvent(withName: "ShouldShowCameraView", body: [ "shouldShow" : false ])
-  }
-  
-  
-  
-  
-  func cleanCharacters(_ VIN: String) -> String {
-    var text = VIN
-  
-    text = text.uppercased()
-    text = text.replacingOccurrences(of: "I", with: "1")
-    text = text.replacingOccurrences(of: "Q", with: "0")
-    text = text.replacingOccurrences(of: "O", with: "0")
-    text = text.stripped
-    
-    return text
-  }
+//
+//  func hideCameraView() {
+//    guard let RCTBridge = self.bridge else { print("Couldn't get self.bridge in enterVINOrUnitmanually()"); return }
+//    guard let eventEmitter = RCTBridge.module(for: VINModul.self ) as? RCTEventEmitter else { print("Couldn't get eventEmitter in lorteView"); return }
+//    eventEmitter.sendEvent(withName: "ShouldShowCameraView", body: [ "shouldShow" : false ])
+//  }
+//
+//
+//
+//
+//  func cleanCharacters(_ VIN: String) -> String {
+//    var text = VIN
+//
+//    text = text.uppercased()
+//    text = text.replacingOccurrences(of: "I", with: "1")
+//    text = text.replacingOccurrences(of: "Q", with: "0")
+//    text = text.replacingOccurrences(of: "O", with: "0")
+//    text = text.stripped
+//
+//    return text
+//  }
   
   
   
@@ -171,15 +175,15 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   // MARK: - Button functions
   @objc func enterVINOrUnitmanually(sender: UIButton) {
     // Some (mostly) VIN's are pretty impossible to scan, so we provide the possibility to enter a VIN or Unit manually
-    print("Should show data correction view")
-    self.enterDataManually = true
+//    print("Should show data correction view")
+//    self.enterDataManually = true
   }
   
   @objc func manualScan(sender: UIButton) {
     // Since I couldn't figure out how to manually capture a frame,
     // and taking a screenshot doesn't work on.
-    print("fucking shit")
-    self.takePicture = true
+//    print("fucking shit")
+//    self.takePicture = true
     
     
 //    DispatchQueue.main.async {
@@ -223,17 +227,19 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   }
   
   @objc func setShouldEnterDataManually(_ shouldEnterDataManually: Bool) {
-    print("Setting setShouldEnterDataManually to:", shouldEnterDataManually)
-    self.enterDataManually = shouldEnterDataManually
+//    print("Setting shouldEnterDataManually to:", shouldEnterDataManually)
+//    print("ShouldScan:", self.shouldScan)
+//    self.enterDataManually = shouldEnterDataManually
   }
   
   @objc func setShouldTakePicture(_ shouldTakePicture: Bool) {
-    print("Setting setShouldTakePicture to:", shouldTakePicture)
-    self.takePicture = shouldTakePicture
+//    print("Setting setShouldTakePicture to:", shouldTakePicture)
+//    self.takePicture = shouldTakePicture
   }
   
   @objc func setTakingStock(_ shouldTakeStock: Bool) {
-    print("Setting taking stock to:", shouldScan)
+    print("Setting taking stock to:", shouldTakeStock)
+    self.takingStock = shouldTakeStock
 //    self.takePicture = shouldScan
 //    self.shouldScan = shouldScan
   }
