@@ -39,7 +39,6 @@ export const ShouldShowDataInFirstDetailBox = (component, response) => {
     let scannedCharacters = JSONResponse["cleanedCharacters"]
     let imageAs64 = JSONResponse["imageAs64"]
 
-
     component.props.setScannedCharactersAction(scannedCharacters)
     component.props.setImageAs64Action(imageAs64)
 
@@ -68,6 +67,7 @@ export const ShouldShowDataInSecondDetailBox = (component, response) => {
     var JSONResponse = JSON.stringify(response, null, 2)
     JSONResponse = JSON.parse(JSONResponse)
     let scannedStringDBData = JSONResponse["scannedStringDBData"]
+
     if (isEmpty(scannedStringDBData) == false) {
     // if (isEmpty(scannedStringDBData) == true) {
     // Row exists in DB with corresponding data to what was scanned

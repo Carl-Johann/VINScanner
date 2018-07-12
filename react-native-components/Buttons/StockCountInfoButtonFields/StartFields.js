@@ -14,10 +14,15 @@ import {
 } from '../../../Api/ApiCalls.js'
 
 import {
+    setTakingStockAction
+} from '../../../redux/Views/Actions.js'
+
+import {
     defaultButtonHeight, detailTextStyle,
     detailBoxesContentWidth, defaultYellow,
     defaultBorderRadius, screenWidth, defaultGray,
     AMDarkGray, spinKitType, spinKitSize,
+    detailBoxesMarginToEdge, detailBoxesWidth,
 } from '../../../helpers/GlobalValues'
 
 
@@ -60,7 +65,7 @@ class StartFields extends Component {
             { batchid: "12" },
 
             (rows) => {
-
+                console.log("rows", rows.length)
                 if (rows.length != 0) {
                     // setBatchIdActionAS(rows[0].BATCH_ID)
                     this.setState({
@@ -81,7 +86,10 @@ class StartFields extends Component {
             this.hideOrShowModal()
         }
 
-        if (isFinal) { setSiteActionAS(site) }
+        if (isFinal) {
+            this.props.setTakingStockAction(true)
+            setSiteActionAS(site)
+        }
     }
 
     setCountInit = (countInit, isFinal) => {
@@ -125,9 +133,9 @@ class StartFields extends Component {
         } else if (availableSites != null && apiBatchId != "") {
 
             return (
-                <KeyboardAvoidingView behavior="padding" style={{ width: detailBoxesContentWidth / 1.05, height: detailBoxesContentWidth / 1.65, backgroundColor: 'transparent', alignItems: 'center' }} enabled={true}>
+                <View style={{ flex: 1, padding: detailBoxesMarginToEdge, backgroundColor: 'transparent', alignItems: 'center' }} >
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: detailBoxesContentWidth / 1.05, alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                             <Text style={[ detailTextStyle, { textAlign: 'left' }]}>
                                 Site: { site.length == 0 ? " ----------" : site }
                             </Text>
@@ -145,13 +153,13 @@ class StartFields extends Component {
                         <View style={{ padding: 10 }} />
 
                         <View
-                            style={{ flexDirection: 'row', width: detailBoxesContentWidth / 1.05, alignItems: 'center' }}
+                            style={{ backgroundColor: 'transparent', flexDirection: 'row', width: '100%', alignItems: 'center' }}
                         >
                             <Text style={[ detailTextStyle, { textAlign: 'left', width: 50 }]}>
                                 User: </Text>
 
                             <TextInput
-                                style={[ detailTextStyle, styles.inputTextStyle ]}
+                                style={[ detailTextStyle, styles.inputTextStyle, { width: (detailBoxesWidth * 0.9) - (2 * detailBoxesMarginToEdge) - 50 } ]}
                                 onChangeText={(text) => this.setCountInit(text, false)}
                                 multiline={false}
 
@@ -185,21 +193,23 @@ class StartFields extends Component {
                                 siteSelect={ (site, isFinal) => this.setSite(site, isFinal) }
                             />
                         </Animated.View>
-                </KeyboardAvoidingView>
+                </View>
             )
-        } else if (apiBatchId != "" && availableSites.length == 0) {
+        } else if (apiBatchId == "" && availableSites.length == 0) {
         // The API request finished, but there aren't any available sites
-            <View style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'transparent',
-                width: detailBoxesContentWidth / 1.05,
-                height: detailBoxesContentWidth / 1.65,
-            }}>
-                <Text style={ detailTextStyle }>
-                    No Sites Available
-                </Text>
-            </View>
+            return (
+                <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'transparent',
+                    width: detailBoxesContentWidth / 1.05,
+                    height: detailBoxesContentWidth / 1.65,
+                }}>
+                    <Text style={ detailTextStyle }>
+                        No Sites Available
+                    </Text>
+                </View>
+            )
         }
     }
 }
@@ -227,7 +237,7 @@ const ModalPicker = ({ siteSelect, availableSites }) => {
             shadowOffset: { width: 3, height: 3 },
         }} >
 
-            {/*{ availableSites != null && (*/}
+            { availableSites != null && (
                 <FlatList
                     data={ availableSites }
 
@@ -248,7 +258,7 @@ const ModalPicker = ({ siteSelect, availableSites }) => {
                             </View>
                     ) }
                 />
-            {/*) || availableSites == null && (
+            ) || availableSites == null && (
                 <View style={{ flex: 1, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' }}>
                     <SpinKit
                         type={ spinKitType }
@@ -256,7 +266,7 @@ const ModalPicker = ({ siteSelect, availableSites }) => {
                         size={ spinKitSize }
                     />
                 </View>
-            )}*/}
+            )}
         </View>
     )
 }
@@ -271,7 +281,8 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         borderColor: 'gray',
         borderBottomWidth: 1,
-        width: ((detailBoxesContentWidth / 1.05) - 50),
+        // width: ((detailBoxesContentWidth / 1.05) - 50),
+        // width: '100%' - 50
     },
 
     buttonStyle: {

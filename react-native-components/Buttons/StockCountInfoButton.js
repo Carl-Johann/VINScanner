@@ -21,18 +21,17 @@ import {
     setTakingStockAction,
 } from '../../redux/Views/Actions.js'
 
-import StartFields from './StockCountInfoButtonFields/StartFields'
-
 import {
     detailBoxesContentWidth, detailBoxesDurationTime,
     defaultFont, defaultGray, defaultYellow, detailBoxesWidth,
     detailBoxesMarginToEdge, defaultBorderRadius
 } from '../../helpers/GlobalValues'
 
-import CircularStockCountButton from './StockCountInfoButtonFields/CircularStockCountButton'
+import CircularCancelInfoButton from './StockCountInfoButtonFields/CircularCancelInfoButton'
+import CircularStartStockCountButton from './StockCountInfoButtonFields/CircularStartStockCountButton'
 
-const time = 400
-const time2 = 150
+const time = 200
+const time2 = 75
 class StockCountInfoButton extends Component {
 
 
@@ -41,56 +40,40 @@ class StockCountInfoButton extends Component {
         buttonsExtended: false,
 
         hiddenButtons: [
-            // {
-            //     text: this.props.takingStock ? "Cancel" : "Status" ,
-            //     icon: "",
-            //     extended: false,
-            //     method: () => { console.log(1)
-            //         this.props.changeStockStatus()
-            //     },
-            //     style: {
-            //         position: 'absolute',
-            //         top: new Animated.Value(0),   // 60
-            //         right: new Animated.Value(0), // 60
-            //         opacity: new Animated.Value(0),
-            //     },
-            //     largeTop: 60,
-            //     largeRight: 60,
-            // },
             {
-                text: this.props.takingStock ? "Stop" : "Start",
                 icon: "",
+                text: "Cancel",
                 extended: false,
-                method: () => {
-                    console.log(2)
-                    this.setState( prevState => {
-                        let buttons = prevState.hiddenButtons
-                        buttons[1].extended = true
-                        return { hiddenButtons: buttons }
-                    })
-                    Animated.parallel([
-                        Animated.timing(this.state.hiddenButtons[1].style.width, { easing: Easing.linear(), toValue: detailBoxesWidth, duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].style.height, { easing: Easing.linear(), toValue: detailBoxesWidth / 1.6, duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].style.right, { easing: Easing.linear(), toValue: detailBoxesMarginToEdge - 40 , duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].style.borderRadius, { easing: Easing.linear(), toValue: defaultBorderRadius, duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].style.shadowOpacity, { easing: Easing.linear(), toValue: 1, duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].style.top, { easing: Easing.linear(), toValue: 100, duration: time }),
-                        Animated.timing(this.state.hiddenButtons[1].boxOp, { delay: time - time2, easing: Easing.linear(), toValue: 1, duration: time2 }),
-                    ]).start()
-                },
 
                 style: {
-                    // transform: [{'translate' : [0, 0, 1]}],
                     position: 'absolute',
-                    top: new Animated.Value(0),   // 60 - 0
-                    right: new Animated.Value(0), // 60 - 0
+                    top: new Animated.Value(0),   // 60
+                    right: new Animated.Value(0), // 60
                     opacity: new Animated.Value(0),
                 },
-                largeTop: 100,
-                largeRight: -40,
+                largeTop: -30,
+                largeRight: 70,
             },
+
+            {
+                icon: "",
+                text: "Start",
+                extended: false,
+                takingStockText: "Stop",
+
+                style: {
+                    position: 'absolute',
+                    top: new Animated.Value(0),   // 100 - 0
+                    right: new Animated.Value(0), // -40 - 0
+                    opacity: new Animated.Value(0),
+                },
+                largeTop: 60,
+                largeRight: 60,
+            },
+
             // {
             //     text: "Info",
+            //     takingStockText: "Info",
             //     icon: "",
             //     extended: false,
             //     method: () => { console.log(3) },
@@ -108,42 +91,26 @@ class StockCountInfoButton extends Component {
     }
 
 
-    componentDidMount() {
-        // setSiteActionAS("")
-        // setBatchIdActionAS("")
-        // setCountInitActionAS("")
-
-        // getStockCountValueActionAS((data) => console.log(data), 'count-init')
-        // getStockCountObjectActionAS((data) => { console.log(data)})
-        // this.state.hiddenButtons[1].method()
-        // this.mainButtonClicked()
-    }
-
-
-
-
-
 
 
 
     mainButtonClicked = () => {
         const { buttonsExtended } = this.state
         // console.log("buttonsExtended", buttonsExtended)
-        // let lort = this.state.hiddenButtons[0].extended
-        // let fuck = this.state.hiddenButtons[1].extended
+        let largeCancel = this.state.hiddenButtons[0]
+        let largeStart = this.state.hiddenButtons[1]
         // let secondIsExtended = this.state.hiddenButtons[0].extended
         // let taber = this.state.hiddenButtons[2].extended
         Animated.parallel([
             // Close
-            // Animated.timing(this.state.hiddenButtons[0].style.right, { easing: Easing.out(Easing.back()), toValue: buttonsExtended? 0 : 80, duration: 1000 }),
-            // Animated.timing(this.state.hiddenButtons[0].style.top, { easing: Easing.linear(), toValue: lort ? 0 : -30, duration: time }),
-            // Animated.timing(this.state.hiddenButtons[0].style.right, { easing: Easing.linear(), toValue: lort ? 0 : 70, duration: time }),
-            // Animated.timing(this.state.hiddenButtons[0].style.opacity, { delay: lort ? 100 : 0, toValue: lort ? 0 : 1, duration: time2 }),
+            Animated.timing(this.state.hiddenButtons[0].style.top, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : largeCancel.largeTop, duration: time }),
+            Animated.timing(this.state.hiddenButtons[0].style.right, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : largeCancel.largeRight, duration: time }),
+            Animated.timing(this.state.hiddenButtons[0].style.opacity, { delay: buttonsExtended ? 100 : 0, toValue: buttonsExtended ? 0 : 1, duration: time2 }),
 
             // Join
-            Animated.timing(this.state.hiddenButtons[0].style.top, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : 50, duration: time }),
-            Animated.timing(this.state.hiddenButtons[0].style.right, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : 50, duration: time }),
-            Animated.timing(this.state.hiddenButtons[0].style.opacity, { delay: buttonsExtended ? 100 : 0, toValue: buttonsExtended ? 0 : 1, duration: time2 }),
+            Animated.timing(this.state.hiddenButtons[1].style.top, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : largeStart.largeTop, duration: time }),
+            Animated.timing(this.state.hiddenButtons[1].style.right, { easing: Easing.linear(), toValue: buttonsExtended ? 0 : largeStart.largeRight, duration: time }),
+            Animated.timing(this.state.hiddenButtons[1].style.opacity, { delay: buttonsExtended ? 100 : 0, toValue: buttonsExtended ? 0 : 1, duration: time2 }),
 
             // // Join
             // Animated.timing(this.state.hiddenButtons[1].style.top, { easing: Easing.linear(), toValue: fuck ? 0 : 50, duration: time }),
@@ -179,40 +146,36 @@ class StockCountInfoButton extends Component {
                     hiddenButtons,
                     buttonsExtended: false
                 }
-            } else {
-                return {
-                    hiddenButtons,
-                }
-            }
-
+            } else { return { hiddenButtons } }
         })
 
+
         this.state.hiddenButtons.map( (item, i) => {
-            if (index != i) {
+            // if (index != i) {
                 Animated.parallel([
                     Animated.timing(item.style.right, { toValue: 0, duration: time }),
                     Animated.timing(item.style.top, { toValue: 0, duration: time }),
                     Animated.timing(item.style.opacity, { toValue: 0, duration: time }),
                 ]).start()
-            }
+            // }
         })
 
 
-        Animated.parallel([
-            Animated.timing(this.state.hiddenButtons[index].style.right, {
-                toValue: buttonExtended ? 0 : largeRight,
-                duration: shouldShow ? time : 0
-            }),
-            Animated.timing(this.state.hiddenButtons[index].style.top, {
-                toValue: buttonExtended ? 0 : largeTop,
-                duration: shouldShow ? time : 0
-            }),
-            Animated.timing(this.state.hiddenButtons[index].style.opacity, {
-                delay: shouldShow ? 100 : 0,
-                toValue: buttonExtended ? 0 : 1,
-                duration: shouldShow ? time2 : 0
-            })
-        ]).start()
+        // Animated.parallel([
+        //     Animated.timing(this.state.hiddenButtons[index].style.right, {
+        //         toValue: buttonExtended ? 0 : largeRight,
+        //         duration: shouldShow ? time : 0
+        //     }),
+        //     Animated.timing(this.state.hiddenButtons[index].style.top, {
+        //         toValue: buttonExtended ? 0 : largeTop,
+        //         duration: shouldShow ? time : 0
+        //     }),
+        //     Animated.timing(this.state.hiddenButtons[index].style.opacity, {
+        //         delay: shouldShow ? 100 : 0,
+        //         toValue: buttonExtended ? 0 : 1,
+        //         duration: shouldShow ? time2 : 0
+        //     })
+        // ]).start()
     }
 
 
@@ -223,37 +186,63 @@ class StockCountInfoButton extends Component {
 
     render () {
         const {
-            checkScannedCharactersOrScanAgain, component, changeStockStatus
+            checkScannedCharactersOrScanAgain, component,
+            changeStockStatus, takingStock,
         } = this.props
 
         const {
-
+            hiddenButtons
         } = this.state
 
 
         return (
             <View style={{ margin: 40 }}>
-
-                { this.state.hiddenButtons.map( ( item, index) => (
+                {/*{ this.state.hiddenButtons.map( ( item, index) => (
                     <Animated.View
                         style={[ item.style, styles.circularStyle, { flex: 1, padding: 10, backgroundColor: 'transparent', borderWidth: 0 }]}
                         key={ item.text }
                     >
                         <CircularStockCountButton
-                            text={ item.text }
+                            text={ takingStock ? item.takingStockText : item.text}
                             extended={ item.extended }
 
                             expandButton={(shouldShow) => { this.expandButton(index, shouldShow) }}
                         />
                     </Animated.View>
-                ))}
+                ))}*/}
+
+                { takingStock == true && (
+                    <Animated.View
+                        style={[ hiddenButtons[0].style, styles.circularStyle, { flex: 1, borderWidth: 0 }]}
+                    >
+                        <CircularCancelInfoButton
+                            text={ hiddenButtons[0].text }
+                            extended={ hiddenButtons[0].extended }
+
+                            expandButton={(shouldShow) => { this.expandButton(0, shouldShow) }}
+                        />
+
+                    </Animated.View>
+                )}
+
+                <Animated.View
+                    style={[ hiddenButtons[1].style, styles.circularStyle, { flex: 1, borderWidth: 0 }]}
+                >
+                    <CircularStartStockCountButton
+                        text={ takingStock ? hiddenButtons[1].takingStockText : hiddenButtons[1].text }
+                        extended={ hiddenButtons[1].extended }
+
+                        expandButton={(shouldShow) => { this.expandButton(1, shouldShow) }}
+                    />
+
+                </Animated.View>
 
                 <TouchableOpacity style={[ styles.circularStyle, { height: 75, width: 75, borderRadius: 75 }]}
                     onPress={ () => { changeStockStatus(), this.mainButtonClicked() }}
                 >
                     <Animated.Image
                         style={{ width: 50, height: 50, opacity: 0.5 }}
-                        source={ require('../ViewAccessories/StockCountIcon2.png/') }
+                        source={ require('../../Images/StockCountIcon.png/') }
                     />
                 </TouchableOpacity>
 
@@ -265,15 +254,17 @@ class StockCountInfoButton extends Component {
 
 const styles = StyleSheet.create({
     circularStyle: {
-        // width: 75,
-        // height: 75,
-        // borderRadius: 75,
-
         borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
         borderColor: 'rgba(0,0,0,0.2)',
         backgroundColor: defaultYellow,
+        height: 75, width: 75, borderRadius: 75,
+
+        shadowRadius: 4,
+        shadowOpacity: 1,
+        shadowColor: 'rgba(0, 1, 0, 0.25)',
+        shadowOffset: { width: 1, height: 1 },
     },
 
     infoItemStyle: {
@@ -289,7 +280,6 @@ const mapStateToProps = (state) => {
     }
 }
 
-// Some of these actions get used in another file
 const mapDispatchToProps = (dispatch) => {
   return {
     setTakingStockAction: (takingStock) => dispatch(setTakingStockAction(takingStock))

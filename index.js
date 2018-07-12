@@ -16,7 +16,12 @@ import {
     ShouldShowDataInSecondDetailBox,
 } from './helpers/ModuleEventListeners.js'
 
-
+import {
+    setSiteActionAS,
+    setBatchIdActionAS,
+    setCountInitActionAS,
+    getStockCountObjectActionAS,
+} from './AsyncStorage/Actions.js'
 
 const MainStackNavigator = createStackNavigator({
     CameraView: {
@@ -26,12 +31,12 @@ const MainStackNavigator = createStackNavigator({
         }
     },
 
-    DataCorrectionView: {
-        screen: DataCorrectionView,
-        navigationOptions: {
-            header: null
-        }
-    },
+    // DataCorrectionView: {
+    //     screen: DataCorrectionView,
+    //     navigationOptions: {
+    //         header: null
+    //     }
+    // },
 })
 
 
@@ -41,6 +46,20 @@ class App extends Component {
         console.log("------------")
         console.log("|  SKINKE  |")
         console.log("------------")
+
+        getStockCountObjectActionAS((data) => {
+            // console.log("data1", data)
+            if (data == null) {
+                setSiteActionAS("")
+                setBatchIdActionAS("")
+                setCountInitActionAS("")
+            }
+            // this.setState({
+            //     site: data.site,
+            //     countInit: data["count-init"],
+            //     batchId: data.batchId,
+            // })
+        })
     }
 
 

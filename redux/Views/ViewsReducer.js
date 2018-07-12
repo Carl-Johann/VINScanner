@@ -50,9 +50,7 @@ function ViewsReducer (state = initialState, action) {
         }
 
         case RESET_VIEWS_REDUX_STATE: {
-            return {
-                ...initialState
-            }
+            return { ...initialState }
         }
 
         default:

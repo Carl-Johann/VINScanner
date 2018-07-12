@@ -4,8 +4,9 @@ import React, { Component } from 'react'
 import {
     StyleSheet, Text, View, Animated,
     NativeEventEmitter, NativeModules,
-    TouchableOpacity,
+    TouchableOpacity, Modal,
 } from 'react-native'
+
 
 import {
     setImageAs64Action,
@@ -21,17 +22,27 @@ import {
 } from '../../redux/DetailBoxes/Actions.js'
 
 import {
+    setShouldShowModalAction,
+    setStockCountPostStatusCodeAction,
+} from '../../redux/StockCount/Actions.js'
+
+import {
+    StockCountUpdateVehicleStockInfoApiRequest
+} from '../../Api/ApiCalls.js'
+
+import {
     setShouldScanAction,
     resetViewsReduxStateAction,
     setEnterDataManuallyAction,
     setShouldTakePictureAction,
 } from '../../redux/Views/Actions.js'
 
-
-import RNCameraView from '../../ios-native-components/RNCameraView'
+import StockCountModal from './StockCountModal'
 import DetailBoxesView from './DetailBoxesView'
+import SpinKit from '../ViewAccessories/SpinKit'
 import StockCountInfoButton from '../Buttons/StockCountInfoButton'
-import EnterAndScanNowButtons from '../Buttons/EnterAndScanNowButtons'
+import RNCameraView from '../../ios-native-components/RNCameraView'
+// import EnterAndScanNowButtons from '../Buttons/EnterAndScanNowButtons'
 
 import {
     ShouldShowCameraView,
@@ -45,11 +56,13 @@ import {
 
 
 import {
-    isVINOrUnit, detailBoxesDurationTime,
-    detailBoxesMarginToEdge, screenHeight,
+    defaultBorderRadius, defaultYellow,
     lineBreakerMarginHeight, isIphoneX,
+    lineBreakerHeight, detailBoxesWidth,
+    isVINOrUnit, detailBoxesDurationTime,
     largerTextFontTextHeight, screenWidth,
-    lineBreakerHeight, detailBoxesWidth
+    detailBoxesMarginToEdge, screenHeight,
+    spinKitType, spinKitSize, defaultGray,
 } from '../../helpers/GlobalValues.js'
 
 
@@ -91,7 +104,7 @@ class CameraView extends Component {
 
             this.props.setShouldScanAction(false)
             this.props.shouldShowFirstDetailBoxAction(true)
-            Animated.timing(this.state.detailBoxesHeightOffset, animations.showFirstDetailBox ).start(() => {})
+            Animated.timing(this.state.detailBoxesHeightOffset, animations.showFirstDetailBox ).start()
         })
 
         // Animated.timing(this.state.detailBoxesHeightOffset, animations.showFirstDetailBox ).start(() => {})
@@ -168,6 +181,28 @@ class CameraView extends Component {
         })
         // End of errors //
 
+
+
+        // Stockcounting
+        moduleEvent.addListener('charactersFromBarcode', response => {
+            var JSONResponse = JSON.stringify(response, null, 2)
+            JSONResponse = JSON.parse(JSONResponse)
+
+            StockCountUpdateVehicleStockInfoApiRequest(
+                JSONResponse['characters'],
+                (statusCode) => { this.props.setStockCountPostStatusCodeAction(statusCode) }
+            )
+
+            this.props.setShouldScanAction(false)
+            this.props.setShouldShowModalAction(true)
+            // console.log(123, this.props.modalVisible)
+            this.props.setScannedCharactersAction(JSONResponse['characters'])
+
+            // this.setState({ modalVisible: true })
+        })
+
+        // End of stockcounting
+
     }
 
 
@@ -235,22 +270,22 @@ class CameraView extends Component {
                         <RNCameraView />
                     </View>
 
-                     <View style={ styles.enterAndScanNowButtonsStyle }>
-
-                        <EnterAndScanNowButtons
-                            scanNowMethod={() => { setShouldTakePictureAction(true) }}
-                            enterNowMethod={() => { setEnterDataManuallyAction(true) }}
-                        />
-
-                    </View>
                     <View style={{ width: '100%', alignItems: 'flex-end', top: 40, flex: 1 }}>
                         <StockCountInfoButton
-                            changeStockStatus={ () => { }} // this.setState({ takingStock: !this.state.takingStock
+                            changeStockStatus={ () => {} } // this.setState({ takingStock: !this.state.takingStock
                         />
                     </View>
                 </Animated.View>
 
 
+                     {/*<View style={ styles.enterAndScanNowButtonsStyle }>*/}
+
+                        {/*<EnterAndScanNowButtons
+                            scanNowMethod={() => { setShouldTakePictureAction(true) }}
+                            enterNowMethod={() => { setEnterDataManuallyAction(true) }}
+                        />*/}
+
+                    {/*</View>*/}
 
                 { shouldShowFirstDetailBox && (
                     <Animated.View style={{ bottom: detailBoxesHeightOffset, left: detailBoxesMarginToEdge }} >
@@ -261,6 +296,9 @@ class CameraView extends Component {
                         />
                     </Animated.View>
                 ) }
+
+                <StockCountModal />
+
 
             </View>
         )
@@ -299,6 +337,8 @@ const animations = {
 const mapStateToProps = (state) => {
     return {
         shouldScan: state.ViewsReducer.shouldScan,
+        modalVisible: state.StockCountReducer.modalVisible,
+        scannedCharacters: state.ScannedDataReducer.scannedCharacters,
         shouldShowFirstDetailBox: state.DetailBoxesReducer.shouldShowFirstDetailBox,
     }
 }
@@ -310,11 +350,13 @@ const mapDispatchToProps = (dispatch) => {
     setImageAs64Action: (imageAs64) => dispatch(setImageAs64Action(imageAs64)),
     setShouldScanAction: (shouldScan) => dispatch(setShouldScanAction(shouldScan)),
     resetDetailBoxesReduxStateAction: () => dispatch(resetDetailBoxesReduxStateAction()),
+    setShouldShowModalAction: (shouldShow) => dispatch(setShouldShowModalAction(shouldShow)),
     setScannedCharactersAction: (characters) => dispatch(setScannedCharactersAction(characters)),
     resetScannedCharactersReduxStateAction: () => dispatch(resetScannedCharactersReduxStateAction()),
     shouldShowFirstDetailBoxAction: (shouldShow) => dispatch(shouldShowFirstDetailBoxAction(shouldShow)),
     setShouldTakePictureAction: (shouldTakePicture) => dispatch(setShouldTakePictureAction(shouldTakePicture)),
     setEnterDataManuallyAction: (enterDataManually) => dispatch(setEnterDataManuallyAction(enterDataManually)),
+    setStockCountPostStatusCodeAction: (statusCode) => dispatch(setStockCountPostStatusCodeAction(statusCode)),
     setScannedStringDBDataAction: (scannedStringDBData) => dispatch(setScannedStringDBDataAction(scannedStringDBData)),
     doesScannedStringExistInDBAction: (doesScannedStringExistInDB) => dispatch(doesScannedStringExistInDBAction(doesScannedStringExistInDB)),
   }
