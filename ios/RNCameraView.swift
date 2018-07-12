@@ -68,6 +68,62 @@ class SwiftCameraView : UIView, AVCaptureVideoDataOutputSampleBufferDelegate, AV
   
   
 
+//<<<<<<< HEAD
+////    let buttonWidth = ((self.screenWidth * 0.75) / 2) - 5
+//    let buttonWidth = self.screenWidth * 0.75
+//    let buttonHeight: CGFloat = 55
+//
+//    // 'Scan Now' button
+//    let scanNowButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Scan Now")
+//    scanNowButton.center = CGPoint(x: self.screenWidth/2, y: self.screenHeight * 0.75)
+//    scanNowButton.addTarget(self, action: #selector(self.manualScan(sender:)), for: .touchUpInside)
+//
+//    // 'Enter Now' button
+////    let typeNowButton = YellowRoundedButton.button(size: CGSize(width: buttonWidth, height: buttonHeight), title: "Enter Now")
+////    typeNowButton.center = CGPoint(x: ((self.screenWidth/2) - (buttonWidth/2)) - 5 , y: self.screenHeight * 0.75)
+////    typeNowButton.addTarget(self, action: #selector(self.enterVINOrUnitmanually(sender:)), for: .touchUpInside)
+//
+//    if isIPhoneX {
+//      scanNowButton.frame.origin.y -= 40
+////      typeNowButton.frame.origin.y -= 40
+//      self.rectOfInterest.origin.y -= 40
+//    }
+//
+//    self.cameraView.addSubview(scanNowButton)
+////    self.cameraView.addSubview(
+//
+//
+//
+//    // The scanned data should be inside of the rect
+//    self.createUIScanRects()
+//
+//    let focus: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(manualFocus(_:)))
+//    cameraView.addGestureRecognizer(focus)
+//
+//    // Creates a gesture recognizer that hides the keyboard when the screen is clicked
+//    let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: contentView, action: #selector(dataCorrectionView.endEditing(_:)))
+//    dataCorrectionView.addGestureRecognizer(tap)
+//    dataCorrectionView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
+//
+//    //init toolbar
+//    setupVINCorrectionKeyboardToolbar()
+//
+//
+//    self.contentView.backgroundColor = UIColor(hex: "#282828")
+//    self.cameraView.backgroundColor = UIColor(hex: "#282828")
+//    self.dataCorrectionView.backgroundColor = UIColor(hex: "#282828")
+//
+//
+//    self.contentView.addSubview(dataCorrectionView)
+//    self.contentView.addSubview(cameraView)
+//    return contentView
+//  }
+//
+////  func setColors(colors: NSArray) {
+////    self.colors = colors.map({return RCTConvert.UIColor($0)})
+////  }
+//=======
+//>>>>>>> EventEmitter
   
   // MARK: - Init
   init(frame: CGRect, bridge: RCTBridge) {
